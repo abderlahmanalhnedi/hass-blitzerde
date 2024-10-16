@@ -3,6 +3,9 @@ from homeassistant.config_entries import ConfigFlow
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from aiohttp import ClientError, ClientResponseError, ClientSession, BasicAuth
 
+from homeassistant.data_entry_flow import section
+from homeassistant.helpers.selector import selector
+
 from .const import DOMAIN
 
 class SmartmeConfigFlow(ConfigFlow, domain=DOMAIN):
