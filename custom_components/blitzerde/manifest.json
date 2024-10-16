@@ -1,0 +1,10 @@
+{
+  "domain": "blitzerde",
+  "name": "Blitzer.de",
+  "codeowners": ["@timniklas"],
+  "config_flow": true,
+  "documentation": "https://github.com/timniklas/hacs_blitzerde",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/timniklas/hacs_blitzerde/issues",
+  "version": "0.0.0"
+}
