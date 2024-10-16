@@ -27,8 +27,7 @@ class SmartmeConfigFlow(ConfigFlow, domain=DOMAIN):
                 # Whether or not the section is initially collapsed (default = False)
                 {"collapsed": False},
             ),
-          
-            data_schema["select_location"] = selector({
+            "select_location" = selector({
                 "location": {}
             })
         }
