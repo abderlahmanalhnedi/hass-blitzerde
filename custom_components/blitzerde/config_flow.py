@@ -14,7 +14,7 @@ class SmartmeConfigFlow(ConfigFlow, domain=DOMAIN):
     def __init__(self) -> None:
         """Initialize the config flow."""
   
-    async def async_step_user(self, user_input=None):
+    async def async_step_location(self, user_input=None):
         # Specify items in the order they are to be displayed in the UI
         data_schema = {
             "select_location": selector({
@@ -22,4 +22,4 @@ class SmartmeConfigFlow(ConfigFlow, domain=DOMAIN):
             })
         }
 
-        return self.async_show_form(step_id="init", data_schema=vol.Schema(data_schema))
+        return self.async_show_form(step_id="location", data_schema=vol.Schema(data_schema))
