@@ -32,13 +32,13 @@ class SmartmeConfigFlow(ConfigFlow, domain=DOMAIN):
             latitude = user_input[CONF_LOCATION]['latitude']
             longitude = user_input[CONF_LOCATION]['longitude']
             radius = user_input[CONF_LOCATION]['radius']
-            radio_translated = radius / 100000
+            radius_conv = radius / 100000
             
             data = {}
-            data[CONF_HIGH_LAT] = latitude + radio_translated
-            data[CONF_HIGH_LNG] = longitude + radio_translated
-            data[CONF_LOW_LAT] = latitude - radio_translated
-            data[CONF_LOW_LNG] = longitude - radio_translated
+            data[CONF_HIGH_LAT] = latitude + radius_conv
+            data[CONF_HIGH_LNG] = longitude + radius_conv
+            data[CONF_LOW_LAT] = latitude - radius_conv
+            data[CONF_LOW_LNG] = longitude - radius_conv
             return self.async_create_entry(title=f"{latitude}, {longitude}, {radius}", data=data)
 
         data_schema = {}
