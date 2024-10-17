@@ -1,0 +1,20 @@
+{
+    "title": "Blitzer.de",
+    "config": {
+        "step": {
+            "user": {
+                "title": "Blitzer.de Setup",
+                "description": "Select the area from which the data is to be displayed.",
+                "data": {
+                    "name": "Displayname",
+                    "selector": "Regex Filter of city names (whitelist)",
+                    "location": "Area"
+                }
+            }
+        },
+        "abort": {
+            "connenction": "Error while connecting to api.",
+            "unknown": "Unknown error."
+        }
+    }
+}
