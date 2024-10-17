@@ -10,6 +10,8 @@
 
 The Blitzer.de Home Assistant Custom Integration allows you to integrate the Blitzer.de App with your Home Assistant setup.
 
+![image](https://github.com/user-attachments/assets/0b1b3b3a-4196-4c88-a1c2-3fd261d0dc5b)
+
 ## Installation
 
 ### HACS (recommended)
