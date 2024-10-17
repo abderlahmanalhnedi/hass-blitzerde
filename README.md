@@ -31,7 +31,7 @@ This integration is available in HACS (Home Assistant Community Store).
 
 ### Manual
 
-To install this integration manually you have to download [_blitzerde.zip_](https://github.com/timniklas/hacs_blitzerde/releases/latest/download/blitzerde.zip) and extract its contents to `config/custom_components/blitzerde` directory:
+To install this integration manually you have to download [_blitzerde.zip_](https://github.com/timniklas/hacs_blitzerde/releases/latest/) and extract its contents to `config/custom_components/blitzerde` directory:
 
 ```bash
 mkdir -p custom_components/blitzerde
