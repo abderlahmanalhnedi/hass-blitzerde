@@ -6,10 +6,11 @@
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/timniklas/hacs_blitzerde?style=for-the-badge)
 [![hacs](https://img.shields.io/badge/HACS-Integration-blue.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
+![icon](https://brands.home-assistant.io/blitzerde/dark_icon.png)
+
 ## Overview
 
 The Blitzer.de Home Assistant Custom Integration allows you to integrate the Blitzer.de App with your Home Assistant setup.
-
 
 ## Example Markdown Card
 
