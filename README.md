@@ -17,7 +17,7 @@ The Blitzer.de Home Assistant Custom Integration allows you to integrate the Bli
 <h1><img src="https://www.blitzer.de/wp-content/uploads/logo-1.svg"  height="23" > Achtung!</h1>
 {% set blitzer = states['sensor.blitzerde_blitzerde_bremen_total'].attributes -%}
 {%- for stadt in blitzer -%}
-{% if stadt not in ['friendly_name'] -%}
+{% if blitzer[stadt] is number -%}
 {% if blitzer[stadt] > 1 -%}
 <h2>{{blitzer[stadt]}} mobile Blitzer in <a href="https://map.blitzer.de/">{{stadt}}</a></h2>
 {% else -%}
