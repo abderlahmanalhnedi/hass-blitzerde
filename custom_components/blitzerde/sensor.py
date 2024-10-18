@@ -41,6 +41,7 @@ class SensorMapTotal(CoordinatorEntity):
     
     _attr_should_poll = False
     _attr_has_entity_name = True
+    _attr_icon = "mdi:car"
     
     def __init__(self, coordinator: BlitzerdeCoordinator) -> None:
         super().__init__(coordinator)
