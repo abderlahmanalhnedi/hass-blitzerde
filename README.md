@@ -10,6 +10,23 @@
 
 The Blitzer.de Home Assistant Custom Integration allows you to integrate the Blitzer.de App with your Home Assistant setup.
 
+
+## Example Markdown Card
+
+```
+<h1><img src="https://www.blitzer.de/wp-content/uploads/logo-1.svg"  height="23" > Achtung!</h1>
+{% set blitzer = states['sensor.blitzerde_blitzerde_bremen_total'].attributes -%}
+{%- for stadt in blitzer -%}
+{% if stadt not in ['friendly_name'] -%}
+{% if blitzer[stadt] > 1 -%}
+<h2>{{blitzer[stadt]}} mobile Blitzer in <a href="https://map.blitzer.de/">{{stadt}}</a></h2>
+{% else -%}
+<h2>Ein mobiler Blitzer in <a href="https://map.blitzer.de/">{{stadt}}</a></h2>
+{% endif -%}
+{% endif -%}
+{%- endfor %}
+```
+
 ![image](https://github.com/user-attachments/assets/0b1b3b3a-4196-4c88-a1c2-3fd261d0dc5b)
 
 ## Installation
