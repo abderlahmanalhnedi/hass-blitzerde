@@ -3,8 +3,8 @@
   "name": "Blitzer.de",
   "codeowners": ["@timniklas"],
   "config_flow": true,
-  "documentation": "https://github.com/timniklas/hacs_blitzerde",
+  "documentation": "https://github.com/timniklas/hass-blitzerde",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/timniklas/hacs_blitzerde/issues",
+  "issue_tracker": "https://github.com/timniklas/hass-blitzerde/issues",
   "version": "0.0.0"
 }
