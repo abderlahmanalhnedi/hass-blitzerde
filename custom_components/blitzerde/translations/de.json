@@ -21,7 +21,7 @@
         "step": {
             "init": {
                 "title": "Blitzer.de Setup",
-                "description": "Passe folgende Einstellunge an.",
+                "description": "Passe folgende Einstellungen an.",
                 "data": {
                     "selector": "Regex Filter der Städtenamen (Whitelist)"
                 }
