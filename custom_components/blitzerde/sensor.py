@@ -59,6 +59,7 @@ class SensorMapTotal(CoordinatorEntity):
     @property
     def extra_state_attributes(self):
         attrs = {}
+        attrs["state_class"] = SensorStateClass.MEASUREMENT
         for mapitem in self.coordinator.data.mapdata:
             name = mapitem['address']['city']
             if name in attrs:
