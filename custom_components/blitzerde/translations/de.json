@@ -16,5 +16,16 @@
             "connenction": "Fehler bei dem Verbindungsaufbau.",
             "unknown": "Unbekannter Fehler."
         }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Blitzer.de Setup",
+                "description": "Passe folgende Einstellunge an.",
+                "data": {
+                    "selector": "Regex Filter der Städtenamen (Whitelist)"
+                }
+            }
+        }
     }
 }
