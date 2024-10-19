@@ -13,9 +13,12 @@ The Blitzer.de Home Assistant Custom Integration allows you to integrate the Bli
 
 ## Example Markdown Card
 
+### Code
+*Simply replace "**YOURCITY**" with your chosen entity name.*
+
 ```
 <h1><img src="https://www.blitzer.de/wp-content/uploads/logo-1.svg"  height="23" > Achtung!</h1>
-{% set blitzer = states['sensor.blitzerde_blitzerde_bremen_total'].attributes -%}
+{% set blitzer = states['sensor.blitzerde_blitzerde_YOURCITY_total'].attributes -%}
 {%- for stadt in blitzer -%}
 {% if blitzer[stadt] is number -%}
 {% if blitzer[stadt] > 1 -%}
@@ -26,6 +29,8 @@ The Blitzer.de Home Assistant Custom Integration allows you to integrate the Bli
 {% endif -%}
 {%- endfor %}
 ```
+
+### Screenshot
 
 ![image](https://github.com/user-attachments/assets/0b1b3b3a-4196-4c88-a1c2-3fd261d0dc5b)
 
