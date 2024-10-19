@@ -65,7 +65,7 @@ class MapBinarySensor(CoordinatorEntity):
         super().__init__(coordinator)
         self._itemid = itemid
         self.name = f"Blitzer {self.coordinator.displayname} {self._itemid+1}"
-        self.unique_id = f"{DOMAIN}-{self.coordinator.displayname}-map{self._itemid}"
+        self.unique_id = f"{DOMAIN}-{self.coordinator.displayname}-map{self._itemid+1}"
 
     @callback
     def _handle_coordinator_update(self) -> None:
