@@ -45,7 +45,7 @@ class SensorMapTotal(CoordinatorEntity):
     
     def __init__(self, coordinator: BlitzerdeCoordinator) -> None:
         super().__init__(coordinator)
-        self.name = f"Blitzer.de ({self.coordinator.displayname})"
+        self.name = f"Blitzer.de {self.coordinator.displayname} Anzahl"
         self.unique_id = f"{DOMAIN}-{self.coordinator.displayname}-total"
 
     @callback
