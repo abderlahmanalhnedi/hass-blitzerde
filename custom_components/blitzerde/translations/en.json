@@ -16,5 +16,16 @@
             "connenction": "Error while connecting to api.",
             "unknown": "Unknown error."
         }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "Blitzer.de Setup",
+                "description": "Change the following settings.",
+                "data": {
+                    "selector": "Regex Filter of city names (whitelist)"
+                }
+            }
+        }
     }
 }
