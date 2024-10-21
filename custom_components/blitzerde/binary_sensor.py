@@ -89,6 +89,7 @@ class MapBinarySensor(CoordinatorEntity):
         attrs = {}
         attrs[ATTR_LATITUDE] = item['lat']
         attrs[ATTR_LONGITUDE] = item['lng']
+        attrs['backend'] = item['backend'].split("-")[-1]
         attrs['vmax'] = item['vmax']
         attrs['counter'] = item['counter']
         attrs['city'] = item['address']['city']
