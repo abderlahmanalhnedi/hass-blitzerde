@@ -18,26 +18,22 @@ The Blitzer.de Home Assistant Custom Integration allows you to integrate the Bli
 
 ```
 <h1><img src="https://www.blitzer.de/wp-content/uploads/logo-1.svg"  height="23" > Achtung!</h1>
-{%- set anzahl_aktuelle_warnungen = states("sensor.blitzerde_blitzerde_YOURCITY_total") %}
+{%- set anzahl_aktuelle_warnungen = states("sensor.blitzerde_blitzerde_**YOURCITY**_total") | int(0) %}
 {%- for i in range(int(anzahl_aktuelle_warnungen)) %}
-{%- set blitzer_backend = state_attr("binary_sensor.blitzerde_blitzerde_YOURCITY_map"~ loop.index, "backend") %}
-{%- set blitzer_vmax = state_attr("binary_sensor.blitzerde_blitzerde_YOURCITY_map"~ loop.index, "vmax") %}
-{%- set blitzer_street = state_attr("binary_sensor.blitzerde_blitzerde_YOURCITY_map"~ loop.index, "street") %}
-{%- set blitzer_city = state_attr("binary_sensor.blitzerde_blitzerde_YOURCITY_map"~ loop.index, "city") %}
-{%- set blitzer_counter = state_attr("binary_sensor.blitzerde_blitzerde_YOURCITY_map"~ loop.index, "counter") %}
-<h3>Blitzer {{blitzer_city}}</h3>
-<font color ="grey">Bestätigt von {{blitzer_counter}} Personen</font>
-<br/>
+{%- set blitzer_backend = state_attr("binary_sensor.blitzerde_blitzerde_**YOURCITY**_map"~ loop.index, "backend") %}
+{%- set blitzer_vmax = state_attr("binary_sensor.blitzerde_blitzerde_**YOURCITY**_map"~ loop.index, "vmax") %}
+{%- set blitzer_street = state_attr("binary_sensor.blitzerde_blitzerde_**YOURCITY**_map"~ loop.index, "street") %}
+{%- set blitzer_city = state_attr("binary_sensor.blitzerde_blitzerde_**YOURCITY**_map"~ loop.index, "city") %}
+<b>Blitzer {{blitzer_city}}</b><br>
 <a href="https://map.blitzer.de/v5/ID/{{blitzer_backend}}/">{{blitzer_street}}</a> bei {{blitzer_vmax}} km/h
 <br/>
-{%- if not loop.last %}<hr>{%- endif %}
+{%- if not loop.last %}<br>{%- endif %}
 {%- endfor %}
 ```
 
 ### Screenshot
 
-![image](https://github.com/user-attachments/assets/8d61f1b9-12b0-411d-ba3f-02d9369d7dff)
-
+![image](https://github.com/user-attachments/assets/5bb856ac-b7c2-41a6-83d1-b6edcb966f87)
 
 ## Installation
 
