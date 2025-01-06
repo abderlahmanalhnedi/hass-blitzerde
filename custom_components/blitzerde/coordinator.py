@@ -51,7 +51,7 @@ class BlitzerdeCoordinator(DataUpdateCoordinator):
         )
 
         # Initialise your api here
-        self.api = API(hass, latitude=self.location['latitude'], longitude=self.location['longitude'], radius=self.location['radius'])
+        self.api = API(hass)
 
     async def async_update_data(self):
         """Fetch data from API endpoint.
@@ -60,13 +60,7 @@ class BlitzerdeCoordinator(DataUpdateCoordinator):
         so entities can quickly look up their data.
         """
         try:
-            mapdata = await self.api.pullMapData()
-            filtered_list = list(
-                filter(
-                    lambda mapitem: 'address' in mapitem,
-                    mapdata
-                )
-            )
+            mapdata = await self.api.getArea(latitude=self.location['latitude'], longitude=self.location['longitude'], radius=self.location['radius'])
             filtered_list = list(
                 filter(
                     lambda mapitem: re.match(self.whitelist, mapitem['address']['city']),
