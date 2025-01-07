@@ -34,33 +34,29 @@ class API:
         self.connected = True
         return response_data['pois']
 
-    async def areaExists(self, inputArea):
-        for area in self.areas:
-            if area['backend'] == inputArea['backend']:
-                return True
-        return False
-
-    async def getArea(self, latitude: float, longitude: float, radius: float, first: bool = True):
+    async def getArea(self, latitude: float, longitude: float, radius: float):
         """get map data from api."""
-        if first:
-            self.areas = []
         rad = radius / 100000
         high_lat = latitude + rad
         high_lng = longitude + rad
         low_lat = latitude - rad
         low_ng = longitude - rad
-        areas = await self._requestPois(high_lat=high_lat, high_lng=high_lng, low_lat=low_lat, low_ng=low_ng)
+        #TODO: rewrite this ugly mess (but it works)
         resultAreas = []
+        areas = await self._requestPois(high_lat=high_lat, high_lng=high_lng, low_lat=low_lat, low_ng=low_ng)
         for area in areas:
             if area['type'] == 'cluster':
                 lat = area['lat']
                 lng = area['lng']
-                await self.getArea(lat, lng, radius / 10, first=False)
+                resultAreas = resultAreas + await self.getArea(lat, lng, radius / 10)
             else:
-                if not await self.areaExists(area):
-                    self.areas.append(area)
-        return self.areas
-
+                areaExists = False
+                for forArea in resultAreas:
+                    if forArea['backend'] == area['backend']:
+                        areaExists = True
+                if not areaExists:
+                    resultAreas.append(area)
+        return resultAreas
 
 
 class APIConnectionError(Exception):
