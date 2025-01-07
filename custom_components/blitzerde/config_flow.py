@@ -35,7 +35,7 @@ class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
 
         data_schema = {
             vol.Required(CONF_NAME): str,
-            vol.Required(CONF_SELECTOR, default="(Stadt1)|(Stadt2)"): str
+            vol.Required(CONF_SELECTOR, default="Stadt1|Stadt2"): str
         }
         data_schema[CONF_LOCATION] = selector({
             "location": {
