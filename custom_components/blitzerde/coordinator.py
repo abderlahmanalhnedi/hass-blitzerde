@@ -51,7 +51,7 @@ class BlitzerdeCoordinator(DataUpdateCoordinator):
         )
 
         # Initialise your api here
-        self.api = API(hass)
+        self.api = BlitzerdeAPI(hass)
 
     async def async_update_data(self):
         """Fetch data from API endpoint.
