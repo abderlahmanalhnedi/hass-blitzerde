@@ -18,7 +18,7 @@ def areaExists(areas: list, match_area):
 def isCluster(area):
     return area['type'] == 'cluster'
 
-class API:
+class BlitzerdeAPI:
     """Class for API."""
 
     def __init__(self, hass: HomeAssistant) -> None:
@@ -38,29 +38,33 @@ class API:
         """sends an api request with handled exceptions"""
         try:
             return await self._request(url)
-        except ClientError as exc:
-            raise APIConnectionError("Unknown error.")
+        except ClientError as err:
+            raise APIConnectionError("Failed to request data.")
 
     async def _requestPois(self, low_lat: float, low_ng: float, high_lat: float, high_lng: float, types: list[str] = ['ts','0','1','2','3','4','5','6']):
         """request blitzer list"""
         pois_type = ','.join(types)
-        url = f"https://cdn2.atudo.net/api/4.0/pois.php?type=ts,0,1,2,3,4,5,6&box={low_lat},{low_ng},{high_lat},{high_lng}"
+        #z=18 avoids clusters
+        url = f"https://cdn2.atudo.net/api/4.0/pois.php?type=ts,0,1,2,3,4,5,6&box={low_lat},{low_ng},{high_lat},{high_lng}&z=18"
         response_data = await self._requestCatched(url)
         self.connected = True
         return response_data['pois']
 
-    async def _resolveCluster(self, area):
+    async def _resolveCluster(self, area, radius: float):
         """zoom in to resolve cluster"""
         lat = area['lat']
         lng = area['lng']
+        _LOGGER.warn("resolving cluster: " + str([lat, lng, radius]))
+        if radius < 1:
+            raise Exception("unable to resolve cluster")
         return await self.getArea(lat, lng, radius / 10)
 
-    async def _iterateAreas(self, areas):
+    async def _iterateAreas(self, areas, radius: float):
         """parse areas for pois request"""
         areaList = []
         for area in areas:
-            if isCluster(area['type']):
-                areaList = areaList + await self._resolveCluster(area)
+            if isCluster(area):
+                areaList = areaList + await self._resolveCluster(area, radius)
                 continue
             if not areaExists(areaList, area):
                 areaList.append(area)
@@ -74,7 +78,7 @@ class API:
         low_lat = latitude - rad
         low_ng = longitude - rad
         areas = await self._requestPois(high_lat=high_lat, high_lng=high_lng, low_lat=low_lat, low_ng=low_ng)
-        return await self._iterateAreas(areas)
+        return await self._iterateAreas(areas, radius)
 
 
 class APIConnectionError(Exception):
