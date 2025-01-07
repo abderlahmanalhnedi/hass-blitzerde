@@ -13,7 +13,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import API
+from .api import BlitzerdeAPI, APIConnectionError
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -68,6 +68,6 @@ class BlitzerdeCoordinator(DataUpdateCoordinator):
                 )
             )
             return BlitzerdeAPIData(mapdata=filtered_list)
-        except Exception as err:
+        except APIConnectionError as err:
             # This will show entities as unavailable by raising UpdateFailed exception
             raise UpdateFailed(f"Error communicating with API: {err}") from err
