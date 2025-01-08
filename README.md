@@ -18,17 +18,26 @@ The Blitzer.de Home Assistant Custom Integration allows you to integrate the Bli
 
 ```
 <h1><img src="https://www.blitzer.de/wp-content/uploads/logo-1.svg"  height="23" > Achtung!</h1>
+<!--- **YOURCITY** -->
 {%- set anzahl_aktuelle_warnungen = states("sensor.blitzerde_blitzerde_**YOURCITY**_total") | int(0) %}
+{%- if anzahl_aktuelle_warnungen > 0 %}
+<b>Blitzer Thedinghausen</b><br>
 {%- for i in range(int(anzahl_aktuelle_warnungen)) %}
 {%- set blitzer_backend = state_attr("binary_sensor.blitzerde_blitzerde_**YOURCITY**_map"~ loop.index, "backend") %}
 {%- set blitzer_vmax = state_attr("binary_sensor.blitzerde_blitzerde_**YOURCITY**_map"~ loop.index, "vmax") %}
 {%- set blitzer_street = state_attr("binary_sensor.blitzerde_blitzerde_**YOURCITY**_map"~ loop.index, "street") %}
-{%- set blitzer_city = state_attr("binary_sensor.blitzerde_blitzerde_**YOURCITY**_map"~ loop.index, "city") %}
-<b>Blitzer {{blitzer_city}}</b><br>
-<a href="https://map.blitzer.de/v5/ID/{{blitzer_backend}}/">{{blitzer_street}}</a> bei {{blitzer_vmax}} km/h
-<br/>
-{%- if not loop.last %}<br>{%- endif %}
+{%- set blitzer_counter = state_attr("binary_sensor.blitzerde_blitzerde_**YOURCITY**_map"~ loop.index, "counter") %}
+<a href="https://map.blitzer.de/v5/ID/{{blitzer_backend}}/">{{blitzer_street}}</a> bei {{blitzer_vmax}} km/h&nbsp;&nbsp;
+{%- for i in range(int(blitzer_counter)) %}
+<img src="https://map.blitzer.de//v5/images/star_full.svg" width="12">
 {%- endfor %}
+{%- for i in range(3-int(blitzer_counter)) %}
+<img src="https://map.blitzer.de/v5/images/star_contour.svg" width="12">
+{%- endfor %}
+<br>
+{%- endfor %}
+<br>
+{%- endif %}
 ```
 
 ### Screenshot
