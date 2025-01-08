@@ -21,7 +21,7 @@ The Blitzer.de Home Assistant Custom Integration allows you to integrate the Bli
 <!--- **YOURCITY** -->
 {%- set anzahl_aktuelle_warnungen = states("sensor.blitzerde_blitzerde_**YOURCITY**_total") | int(0) %}
 {%- if anzahl_aktuelle_warnungen > 0 %}
-<b>Blitzer Thedinghausen</b><br>
+<b>Blitzer **YOURCITY**</b><br>
 {%- for i in range(int(anzahl_aktuelle_warnungen)) %}
 {%- set blitzer_backend = state_attr("binary_sensor.blitzerde_blitzerde_**YOURCITY**_map"~ loop.index, "backend") %}
 {%- set blitzer_vmax = state_attr("binary_sensor.blitzerde_blitzerde_**YOURCITY**_map"~ loop.index, "vmax") %}
