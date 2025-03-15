@@ -7,6 +7,11 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from aiohttp import ClientError, ClientResponseError, ClientSession
 from homeassistant.core import HomeAssistant
 
+from .const import (
+    TYPE_TRAILER,
+    TYPE_MOBILE
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 def areaExists(areas: list, match_area):
@@ -41,11 +46,11 @@ class BlitzerdeAPI:
         except ClientError as err:
             raise APIConnectionError("Failed to request data.")
 
-    async def _requestPois(self, low_lat: float, low_ng: float, high_lat: float, high_lng: float, types: list[str] = ['ts','0','1','2','3','4','5','6']):
+    async def _requestPois(self, low_lat: float, low_ng: float, high_lat: float, high_lng: float, types):
         """request blitzer list"""
-        pois_type = ','.join(types)
+        pois_types = ','.join(map(str, types))
         #z=18 avoids clusters
-        url = f"https://cdn2.atudo.net/api/4.0/pois.php?type=ts,0,1,2,3,4,5,6&box={low_lat},{low_ng},{high_lat},{high_lng}&z=18"
+        url = f"https://cdn2.atudo.net/api/4.0/pois.php?type={pois_types}&box={low_lat},{low_ng},{high_lat},{high_lng}&z=18"
         response_data = await self._requestCatched(url)
         self.connected = True
         return response_data['pois']
@@ -70,14 +75,14 @@ class BlitzerdeAPI:
                 areaList.append(area)
         return areaList
 
-    async def getArea(self, latitude: float, longitude: float, radius: float):
+    async def getArea(self, latitude: float, longitude: float, radius: float, types = [TYPE_TRAILER + TYPE_MOBILE]):
         """get map data from api."""
         rad = radius / 100000
         high_lat = latitude + rad
         high_lng = longitude + rad
         low_lat = latitude - rad
         low_ng = longitude - rad
-        areas = await self._requestPois(high_lat=high_lat, high_lng=high_lng, low_lat=low_lat, low_ng=low_ng)
+        areas = await self._requestPois(high_lat=high_lat, high_lng=high_lng, low_lat=low_lat, low_ng=low_ng, types=types)
         return await self._iterateAreas(areas, radius)
 
 
