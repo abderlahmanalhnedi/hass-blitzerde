@@ -54,7 +54,10 @@ class SensorMapTotal(CoordinatorEntity):
     
     @property
     def state(self):
-        return len(self.coordinator.data.mapdata)
+        item_count = len(self.coordinator.data.mapdata)
+        if item_count > self.coordinator.sensorcount:
+            return self.coordinator.sensorcount
+        return item_count
 
     @property
     def extra_state_attributes(self):
