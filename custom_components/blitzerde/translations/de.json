@@ -7,8 +7,15 @@
                 "description": "Wähle den Bereich aus dem die Daten anzeigt werden sollen.",
                 "data": {
                     "name": "Anzeigename",
-                    "selector": "Regex Filter der Städtenamen (Whitelist)",
                     "location": "Bereich"
+                },
+                "sections": {
+                    "optional": {
+                        "name": "Optionale Einstellungen",
+                        "data": {
+                            "selector": "Regex Filter der Städtenamen (Whitelist)"
+                        }
+                    }
                 }
             }
         },
@@ -21,9 +28,17 @@
         "step": {
             "init": {
                 "title": "Blitzer.de Setup",
-                "description": "Passe folgende Einstellungen an.",
+                "description": "Wähle den Bereich aus dem die Daten anzeigt werden sollen.",
                 "data": {
-                    "selector": "Regex Filter der Städtenamen (Whitelist)"
+                    "location": "Bereich"
+                },
+                "sections": {
+                    "optional": {
+                        "name": "Optionale Einstellungen",
+                        "data": {
+                            "selector": "Regex Filter der Städtenamen (Whitelist)"
+                        }
+                    }
                 }
             }
         }
