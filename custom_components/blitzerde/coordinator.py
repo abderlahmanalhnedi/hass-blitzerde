@@ -9,6 +9,7 @@ from homeassistant.const import (
     CONF_LOCATION,
     CONF_NAME,
     CONF_COUNT,
+    CONF_TYPE,
     CONF_SELECTOR
 )
 from homeassistant.core import HomeAssistant
@@ -16,6 +17,12 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 
 from .api import BlitzerdeAPI, APIConnectionError
 from .const import DOMAIN
+
+from .const import (
+    TYPE_TRAILER,
+    TYPE_MOBILE,
+    TYPE_FIXED
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,6 +47,7 @@ class BlitzerdeCoordinator(DataUpdateCoordinator):
         self.displayname = config_entry.data[CONF_NAME]
         self.whitelist = config_entry.data[CONF_SELECTOR]
         self.sensorcount = config_entry.data[CONF_COUNT]
+        self.types = config_entry.data[CONF_TYPE]
 
         # Initialise DataUpdateCoordinator
         super().__init__(
@@ -62,7 +70,15 @@ class BlitzerdeCoordinator(DataUpdateCoordinator):
         so entities can quickly look up their data.
         """
         try:
-            mapdata = await self.api.getArea(latitude=self.location['latitude'], longitude=self.location['longitude'], radius=self.location['radius'])
+            types = []
+            if self.types['mobile']:
+                types = types + TYPE_MOBILE
+            if self.types['trailer']:
+                types = types + TYPE_TRAILER
+            if self.types['fixed']:
+                types = types + TYPE_FIXED
+
+            mapdata = await self.api.getArea(latitude=self.location['latitude'], longitude=self.location['longitude'], radius=self.location['radius'], types=types)
             filtered_list = list(
                 filter(
                     lambda mapitem: re.match(self.whitelist, mapitem['address']['city']),
