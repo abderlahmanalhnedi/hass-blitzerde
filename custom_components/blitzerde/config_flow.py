@@ -17,13 +17,14 @@ from homeassistant.const import (
     CONF_LOCATION,
     CONF_NAME,
     CONF_COUNT,
+    CONF_TYPE,
     CONF_SELECTOR
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
-    VERSION = 2
+    VERSION = 3
 
     def __init__(self) -> None:
         """Initialize the config flow."""
@@ -35,6 +36,7 @@ class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
 
             return self.async_create_entry(title=f"Blitzer.de {user_input[CONF_NAME]}", data={
                 CONF_NAME: user_input[CONF_NAME],
+                CONF_TYPE: user_input[CONF_TYPE],
                 CONF_LOCATION: user_input[CONF_LOCATION],
                 CONF_COUNT: user_input['optional'][CONF_COUNT],
                 CONF_SELECTOR: user_input['optional'][CONF_SELECTOR]
@@ -48,6 +50,17 @@ class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
                 "radius": True
             }
         })
+        data_schema[vol.Required(CONF_TYPE)] = section(
+            vol.Schema(
+                {
+                    vol.Required("mobile", default=True): bool,
+                    vol.Required("trailer", default=True): bool,
+                    vol.Required("fixed", default=False): bool
+                }
+            ),
+            # Whether or not the section is initially collapsed (default = False)
+            {"collapsed": True},
+        )
         data_schema[vol.Required('optional')] = section(
             vol.Schema(
                 {
@@ -84,6 +97,7 @@ class BlitzerdeOptionsFlow(OptionsFlowWithConfigEntry):
             data = {
                 CONF_NAME: self.config_entry.data.get(CONF_NAME),
                 CONF_COUNT: self.config_entry.data.get(CONF_COUNT),
+                CONF_TYPE: user_input[CONF_TYPE],
                 CONF_LOCATION: user_input[CONF_LOCATION],
                 CONF_SELECTOR: user_input['optional'][CONF_SELECTOR]
             }
@@ -100,6 +114,17 @@ class BlitzerdeOptionsFlow(OptionsFlowWithConfigEntry):
                 "radius": True
             }
         })
+        data_schema[vol.Required(CONF_TYPE)] = section(
+            vol.Schema(
+                {
+                    vol.Required("mobile", default=self.config_entry.data.get(CONF_TYPE)["mobile"]): bool,
+                    vol.Required("trailer", default=self.config_entry.data.get(CONF_TYPE)["trailer"]): bool,
+                    vol.Required("fixed", default=self.config_entry.data.get(CONF_TYPE)["fixed"]): bool
+                }
+            ),
+            # Whether or not the section is initially collapsed (default = False)
+            {"collapsed": True},
+        )
         data_schema[vol.Required('optional')] = section(
             vol.Schema(
                 {
