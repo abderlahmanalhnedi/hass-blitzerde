@@ -4,26 +4,41 @@
         "step": {
             "user": {
                 "title": "Blitzer.de Setup",
-                "description": "Wähle den Bereich aus dem die Daten anzeigt werden sollen.",
+                "description": "Select the section from which the data should be displayed",
                 "data": {
-                    "name": "Anzeigename",
-                    "selector": "Regex Filter der Städtenamen (Whitelist)",
-                    "location": "Bereich"
+                    "name": "Display name",
+                    "location": "Section"
+                },
+                "sections": {
+                    "optional": {
+                        "name": "Optional settings",
+                        "data": {
+                            "selector": "Regex filter of city names (whitelist)"
+                        }
+                    }
                 }
             }
         },
         "abort": {
-            "connenction": "Fehler bei dem Verbindungsaufbau.",
-            "unknown": "Unbekannter Fehler."
+            "connenction": "Error during connection setup.",
+            "unknown": "Unknown error."
         }
     },
     "options": {
         "step": {
             "init": {
                 "title": "Blitzer.de Setup",
-                "description": "Passe folgende Einstellungen an.",
+                "description": "Select the section from which the data should be displayed.",
                 "data": {
-                    "selector": "Regex Filter der Städtenamen (Whitelist)"
+                    "location": "Section"
+                },
+                "sections": {
+                    "optional": {
+                        "name": "Optional settings",
+                        "data": {
+                            "selector": "Regex filter of city names (whitelist)"
+                        }
+                    }
                 }
             }
         }
