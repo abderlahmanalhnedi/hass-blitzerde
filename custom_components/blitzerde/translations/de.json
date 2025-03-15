@@ -13,6 +13,7 @@
                     "optional": {
                         "name": "Optionale Einstellungen",
                         "data": {
+                            "count": "Anzahl der Sensoren",
                             "selector": "Regex Filter der Städtenamen (Whitelist)"
                         }
                     }
@@ -20,8 +21,7 @@
             }
         },
         "abort": {
-            "connenction": "Fehler bei dem Verbindungsaufbau.",
-            "unknown": "Unbekannter Fehler."
+            "location_missing": "Bitte Position auswählen. (Karte verschieben)"
         }
     },
     "options": {

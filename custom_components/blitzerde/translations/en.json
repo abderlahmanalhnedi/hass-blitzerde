@@ -13,6 +13,7 @@
                     "optional": {
                         "name": "Optional settings",
                         "data": {
+                            "count": "Number of sensors",
                             "selector": "Regex filter of city names (whitelist)"
                         }
                     }
@@ -20,8 +21,7 @@
             }
         },
         "abort": {
-            "connenction": "Error during connection setup.",
-            "unknown": "Unknown error."
+            "location_missing": "Please select a position. (move the map)"
         }
     },
     "options": {
