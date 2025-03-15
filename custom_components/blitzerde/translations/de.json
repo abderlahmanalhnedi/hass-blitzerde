@@ -10,6 +10,14 @@
                     "location": "Bereich"
                 },
                 "sections": {
+                    "type": {
+                        "name": "Blitzer",
+                        "data": {
+                            "mobile": "Mobile",
+                            "trailer": "Anhänger",
+                            "fixed": "Feste"
+                        }
+                    },
                     "optional": {
                         "name": "Optionale Einstellungen",
                         "data": {
@@ -33,6 +41,14 @@
                     "location": "Bereich"
                 },
                 "sections": {
+                    "type": {
+                        "name": "Blitzer",
+                        "data": {
+                            "mobile": "Mobile",
+                            "trailer": "Anhänger",
+                            "fixed": "Feste"
+                        }
+                    },
                     "optional": {
                         "name": "Optionale Einstellungen",
                         "data": {
