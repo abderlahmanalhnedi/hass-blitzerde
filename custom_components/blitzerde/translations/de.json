@@ -4,39 +4,39 @@
         "step": {
             "user": {
                 "title": "Blitzer.de Setup",
-                "description": "Select the section from which the data should be displayed",
+                "description": "Wähle den Bereich aus dem die Daten anzeigt werden sollen.",
                 "data": {
-                    "name": "Display name",
-                    "location": "Section"
+                    "name": "Anzeigename",
+                    "location": "Bereich"
                 },
                 "sections": {
                     "optional": {
-                        "name": "Optional settings",
+                        "name": "Optionale Einstellungen",
                         "data": {
-                            "selector": "Regex filter of city names (whitelist)"
+                            "selector": "Regex Filter der Städtenamen (Whitelist)"
                         }
                     }
                 }
             }
         },
         "abort": {
-            "connenction": "Error during connection setup.",
-            "unknown": "Unknown error."
+            "connenction": "Fehler bei dem Verbindungsaufbau.",
+            "unknown": "Unbekannter Fehler."
         }
     },
     "options": {
         "step": {
             "init": {
                 "title": "Blitzer.de Setup",
-                "description": "Select the section from which the data should be displayed.",
+                "description": "Wähle den Bereich aus dem die Daten anzeigt werden sollen.",
                 "data": {
-                    "location": "Section"
+                    "location": "Bereich"
                 },
                 "sections": {
                     "optional": {
-                        "name": "Optional settings",
+                        "name": "Optionale Einstellungen",
                         "data": {
-                            "selector": "Regex filter of city names (whitelist)"
+                            "selector": "Regex Filter der Städtenamen (Whitelist)"
                         }
                     }
                 }
