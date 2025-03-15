@@ -10,6 +10,14 @@
                     "location": "Section"
                 },
                 "sections": {
+                    "type": {
+                        "name": "Types",
+                        "data": {
+                            "mobile": "Mobile",
+                            "trailer": "Trailer",
+                            "fixed": "Fixed"
+                        }
+                    },
                     "optional": {
                         "name": "Optional settings",
                         "data": {
@@ -33,6 +41,14 @@
                     "location": "Section"
                 },
                 "sections": {
+                    "type": {
+                        "name": "Types",
+                        "data": {
+                            "mobile": "Mobile",
+                            "trailer": "Trailer",
+                            "fixed": "Fixed"
+                        }
+                    },
                     "optional": {
                         "name": "Optional settings",
                         "data": {
