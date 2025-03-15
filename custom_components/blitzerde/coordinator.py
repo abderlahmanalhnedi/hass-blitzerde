@@ -8,6 +8,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_LOCATION,
     CONF_NAME,
+    CONF_COUNT,
     CONF_SELECTOR
 )
 from homeassistant.core import HomeAssistant
@@ -38,6 +39,7 @@ class BlitzerdeCoordinator(DataUpdateCoordinator):
         self.location = config_entry.data[CONF_LOCATION]
         self.displayname = config_entry.data[CONF_NAME]
         self.whitelist = config_entry.data[CONF_SELECTOR]
+        self.sensorcount = config_entry.data[CONF_COUNT]
 
         # Initialise DataUpdateCoordinator
         super().__init__(

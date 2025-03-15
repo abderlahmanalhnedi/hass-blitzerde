@@ -14,6 +14,13 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .const import DOMAIN
 from .coordinator import BlitzerdeCoordinator
 
+from homeassistant.const import (
+    CONF_LOCATION,
+    CONF_NAME,
+    CONF_COUNT,
+    CONF_SELECTOR
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.BINARY_SENSOR]
@@ -87,3 +94,19 @@ async def async_unload_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> 
 
     # Return that unloading was successful.
     return unload_ok
+
+async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
+    """Migrate old entry."""
+    _LOGGER.debug("Migrating configuration from version %s", config_entry.version)
+
+    if config_entry.version == 1:
+        hass.config_entries.async_update_entry(config_entry, data={
+                CONF_NAME: config_entry.data.get(CONF_NAME),
+                CONF_COUNT: 9,
+                CONF_LOCATION: config_entry.data.get(CONF_LOCATION),
+                CONF_SELECTOR: config_entry.data.get(CONF_SELECTOR)
+        }, version=2)
+
+    _LOGGER.debug("Migration to configuration version %s successful", config_entry.version)
+
+    return True

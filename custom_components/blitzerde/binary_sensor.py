@@ -39,18 +39,11 @@ async def async_setup_entry(
     # Enumerate all the sensors in your data value from your DataUpdateCoordinator and add an instance of your sensor class
     # to a list for each one.
     # This maybe different in your specific case, depending on how your data is structured
-    sensors = [
-        # 0 to 9 for sorting in ha
-        MapBinarySensor(coordinator, 0),
-        MapBinarySensor(coordinator, 1),
-        MapBinarySensor(coordinator, 2),
-        MapBinarySensor(coordinator, 3),
-        MapBinarySensor(coordinator, 4),
-        MapBinarySensor(coordinator, 5),
-        MapBinarySensor(coordinator, 6),
-        MapBinarySensor(coordinator, 7),
-        MapBinarySensor(coordinator, 8),
-    ]
+    sensors = []
+    for x in range(coordinator.sensorcount):
+        sensors.append(
+            MapBinarySensor(coordinator, x)
+        )
 
     # Create the sensors.
     async_add_entities(sensors)

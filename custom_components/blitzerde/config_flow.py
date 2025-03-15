@@ -16,13 +16,14 @@ from .const import DOMAIN
 from homeassistant.const import (
     CONF_LOCATION,
     CONF_NAME,
+    CONF_COUNT,
     CONF_SELECTOR
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
-    VERSION = 1
+    VERSION = 2
 
     def __init__(self) -> None:
         """Initialize the config flow."""
@@ -30,11 +31,12 @@ class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None):
         if user_input is not None:
             if CONF_LOCATION not in user_input: #default location
-                return self.async_abort(reason="location")
+                return self.async_abort(reason="location_missing")
 
             return self.async_create_entry(title=f"Blitzer.de {user_input[CONF_NAME]}", data={
                 CONF_NAME: user_input[CONF_NAME],
                 CONF_LOCATION: user_input[CONF_LOCATION],
+                CONF_COUNT: user_input['optional'][CONF_COUNT],
                 CONF_SELECTOR: user_input['optional'][CONF_SELECTOR]
             })
 
@@ -49,6 +51,7 @@ class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
         data_schema[vol.Required('optional')] = section(
             vol.Schema(
                 {
+                    vol.Required(CONF_COUNT, default=9): int,
                     vol.Required(CONF_SELECTOR, default=".*"): str
                 }
             ),
@@ -80,6 +83,7 @@ class BlitzerdeOptionsFlow(OptionsFlowWithConfigEntry):
 
             data = {
                 CONF_NAME: self.config_entry.data.get(CONF_NAME),
+                CONF_COUNT: self.config_entry.data.get(CONF_COUNT),
                 CONF_LOCATION: user_input[CONF_LOCATION],
                 CONF_SELECTOR: user_input['optional'][CONF_SELECTOR]
             }
