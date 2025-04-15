@@ -17,7 +17,7 @@ The Blitzer.de Home Assistant Custom Integration allows you to integrate the Bli
 
 ```
 <h1><img src="https://www.blitzer.de/wp-content/uploads/logo-1.svg"  height="23" > Achtung!</h1>
-{%- set cities = ["YOURCITY1", "YOURCITY2"] %}
+{%- set cities = ["YOUR_SENSOR_NAME"] %}
 {%- for city in cities %}
 {%- set anzahl_aktuelle_warnungen = states("sensor.blitzerde_blitzerde_"~city~"_total") | int(0) %}
 {%- if anzahl_aktuelle_warnungen > 0 %}
