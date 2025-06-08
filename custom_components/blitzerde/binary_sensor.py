@@ -84,6 +84,7 @@ class MapBinarySensor(CoordinatorEntity):
         attrs[ATTR_LONGITUDE] = item['lng']
         attrs['backend'] = item['backend'].split("-")[-1]
         attrs['vmax'] = item['vmax']
+        attrs['entity_picture'] = "https://map.blitzer.de/v5/images/ts_" + item['vmax'] + ".svg"
         attrs['counter'] = item['counter']
         attrs['city'] = item['address']['city']
         attrs['street'] = item['address']['street']
