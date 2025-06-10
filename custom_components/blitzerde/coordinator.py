@@ -81,7 +81,7 @@ class BlitzerdeCoordinator(DataUpdateCoordinator):
             mapdata = await self.api.getArea(latitude=self.location['latitude'], longitude=self.location['longitude'], radius=self.location['radius'], types=types)
             filtered_list = list(
                 filter(
-                    lambda mapitem: re.match(self.whitelist, mapitem['address']['city']),
+                    lambda mapitem: re.match(self.whitelist, mapitem['address']['city']) and mapitem['info']['confirmed'] == 1,
                     mapdata
                 )
             )
