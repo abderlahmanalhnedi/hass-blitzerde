@@ -10,7 +10,8 @@ from homeassistant.const import (
     CONF_NAME,
     CONF_COUNT,
     CONF_TYPE,
-    CONF_SELECTOR
+    CONF_SELECTOR,
+    CONF_CONDITION
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -48,6 +49,7 @@ class BlitzerdeCoordinator(DataUpdateCoordinator):
         self.whitelist = config_entry.data[CONF_SELECTOR]
         self.sensorcount = config_entry.data[CONF_COUNT]
         self.types = config_entry.data[CONF_TYPE]
+        self.only_confirmed = config_entry.data[CONF_CONDITION]
 
         # Initialise DataUpdateCoordinator
         super().__init__(
@@ -81,10 +83,17 @@ class BlitzerdeCoordinator(DataUpdateCoordinator):
             mapdata = await self.api.getArea(latitude=self.location['latitude'], longitude=self.location['longitude'], radius=self.location['radius'], types=types)
             filtered_list = list(
                 filter(
-                    lambda mapitem: re.match(self.whitelist, mapitem['address']['city']) and mapitem['info']['confirmed'] == 1,
+                    lambda mapitem: re.match(self.whitelist, mapitem['address']['city']),
                     mapdata
                 )
             )
+            if self.only_confirmed:
+                filtered_list = list(
+                    filter(
+                        lambda mapitem: mapitem['info']['confirmed'] == 1,
+                        mapdata
+                    )
+                )
             return BlitzerdeAPIData(mapdata=filtered_list)
         except APIConnectionError as err:
             # This will show entities as unavailable by raising UpdateFailed exception
