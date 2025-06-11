@@ -16,17 +16,20 @@ The Blitzer.de Home Assistant Custom Integration allows you to integrate the Bli
 ### Code
 
 ```
-<h1><img src="https://www.blitzer.de/wp-content/uploads/logo-1.svg"  height="23" > Achtung!</h1>
-{%- set cities = ["YOUR_SENSOR_NAME"] %}
-{%- for city in cities %}
+<h1><img src="/local/Blitzer_app.svg"  height="23"> Achtung!</h1>
+{%- set sensor_names = ["YOUR_SENSOR_NAME"] %}
+{%- for city in sensor_names %}
 {%- set anzahl_aktuelle_warnungen = states("sensor.blitzerde_blitzerde_"~city~"_total") | int(0) %}
 {%- if anzahl_aktuelle_warnungen > 0 %}
-<b>Blitzer {{city | title}}</b><br>
+{%- set blitzer_name = state_attr("binary_sensor.blitzerde_blitzerde_"~city~"_map1", "friendly_name")[0:-1] %}
+<b>{{blitzer_name}} ({{anzahl_aktuelle_warnungen}})</b><br>
 {%- for i in range(int(anzahl_aktuelle_warnungen)) %}
 {%- set blitzer_backend = state_attr("binary_sensor.blitzerde_blitzerde_"~city~"_map"~ loop.index, "backend") %}
 {%- set blitzer_vmax = state_attr("binary_sensor.blitzerde_blitzerde_"~city~"_map"~ loop.index, "vmax") %}
 {%- set blitzer_street = state_attr("binary_sensor.blitzerde_blitzerde_"~city~"_map"~ loop.index, "street") %}
 {%- set blitzer_counter = state_attr("binary_sensor.blitzerde_blitzerde_"~city~"_map"~ loop.index, "counter") %}
+{%- set blitzer_image = state_attr("binary_sensor.blitzerde_blitzerde_"~city~"_map"~ loop.index, "entity_picture") %}
+<img src="{{blitzer_image}}" width="20">
 <a href="https://map.blitzer.de/v5/ID/{{blitzer_backend}}/">{{blitzer_street}}</a> bei {{blitzer_vmax}} km/h&nbsp;&nbsp;
 {%- for i in range(int(blitzer_counter)) %}
 <img src="https://map.blitzer.de/v5/images/star_full.svg" width="12">
@@ -42,8 +45,8 @@ The Blitzer.de Home Assistant Custom Integration allows you to integrate the Bli
 ```
 
 ### Screenshot
+![image](https://github.com/user-attachments/assets/2c230648-423b-427a-a9bf-b5c129883262)
 
-![image](https://github.com/user-attachments/assets/5bb856ac-b7c2-41a6-83d1-b6edcb966f87)
 
 ## Installation
 
