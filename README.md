@@ -47,7 +47,7 @@ The Blitzer.de Home Assistant Custom Integration allows you to integrate the Bli
 ### Screenshot
 ![image](https://github.com/user-attachments/assets/2c230648-423b-427a-a9bf-b5c129883262)
 
-![image](https://github.com/user-attachments/assets/7cc62567-c3b3-4608-a809-736463c35ce4)
+![image](https://github.com/user-attachments/assets/ab470939-f692-4b7e-9dc1-ce73cd5b2371)
 
 
 ## Installation
