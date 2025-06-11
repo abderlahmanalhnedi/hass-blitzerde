@@ -22,7 +22,8 @@
                         "name": "Optionale Einstellungen",
                         "data": {
                             "count": "Anzahl der Sensoren",
-                            "selector": "Regex Filter der Städtenamen (Whitelist)"
+                            "selector": "Regex Filter der Städtenamen (Whitelist)",
+                            "condition": "Nur bestätigte Blitzer anzeigen"
                         }
                     }
                 }
@@ -52,7 +53,8 @@
                     "optional": {
                         "name": "Optionale Einstellungen",
                         "data": {
-                            "selector": "Regex Filter der Städtenamen (Whitelist)"
+                            "selector": "Regex Filter der Städtenamen (Whitelist)",
+                            "condition": "Nur bestätigte Blitzer anzeigen"
                         }
                     }
                 }

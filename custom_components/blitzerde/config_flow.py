@@ -18,13 +18,14 @@ from homeassistant.const import (
     CONF_NAME,
     CONF_COUNT,
     CONF_TYPE,
-    CONF_SELECTOR
+    CONF_SELECTOR,
+    CONF_CONDITION
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
-    VERSION = 3
+    VERSION = 4
 
     def __init__(self) -> None:
         """Initialize the config flow."""
@@ -39,7 +40,8 @@ class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
                 CONF_TYPE: user_input[CONF_TYPE],
                 CONF_LOCATION: user_input[CONF_LOCATION],
                 CONF_COUNT: user_input['optional'][CONF_COUNT],
-                CONF_SELECTOR: user_input['optional'][CONF_SELECTOR]
+                CONF_SELECTOR: user_input['optional'][CONF_SELECTOR],
+                CONF_CONDITION: user_input['optional'][CONF_CONDITION]
             })
 
         data_schema = {
@@ -65,7 +67,8 @@ class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
             vol.Schema(
                 {
                     vol.Required(CONF_COUNT, default=9): int,
-                    vol.Required(CONF_SELECTOR, default=".*"): str
+                    vol.Required(CONF_SELECTOR, default=".*"): str,
+                    vol.Required(CONF_CONDITION, default=False): bool
                 }
             ),
             # Whether or not the section is initially collapsed (default = False)
@@ -99,7 +102,8 @@ class BlitzerdeOptionsFlow(OptionsFlowWithConfigEntry):
                 CONF_COUNT: self.config_entry.data.get(CONF_COUNT),
                 CONF_TYPE: user_input[CONF_TYPE],
                 CONF_LOCATION: user_input[CONF_LOCATION],
-                CONF_SELECTOR: user_input['optional'][CONF_SELECTOR]
+                CONF_SELECTOR: user_input['optional'][CONF_SELECTOR],
+                CONF_CONDITION: user_input['optional'][CONF_CONDITION]
             }
             self.hass.config_entries.async_update_entry(
                 self._config_entry, data=data
@@ -128,7 +132,8 @@ class BlitzerdeOptionsFlow(OptionsFlowWithConfigEntry):
         data_schema[vol.Required('optional')] = section(
             vol.Schema(
                 {
-                    vol.Required(CONF_SELECTOR, default=self.config_entry.data.get(CONF_SELECTOR)): str
+                    vol.Required(CONF_SELECTOR, default=self.config_entry.data.get(CONF_SELECTOR)): str,
+                    vol.Required(CONF_CONDITION, default=self.config_entry.data.get(CONF_CONDITION)): bool
                 }
             ),
             # Whether or not the section is initially collapsed (default = False)

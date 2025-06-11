@@ -22,7 +22,8 @@
                         "name": "Optional settings",
                         "data": {
                             "count": "Number of sensors",
-                            "selector": "Regex filter of city names (whitelist)"
+                            "selector": "Regex filter of city names (whitelist)",
+                            "condition": "Only show confirmed"
                         }
                     }
                 }
@@ -52,7 +53,8 @@
                     "optional": {
                         "name": "Optional settings",
                         "data": {
-                            "selector": "Regex filter of city names (whitelist)"
+                            "selector": "Regex filter of city names (whitelist)",
+                            "condition": "Only show confirmed"
                         }
                     }
                 }
