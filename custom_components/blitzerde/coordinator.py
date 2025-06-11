@@ -81,20 +81,20 @@ class BlitzerdeCoordinator(DataUpdateCoordinator):
                 types = types + TYPE_FIXED
 
             mapdata = await self.api.getArea(latitude=self.location['latitude'], longitude=self.location['longitude'], radius=self.location['radius'], types=types)
-            filtered_list = list(
+            mapdata = list(
                 filter(
                     lambda mapitem: re.match(self.whitelist, mapitem['address']['city']),
                     mapdata
                 )
             )
             if self.only_confirmed:
-                filtered_list = list(
+                mapdata = list(
                     filter(
                         lambda mapitem: mapitem['info']['confirmed'] == 1,
                         mapdata
                     )
                 )
-            return BlitzerdeAPIData(mapdata=filtered_list)
+            return BlitzerdeAPIData(mapdata=mapdata)
         except APIConnectionError as err:
             # This will show entities as unavailable by raising UpdateFailed exception
             raise UpdateFailed(f"Error communicating with API: {err}") from err
