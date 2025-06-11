@@ -68,7 +68,7 @@ class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
                 {
                     vol.Required(CONF_COUNT, default=9): int,
                     vol.Required(CONF_SELECTOR, default=".*"): str,
-                    vol.Required(CONF_CONDITION, default=False): bool
+                    vol.Required(CONF_CONDITION, default=True): bool
                 }
             ),
             # Whether or not the section is initially collapsed (default = False)
