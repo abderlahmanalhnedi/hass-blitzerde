@@ -19,7 +19,8 @@ from homeassistant.const import (
     CONF_NAME,
     CONF_COUNT,
     CONF_TYPE,
-    CONF_SELECTOR
+    CONF_SELECTOR,
+    CONF_CONDITION
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -110,8 +111,9 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
                     "fixed": False
                 },
                 CONF_LOCATION: config_entry.data.get(CONF_LOCATION),
-                CONF_SELECTOR: config_entry.data.get(CONF_SELECTOR)
-        }, version=3)
+                CONF_SELECTOR: config_entry.data.get(CONF_SELECTOR),
+                CONF_CONDITION: True
+        }, version=4)
     
     if config_entry.version == 2:
         hass.config_entries.async_update_entry(config_entry, data={
@@ -123,8 +125,23 @@ async def async_migrate_entry(hass: HomeAssistant, config_entry: ConfigEntry):
                     "fixed": False
                 },
                 CONF_LOCATION: config_entry.data.get(CONF_LOCATION),
-                CONF_SELECTOR: config_entry.data.get(CONF_SELECTOR)
-        }, version=3)
+                CONF_SELECTOR: config_entry.data.get(CONF_SELECTOR),
+                CONF_CONDITION: True
+        }, version=4)
+    
+    if config_entry.version == 3:
+        hass.config_entries.async_update_entry(config_entry, data={
+                CONF_NAME: config_entry.data.get(CONF_NAME),
+                CONF_COUNT: config_entry.data.get(CONF_COUNT),
+                CONF_TYPE: {
+                    "mobile": True,
+                    "trailer": True,
+                    "fixed": False
+                },
+                CONF_LOCATION: config_entry.data.get(CONF_LOCATION),
+                CONF_SELECTOR: config_entry.data.get(CONF_SELECTOR),
+                CONF_CONDITION: True
+        }, version=4)
 
     _LOGGER.debug("Migration to configuration version %s successful", config_entry.version)
 
