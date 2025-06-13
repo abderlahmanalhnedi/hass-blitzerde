@@ -11,6 +11,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .item_utils  import BlitzerItem
 from .const import DOMAIN
 from .coordinator import BlitzerdeCoordinator
 
@@ -32,6 +33,7 @@ async def async_setup_entry(
     # This maybe different in your specific case, depending on how your data is structured
     sensors = [
         SensorMapTotal(coordinator),
+        SensorLatest(coordinator)
     ]
 
     # Create the sensors.
@@ -41,7 +43,7 @@ class SensorMapTotal(CoordinatorEntity):
     
     _attr_should_poll = False
     _attr_has_entity_name = True
-    _attr_icon = "mdi:car"
+    _attr_icon = "mdi:counter"
     
     def __init__(self, coordinator: BlitzerdeCoordinator) -> None:
         super().__init__(coordinator)
@@ -71,3 +73,39 @@ class SensorMapTotal(CoordinatorEntity):
                 attrs[name] = 1
         
         return attrs
+
+class SensorLatest(CoordinatorEntity):
+    
+    _attr_should_poll = False
+    _attr_has_entity_name = True
+    _attr_icon = "mdi:car"
+    
+    def __init__(self, coordinator: BlitzerdeCoordinator) -> None:
+        super().__init__(coordinator)
+        self.name = f"Blitzer.de {self.coordinator.displayname} letzter Blitzer"
+        self.unique_id = f"{DOMAIN}-{self.coordinator.displayname}-latest"
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        self.async_write_ha_state()
+    
+    @property
+    def _has_latest_item(self):
+        item_count = len(self.coordinator.data.mapdata)
+        return item_count > 0
+
+    @property
+    def _latest_item(self):
+        return sorted(self.coordinator.data.mapdata, key=lambda item: item['backend'], reverse=True)[0]
+    
+    @property
+    def state(self):
+        if not self._has_latest_item:
+            return "unknown"
+        return BlitzerItem.getBackendId(self._latest_item)
+
+    @property
+    def extra_state_attributes(self):
+        if not self._has_latest_item:
+            return {}
+        return BlitzerItem.getAttributes(self._latest_item, location=False)

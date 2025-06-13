@@ -9,8 +9,6 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
 from homeassistant.const import (
-    ATTR_LATITUDE,
-    ATTR_LONGITUDE,
     STATE_ON,
     STATE_OFF,
 )
@@ -20,6 +18,7 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .item_utils  import BlitzerItem
 from .const import DOMAIN
 from .coordinator import BlitzerdeCoordinator
 
@@ -68,23 +67,6 @@ class MapBinarySensor(CoordinatorEntity):
     def is_on(self) -> bool:
         """Return the state of the sensor."""
         return len(self.coordinator.data.mapdata) > self._itemid
-
-    @property
-    def _picture_path(self) -> bool:
-        """Return the type of the sensor."""
-        item = self.coordinator.data.mapdata[self._itemid]
-        vmax = item['vmax']
-        if vmax == '?':
-            vmax = 'v'
-        elif vmax == '\/':
-            vmax = 'redlight'
-        
-        if 'fixed' in item['info']:
-            return 'fixed_' + vmax
-        elif 'partly_fixed' in item['info']:
-            return 'ts_' + vmax
-        else:
-            return 'mobile_' + vmax
     
     @property
     def state(self):
@@ -94,16 +76,4 @@ class MapBinarySensor(CoordinatorEntity):
     def extra_state_attributes(self):
         if not self.is_on:
             return {}
-        
-        item = self.coordinator.data.mapdata[self._itemid]
-        attrs = {}
-        attrs[ATTR_LATITUDE] = item['lat']
-        attrs[ATTR_LONGITUDE] = item['lng']
-        attrs['backend'] = item['backend'].split("-")[-1]
-        attrs['vmax'] = item['vmax']
-        attrs['entity_picture'] = "https://map.blitzer.de/v5/images/" + self._picture_path + ".svg"
-        attrs['counter'] = item['counter']
-        attrs['city'] = item['address']['city']
-        attrs['street'] = item['address']['street']
-        attrs['zip_code'] = item['address']['zip_code']
-        return attrs
+        return BlitzerItem.getAttributes(self.coordinator.data.mapdata[self._itemid])
