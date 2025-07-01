@@ -11,7 +11,7 @@ class BlitzerItem:
         vmax = item['vmax']
         if vmax == '?':
             vmax = 'v'
-        elif vmax == '\/':
+        elif vmax == '/':
             vmax = 'redlight'
         
         if 'fixed' in item['info']:
