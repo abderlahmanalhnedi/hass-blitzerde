@@ -1,4 +1,59 @@
-from dataclasses import dataclass
+"""Blitzerde coordinator module."""
+from __future__ import annotations
+import logging
+from datetime import timedelta
+
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+
+from .api import BlitzerdeApiClient
+
+_LOGGER = logging.getLogger(__name__)
+
+class BlitzerdeCoordinator(DataUpdateCoordinator):
+    """Koordinator für Blitzerde Daten."""
+
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        client: BlitzerdeApiClient,
+    ) -> None:
+        """Initialize coordinator."""
+        super().__init__(
+            hass,
+            _LOGGER,
+            name="blitzerde",
+            update_interval=timedelta(seconds=30),
+        )
+        self.client = client
+
+    async def _async_update_data(self):
+        """Hole aktuelle Blitzerde Daten."""
+        try:
+            # Debug logging für rohe API Daten
+            data = await self.client.async_get_data()
+            _LOGGER.debug("Rohe API Daten: %s", data)
+
+            if not data:
+                _LOGGER.warning("Keine Daten von der API erhalten")
+                return None
+
+            # Filtere bestätigte Einträge
+            mapdata = list(
+                filter(
+                    lambda mapitem: mapitem.get('info', {}).get('confirmed', 0) == 1,
+                    data
+                )
+            )
+            
+            return mapdata
+
+        except KeyError as err:
+            _LOGGER.error("Fehler beim Zugriff auf Datenstruktur: %s", err)
+            return None
+        except Exception as err:
+            _LOGGER.error("Unerwarteter Fehler beim Update der Daten: %s", err)
+            return Nonefrom dataclasses import dataclass
 from datetime import timedelta
 import logging
 
