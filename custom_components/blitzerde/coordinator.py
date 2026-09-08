@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
+import math
 import re
 from dataclasses import dataclass
 from datetime import timedelta
@@ -25,13 +27,21 @@ from homeassistant.helpers.update_coordinator import (
 
 from .api import APIConnectionError, APIRateLimitError, BlitzerdeAPI
 from .const import (
+    ATTR_DISTANCE_KM,
+    CONF_CORRIDOR_WIDTH,
+    CONF_SEARCH_MODE,
     CONF_UPDATE_INTERVAL,
+    CONF_WAYPOINTS,
+    DEFAULT_CORRIDOR_WIDTH_METERS,
     DEFAULT_ONLY_CONFIRMED,
     DEFAULT_SELECTOR,
     DEFAULT_SENSOR_COUNT,
     DEFAULT_TYPES,
     DEFAULT_UPDATE_INTERVAL_MINUTES,
     DOMAIN,
+    MAX_ROUTE_QUERY_POINTS,
+    SEARCH_MODE_AREA,
+    SEARCH_MODE_ROUTE,
     TYPE_FIXED,
     TYPE_MOBILE,
     TYPE_TRAILER,
@@ -39,6 +49,9 @@ from .const import (
 from .item_utils import item_info
 
 _LOGGER = logging.getLogger(__name__)
+
+_ROUTE_QUERY_CONCURRENCY = 5
+_EARTH_RADIUS_M = 6_371_008.8
 
 
 @dataclass(slots=True)
@@ -90,9 +103,43 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
         )
 
     @property
+    def search_mode(self) -> str:
+        """Return area or route search mode."""
+        return str(
+            self.config_entry.data.get(
+                CONF_SEARCH_MODE, SEARCH_MODE_AREA
+            )
+        )
+
+    @property
     def location(self) -> dict[str, Any]:
-        """Return current location options."""
+        """Return current area location options."""
         return dict(self._value(CONF_LOCATION, {}))
+
+    @property
+    def waypoints(self) -> list[dict[str, float]]:
+        """Return configured route waypoints."""
+        raw = self._value(CONF_WAYPOINTS, [])
+        return [
+            {
+                "latitude": float(point["latitude"]),
+                "longitude": float(point["longitude"]),
+            }
+            for point in raw
+            if isinstance(point, dict)
+            and "latitude" in point
+            and "longitude" in point
+        ]
+
+    @property
+    def corridor_width(self) -> float:
+        """Return route corridor radius in meters."""
+        return float(
+            self._value(
+                CONF_CORRIDOR_WIDTH,
+                DEFAULT_CORRIDOR_WIDTH_METERS,
+            )
+        )
 
     @property
     def whitelist(self) -> str:
@@ -152,13 +199,16 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
     async def _async_update_data(self) -> BlitzerdeAPIData:
         """Fetch, filter and sort current camera data."""
         try:
-            location = self.location
-            mapdata = await self.api.async_get_area(
-                latitude=float(location["latitude"]),
-                longitude=float(location["longitude"]),
-                radius=float(location["radius"]),
-                types=self.enabled_types(),
-            )
+            if self.search_mode == SEARCH_MODE_ROUTE:
+                mapdata = await self._async_get_route_data()
+            else:
+                location = self.location
+                mapdata = await self.api.async_get_area(
+                    latitude=float(location["latitude"]),
+                    longitude=float(location["longitude"]),
+                    radius=float(location["radius"]),
+                    types=self.enabled_types(),
+                )
         except APIRateLimitError as err:
             raise UpdateFailed(
                 retry_after=err.retry_after
@@ -189,11 +239,234 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
             if not city_pattern.search(city):
                 continue
 
-            if self.only_confirmed:
-                info = item_info(item)
-                if str(info.get("confirmed", "")) != "1":
-                    continue
+            if self.only_confirmed and not _is_confirmed(item):
+                continue
 
             filtered.append(item)
 
+        filtered.sort(
+            key=lambda item: float(
+                item.get(ATTR_DISTANCE_KM, math.inf)
+            )
+        )
         return BlitzerdeAPIData(mapdata=filtered)
+
+    async def _async_get_route_data(self) -> list[dict[str, Any]]:
+        """Search circles along the configured route and merge the results."""
+        waypoints = self.waypoints
+        if len(waypoints) < 2:
+            raise ValueError("Route requires at least two waypoints")
+
+        sample_points = _route_sample_points(
+            waypoints, self.corridor_width
+        )
+        if len(sample_points) > MAX_ROUTE_QUERY_POINTS:
+            raise ValueError(
+                "Route requires too many upstream queries; "
+                "increase corridor width or shorten the route"
+            )
+
+        merged: dict[str, dict[str, Any]] = {}
+        types = self.enabled_types()
+
+        for start in range(0, len(sample_points), _ROUTE_QUERY_CONCURRENCY):
+            chunk = sample_points[
+                start : start + _ROUTE_QUERY_CONCURRENCY
+            ]
+            responses = await asyncio.gather(
+                *(
+                    self.api.async_get_area(
+                        latitude=latitude,
+                        longitude=longitude,
+                        radius=self.corridor_width,
+                        types=types,
+                    )
+                    for latitude, longitude in chunk
+                )
+            )
+
+            for items in responses:
+                for raw_item in items:
+                    backend = str(
+                        raw_item.get("backend", "")
+                    ).strip()
+                    if not backend:
+                        continue
+
+                    item = dict(raw_item)
+                    try:
+                        item[ATTR_DISTANCE_KM] = round(
+                            _distance_to_route_km(
+                                float(item["lat"]),
+                                float(item["lng"]),
+                                waypoints,
+                            ),
+                            3,
+                        )
+                    except (KeyError, TypeError, ValueError):
+                        continue
+
+                    previous = merged.get(backend)
+                    if previous is None or float(
+                        item[ATTR_DISTANCE_KM]
+                    ) < float(
+                        previous.get(ATTR_DISTANCE_KM, math.inf)
+                    ):
+                        merged[backend] = item
+
+        return sorted(
+            merged.values(),
+            key=lambda item: float(
+                item.get(ATTR_DISTANCE_KM, math.inf)
+            ),
+        )
+
+
+def _is_confirmed(item: dict[str, Any]) -> bool:
+    """Treat permanent installations as confirmed even without a flag."""
+    info = item_info(item)
+    confirmed = info.get("confirmed")
+    if confirmed is not None:
+        return str(confirmed) == "1"
+
+    code = str(item.get("type", ""))
+    if str(info.get("fixed", "")) == "1":
+        return True
+    return code.isdigit() and 100 <= int(code) < 200
+
+
+def _route_sample_points(
+    waypoints: list[dict[str, float]],
+    corridor_width_m: float,
+) -> list[tuple[float, float]]:
+    """Interpolate overlapping query centers along each route segment."""
+    points: list[tuple[float, float]] = [
+        (
+            float(waypoints[0]["latitude"]),
+            float(waypoints[0]["longitude"]),
+        )
+    ]
+
+    for start, end in zip(waypoints, waypoints[1:]):
+        start_lat = float(start["latitude"])
+        start_lng = float(start["longitude"])
+        end_lat = float(end["latitude"])
+        end_lng = float(end["longitude"])
+
+        segment_m = _haversine_m(
+            start_lat, start_lng, end_lat, end_lng
+        )
+        steps = max(
+            1,
+            math.ceil(
+                segment_m / max(corridor_width_m, 1.0)
+            ),
+        )
+        for step in range(1, steps + 1):
+            fraction = step / steps
+            points.append(
+                (
+                    start_lat
+                    + (end_lat - start_lat) * fraction,
+                    start_lng
+                    + (end_lng - start_lng) * fraction,
+                )
+            )
+
+    return points
+
+
+def route_query_count(
+    waypoints: list[dict[str, float]],
+    corridor_width_m: float,
+) -> int:
+    """Return how many upstream circles a route needs."""
+    if len(waypoints) < 2:
+        return 0
+    return len(
+        _route_sample_points(
+            waypoints, corridor_width_m
+        )
+    )
+
+
+def _distance_to_route_km(
+    latitude: float,
+    longitude: float,
+    waypoints: list[dict[str, float]],
+) -> float:
+    """Approximate shortest distance from a POI to the waypoint polyline."""
+    distances = [
+        _distance_point_to_segment_m(
+            latitude,
+            longitude,
+            float(start["latitude"]),
+            float(start["longitude"]),
+            float(end["latitude"]),
+            float(end["longitude"]),
+        )
+        for start, end in zip(waypoints, waypoints[1:])
+    ]
+    return min(distances) / 1000 if distances else math.inf
+
+
+def _distance_point_to_segment_m(
+    point_lat: float,
+    point_lng: float,
+    start_lat: float,
+    start_lng: float,
+    end_lat: float,
+    end_lng: float,
+) -> float:
+    """Distance to a short WGS84 segment using a local equirectangular plane."""
+    reference_lat = math.radians(
+        (point_lat + start_lat + end_lat) / 3
+    )
+
+    def xy(lat: float, lng: float) -> tuple[float, float]:
+        return (
+            math.radians(lng - point_lng)
+            * _EARTH_RADIUS_M
+            * math.cos(reference_lat),
+            math.radians(lat - point_lat)
+            * _EARTH_RADIUS_M,
+        )
+
+    sx, sy = xy(start_lat, start_lng)
+    ex, ey = xy(end_lat, end_lng)
+    dx = ex - sx
+    dy = ey - sy
+    length_sq = dx * dx + dy * dy
+    if length_sq == 0:
+        return math.hypot(sx, sy)
+
+    projection = max(
+        0.0,
+        min(1.0, -(sx * dx + sy * dy) / length_sq),
+    )
+    closest_x = sx + projection * dx
+    closest_y = sy + projection * dy
+    return math.hypot(closest_x, closest_y)
+
+
+def _haversine_m(
+    lat1: float,
+    lng1: float,
+    lat2: float,
+    lng2: float,
+) -> float:
+    """Return great-circle distance in meters."""
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    delta_phi = math.radians(lat2 - lat1)
+    delta_lambda = math.radians(lng2 - lng1)
+
+    a = (
+        math.sin(delta_phi / 2) ** 2
+        + math.cos(phi1)
+        * math.cos(phi2)
+        * math.sin(delta_lambda / 2) ** 2
+    )
+    return 2 * _EARTH_RADIUS_M * math.atan2(
+        math.sqrt(a), math.sqrt(1 - a)
+    )
