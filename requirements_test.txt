@@ -1,2 +1,4 @@
-# Tracks Home Assistant 2026.9.x and provides Core-like pytest fixtures.
+# Home Assistant 2026.9.1 runtime test harness.
 pytest-homeassistant-custom-component==0.13.364
+# Required by the Home Assistant frontend integration manifest in 2026.9.1.
+home-assistant-frontend==20260826.6
