@@ -8,6 +8,7 @@ DOMAIN: Final = "blitzerde"
 
 API_URL: Final = "https://cdn2.atudo.net/api/4.0/pois.php"
 API_TIMEOUT_SECONDS: Final = 15
+UPSTREAM_REPAIR_FAILURE_THRESHOLD: Final = 5
 
 DEFAULT_UPDATE_INTERVAL_MINUTES: Final = 1
 MAX_UPDATE_INTERVAL_MINUTES: Final = 1440
