@@ -1,79 +1,102 @@
-import logging
+"""Binary sensor platform for Blitzer.de."""
 
-from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorStateClass,
-)
+from __future__ import annotations
+
+from typing import Any
+
 from homeassistant.components.binary_sensor import (
     BinarySensorDeviceClass,
     BinarySensorEntity,
 )
-from homeassistant.const import (
-    STATE_ON,
-    STATE_OFF,
-)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers.entity_platform import (
+    AddConfigEntryEntitiesCallback,
+)
+from homeassistant.helpers.update_coordinator import (
+    CoordinatorEntity,
+)
 
-from .item_utils  import BlitzerItem
 from .const import DOMAIN
 from .coordinator import BlitzerdeCoordinator
+from .item_utils import BlitzerItem
 
-_LOGGER = logging.getLogger(__name__)
+PARALLEL_UPDATES = 0
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    entry: ConfigEntry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
+) -> None:
+    """Set up one binary sensor slot per configured camera position."""
+    coordinator: BlitzerdeCoordinator = entry.runtime_data
+    async_add_entities(
+        [
+            BlitzerMapBinarySensor(
+                coordinator, entry, index
+            )
+            for index in range(
+                coordinator.sensorcount
+            )
+        ]
+    )
+
+
+class BlitzerMapBinarySensor(
+    CoordinatorEntity[BlitzerdeCoordinator],
+    BinarySensorEntity,
 ):
-    """Set up the Sensors."""
-    # This gets the data update coordinator from hass.data as specified in your __init__.py
-    coordinator: BlitzerdeCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ].coordinator
+    """Expose one of the nearest currently reported cameras."""
 
-    # Enumerate all the sensors in your data value from your DataUpdateCoordinator and add an instance of your sensor class
-    # to a list for each one.
-    # This maybe different in your specific case, depending on how your data is structured
-    sensors = []
-    for x in range(coordinator.sensorcount):
-        sensors.append(
-            MapBinarySensor(coordinator, x)
-        )
-
-    # Create the sensors.
-    async_add_entities(sensors)
-
-class MapBinarySensor(CoordinatorEntity):
-    
     _attr_should_poll = False
     _attr_has_entity_name = True
     _attr_device_class = BinarySensorDeviceClass.SAFETY
-    
-    def __init__(self, coordinator: BlitzerdeCoordinator, itemid: int) -> None:
-        super().__init__(coordinator)
-        self._itemid = itemid
-        self.name = f"Blitzer {self.coordinator.displayname} {self._itemid+1}"
-        self.unique_id = f"{DOMAIN}-{self.coordinator.displayname}-map{self._itemid+1}"
 
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        self.async_write_ha_state()
+    def __init__(
+        self,
+        coordinator: BlitzerdeCoordinator,
+        entry: ConfigEntry,
+        item_index: int,
+    ) -> None:
+        super().__init__(coordinator)
+        self._item_index = item_index
+        self._attr_name = (
+            f"Speed camera {item_index + 1}"
+        )
+        self._attr_unique_id = (
+            f"{DOMAIN}-"
+            f"{coordinator.displayname}-"
+            f"map{item_index + 1}"
+        )
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name=(
+                f"Blitzer.de "
+                f"{coordinator.displayname}"
+            ),
+            manufacturer="Blitzer.de / atudo.net",
+            model="Cloud map service",
+        )
 
     @property
     def is_on(self) -> bool:
-        """Return the state of the sensor."""
-        return len(self.coordinator.data.mapdata) > self._itemid
-    
-    @property
-    def state(self):
-        return STATE_ON if self.is_on else STATE_OFF
+        """Return True when a camera is assigned to this slot."""
+        return (
+            len(self.coordinator.data.mapdata)
+            > self._item_index
+        )
 
     @property
-    def extra_state_attributes(self):
+    def extra_state_attributes(
+        self,
+    ) -> dict[str, Any]:
+        """Return details for the camera assigned to this slot."""
         if not self.is_on:
             return {}
-        return BlitzerItem.getAttributes(self.coordinator.data.mapdata[self._itemid])
+        return BlitzerItem.get_attributes(
+            self.coordinator.data.mapdata[
+                self._item_index
+            ]
+        )

@@ -1,142 +1,353 @@
-import voluptuous as vol
-import logging
+"""Config and options flows for Blitzer.de."""
 
-from homeassistant.config_entries import (
-    ConfigFlow,
-    OptionsFlowWithConfigEntry,
+from __future__ import annotations
+
+import re
+from typing import Any
+
+import voluptuous as vol
+from homeassistant import config_entries
+from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
+from homeassistant.const import (
+    CONF_CONDITION,
+    CONF_COUNT,
+    CONF_LOCATION,
+    CONF_NAME,
+    CONF_SELECTOR,
+    CONF_TYPE,
 )
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from aiohttp import ClientError, ClientResponseError, ClientSession
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import section
 from homeassistant.helpers.selector import selector
+from homeassistant.util import slugify
 
-from .const import DOMAIN
-
-from homeassistant.const import (
-    CONF_LOCATION,
-    CONF_NAME,
-    CONF_COUNT,
-    CONF_TYPE,
-    CONF_SELECTOR,
-    CONF_CONDITION
+from .api import APIConnectionError, BlitzerdeAPI
+from .const import (
+    CONF_OPTIONAL,
+    DEFAULT_ONLY_CONFIRMED,
+    DEFAULT_SELECTOR,
+    DEFAULT_SENSOR_COUNT,
+    DEFAULT_TYPES,
+    DOMAIN,
+    MAX_SENSOR_COUNT,
+    TYPE_FIXED,
+    TYPE_MOBILE,
+    TYPE_TRAILER,
 )
 
-_LOGGER = logging.getLogger(__name__)
 
 class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
-    VERSION = 4
+    """Handle a config flow for Blitzer.de."""
 
-    def __init__(self) -> None:
-        """Initialize the config flow."""
+    VERSION = 5
 
-    async def async_step_user(self, user_input=None):
+    async def async_step_user(
+        self, user_input: dict[str, Any] | None = None
+    ):
+        """Handle initial setup."""
+        errors: dict[str, str] = {}
+
         if user_input is not None:
-            if CONF_LOCATION not in user_input: #default location
-                return self.async_abort(reason="location_missing")
+            normalized = _normalize_input(user_input)
+            validation_error = _validate_local_input(
+                normalized
+            )
+            if validation_error:
+                errors["base"] = validation_error
+            else:
+                try:
+                    await _async_test_connection(
+                        self.hass, normalized
+                    )
+                except APIConnectionError:
+                    errors["base"] = "cannot_connect"
+                else:
+                    await self.async_set_unique_id(
+                        slugify(normalized[CONF_NAME])
+                    )
+                    self._abort_if_unique_id_configured()
+                    return self.async_create_entry(
+                        title=(
+                            f"Blitzer.de "
+                            f"{normalized[CONF_NAME]}"
+                        ),
+                        data=normalized,
+                    )
 
-            return self.async_create_entry(title=f"Blitzer.de {user_input[CONF_NAME]}", data={
-                CONF_NAME: user_input[CONF_NAME],
-                CONF_TYPE: user_input[CONF_TYPE],
-                CONF_LOCATION: user_input[CONF_LOCATION],
-                CONF_COUNT: user_input['optional'][CONF_COUNT],
-                CONF_SELECTOR: user_input['optional'][CONF_SELECTOR],
-                CONF_CONDITION: user_input['optional'][CONF_CONDITION]
-            })
-
-        data_schema = {
-            vol.Required(CONF_NAME): str
-        }
-        data_schema[CONF_LOCATION] = selector({
-            "location": {
-                "radius": True
-            }
-        })
-        data_schema[vol.Required(CONF_TYPE)] = section(
-            vol.Schema(
-                {
-                    vol.Required("mobile", default=True): bool,
-                    vol.Required("trailer", default=True): bool,
-                    vol.Required("fixed", default=False): bool
-                }
-            ),
-            # Whether or not the section is initially collapsed (default = False)
-            {"collapsed": True},
+        return self.async_show_form(
+            step_id="user",
+            data_schema=_build_schema(user_input),
+            errors=errors,
         )
-        data_schema[vol.Required('optional')] = section(
-            vol.Schema(
-                {
-                    vol.Required(CONF_COUNT, default=9): int,
-                    vol.Required(CONF_SELECTOR, default=".*"): str,
-                    vol.Required(CONF_CONDITION, default=True): bool
-                }
-            ),
-            # Whether or not the section is initially collapsed (default = False)
-            {"collapsed": True},
-        )
-        return self.async_show_form(step_id="user", data_schema=vol.Schema(data_schema))
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry):
-        """Get the options flow for Met."""
-        return BlitzerdeOptionsFlow(config_entry)
+    def async_get_options_flow(
+        config_entry: ConfigEntry,
+    ) -> OptionsFlow:
+        """Create the options flow."""
+        return BlitzerdeOptionsFlow()
 
 
-class BlitzerdeOptionsFlow(OptionsFlowWithConfigEntry):
+class BlitzerdeOptionsFlow(config_entries.OptionsFlow):
+    """Handle runtime options without mutating initial config data."""
 
-    def __init__(self, config_entry) -> None:
-        """Initialize options flow."""
-        self._config_entry = config_entry
-
-    async def async_step_init(self, user_input=None):
-        """Configure options for Met."""
+    async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ):
+        """Manage Blitzer.de options."""
+        errors: dict[str, str] = {}
 
         if user_input is not None:
-            # Update config entry with data from user input
-            if CONF_LOCATION not in user_input: #default location
-                user_input[CONF_LOCATION] = self.config_entry.data.get(CONF_LOCATION)
-
-            data = {
-                CONF_NAME: self.config_entry.data.get(CONF_NAME),
-                CONF_COUNT: self.config_entry.data.get(CONF_COUNT),
-                CONF_TYPE: user_input[CONF_TYPE],
-                CONF_LOCATION: user_input[CONF_LOCATION],
-                CONF_SELECTOR: user_input['optional'][CONF_SELECTOR],
-                CONF_CONDITION: user_input['optional'][CONF_CONDITION]
-            }
-            self.hass.config_entries.async_update_entry(
-                self._config_entry, data=data
+            normalized = _normalize_input(
+                user_input,
+                name=str(
+                    self.config_entry.data.get(
+                        CONF_NAME,
+                        self.config_entry.title,
+                    )
+                ),
             )
-            return self.async_create_entry(
-                title=self._config_entry.title, data=data
+            validation_error = _validate_local_input(
+                normalized
             )
+            if validation_error:
+                errors["base"] = validation_error
+            else:
+                try:
+                    await _async_test_connection(
+                        self.hass, normalized
+                    )
+                except APIConnectionError:
+                    errors["base"] = "cannot_connect"
+                else:
+                    options = {
+                        CONF_LOCATION: normalized[
+                            CONF_LOCATION
+                        ],
+                        CONF_TYPE: normalized[CONF_TYPE],
+                        CONF_COUNT: normalized[CONF_COUNT],
+                        CONF_SELECTOR: normalized[
+                            CONF_SELECTOR
+                        ],
+                        CONF_CONDITION: normalized[
+                            CONF_CONDITION
+                        ],
+                    }
+                    return self.async_create_entry(
+                        title="", data=options
+                    )
 
-        data_schema = {}
-        data_schema[CONF_LOCATION] = selector({
-            "location": {
-                "radius": True
+        current = {
+            **dict(self.config_entry.data),
+            **dict(self.config_entry.options),
+        }
+        return self.async_show_form(
+            step_id="init",
+            data_schema=_build_schema(
+                current, include_name=False
+            ),
+            errors=errors,
+        )
+
+
+def _build_schema(
+    values: dict[str, Any] | None,
+    *,
+    include_name: bool = True,
+) -> vol.Schema:
+    """Build the shared config/options form schema."""
+    values = values or {}
+    types = values.get(CONF_TYPE, DEFAULT_TYPES)
+    optional = values.get(CONF_OPTIONAL, {})
+
+    default_count = values.get(
+        CONF_COUNT,
+        optional.get(
+            CONF_COUNT, DEFAULT_SENSOR_COUNT
+        ),
+    )
+    default_selector = values.get(
+        CONF_SELECTOR,
+        optional.get(
+            CONF_SELECTOR, DEFAULT_SELECTOR
+        ),
+    )
+    default_condition = values.get(
+        CONF_CONDITION,
+        optional.get(
+            CONF_CONDITION,
+            DEFAULT_ONLY_CONFIRMED,
+        ),
+    )
+
+    schema: dict[Any, Any] = {}
+    if include_name:
+        schema[
+            vol.Required(
+                CONF_NAME,
+                default=values.get(CONF_NAME, "Home"),
+            )
+        ] = str
+
+    location_key = (
+        vol.Required(
+            CONF_LOCATION,
+            default=values[CONF_LOCATION],
+        )
+        if CONF_LOCATION in values
+        and values[CONF_LOCATION] is not None
+        else vol.Required(CONF_LOCATION)
+    )
+    schema[location_key] = selector(
+        {"location": {"radius": True}}
+    )
+    schema[vol.Required(CONF_TYPE)] = section(
+        vol.Schema(
+            {
+                vol.Required(
+                    "mobile",
+                    default=types.get("mobile", True),
+                ): bool,
+                vol.Required(
+                    "trailer",
+                    default=types.get("trailer", True),
+                ): bool,
+                vol.Required(
+                    "fixed",
+                    default=types.get("fixed", False),
+                ): bool,
             }
-        })
-        data_schema[vol.Required(CONF_TYPE)] = section(
-            vol.Schema(
-                {
-                    vol.Required("mobile", default=self.config_entry.data.get(CONF_TYPE)["mobile"]): bool,
-                    vol.Required("trailer", default=self.config_entry.data.get(CONF_TYPE)["trailer"]): bool,
-                    vol.Required("fixed", default=self.config_entry.data.get(CONF_TYPE)["fixed"]): bool
-                }
-            ),
-            # Whether or not the section is initially collapsed (default = False)
-            {"collapsed": True},
-        )
-        data_schema[vol.Required('optional')] = section(
-            vol.Schema(
-                {
-                    vol.Required(CONF_SELECTOR, default=self.config_entry.data.get(CONF_SELECTOR)): str,
-                    vol.Required(CONF_CONDITION, default=self.config_entry.data.get(CONF_CONDITION)): bool
-                }
-            ),
-            # Whether or not the section is initially collapsed (default = False)
-            {"collapsed": True},
-        )
-        return self.async_show_form(step_id="init", data_schema=vol.Schema(data_schema))
+        ),
+        {"collapsed": False},
+    )
+    schema[vol.Required(CONF_OPTIONAL)] = section(
+        vol.Schema(
+            {
+                vol.Required(
+                    CONF_COUNT,
+                    default=default_count,
+                ): vol.All(
+                    vol.Coerce(int),
+                    vol.Range(
+                        min=1,
+                        max=MAX_SENSOR_COUNT,
+                    ),
+                ),
+                vol.Required(
+                    CONF_SELECTOR,
+                    default=default_selector,
+                ): str,
+                vol.Required(
+                    CONF_CONDITION,
+                    default=default_condition,
+                ): bool,
+            }
+        ),
+        {"collapsed": True},
+    )
+    return vol.Schema(schema)
+
+
+def _normalize_input(
+    user_input: dict[str, Any],
+    *,
+    name: str | None = None,
+) -> dict[str, Any]:
+    """Flatten optional UI data into config-entry friendly values."""
+    optional = user_input.get(CONF_OPTIONAL, {})
+    return {
+        CONF_NAME: (
+            name
+            if name is not None
+            else str(
+                user_input.get(CONF_NAME, "Home")
+            )
+        ),
+        CONF_LOCATION: user_input.get(CONF_LOCATION),
+        CONF_TYPE: dict(
+            user_input.get(
+                CONF_TYPE, DEFAULT_TYPES
+            )
+        ),
+        CONF_COUNT: int(
+            optional.get(
+                CONF_COUNT,
+                user_input.get(
+                    CONF_COUNT,
+                    DEFAULT_SENSOR_COUNT,
+                ),
+            )
+        ),
+        CONF_SELECTOR: str(
+            optional.get(
+                CONF_SELECTOR,
+                user_input.get(
+                    CONF_SELECTOR,
+                    DEFAULT_SELECTOR,
+                ),
+            )
+        ),
+        CONF_CONDITION: bool(
+            optional.get(
+                CONF_CONDITION,
+                user_input.get(
+                    CONF_CONDITION,
+                    DEFAULT_ONLY_CONFIRMED,
+                ),
+            )
+        ),
+    }
+
+
+def _validate_local_input(
+    data: dict[str, Any],
+) -> str | None:
+    """Validate non-network input and return a translation key."""
+    location = data.get(CONF_LOCATION)
+    if not str(data.get(CONF_NAME, "")).strip():
+        return "invalid_name"
+    if not isinstance(location, dict):
+        return "location_missing"
+    if not {
+        "latitude",
+        "longitude",
+        "radius",
+    }.issubset(location):
+        return "location_missing"
+    if not any(data[CONF_TYPE].values()):
+        return "no_types_selected"
+    try:
+        re.compile(data[CONF_SELECTOR])
+    except re.error:
+        return "invalid_regex"
+    return None
+
+
+def _enabled_types(
+    data: dict[str, Any],
+) -> list[int | str]:
+    """Convert UI type toggles to upstream type IDs."""
+    result: list[int | str] = []
+    types = data[CONF_TYPE]
+    if types.get("mobile"):
+        result.extend(TYPE_MOBILE)
+    if types.get("trailer"):
+        result.extend(TYPE_TRAILER)
+    if types.get("fixed"):
+        result.extend(TYPE_FIXED)
+    return result
+
+
+async def _async_test_connection(
+    hass, data: dict[str, Any]
+) -> None:
+    """Ensure the endpoint works before accepting a configuration."""
+    api = BlitzerdeAPI(hass)
+    location = data[CONF_LOCATION]
+    await api.async_test_connection(
+        latitude=float(location["latitude"]),
+        longitude=float(location["longitude"]),
+        radius=float(location["radius"]),
+        types=_enabled_types(data),
+    )
