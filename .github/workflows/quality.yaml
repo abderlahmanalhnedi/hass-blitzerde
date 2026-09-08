@@ -27,8 +27,10 @@ jobs:
           python-version: "3.14"
       - name: Compile integration
         run: python -m compileall -q custom_components/blitzerde tests
-      - name: Run unit tests
-        run: python -m unittest discover -s tests -v
+      - name: Run dependency-free unit tests
+        run: |
+          python -m unittest discover -s tests -p "test_route.py" -v
+          python -m unittest discover -s tests -p "test_freshness.py" -v
       - name: Ruff
         uses: astral-sh/ruff-action@v4.1.0
         with:
