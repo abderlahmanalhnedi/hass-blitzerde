@@ -7,8 +7,8 @@ import logging
 import math
 import re
 from dataclasses import dataclass
-from itertools import pairwise
 from datetime import timedelta
+from itertools import pairwise
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -406,7 +406,7 @@ def _distance_to_route_km(
             float(end["latitude"]),
             float(end["longitude"]),
         )
-        for start, end in zip(waypoints, waypoints[1:])
+        for start, end in pairwise(waypoints)
     ]
     return min(distances) / 1000 if distances else math.inf
 
