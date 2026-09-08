@@ -1,5 +1,6 @@
 {
+  "country": "DE",
+  "homeassistant": "2025.12.0",
   "name": "Blitzer.de",
-  "render_readme": true,
-  "country": "DE"
+  "render_readme": true
 }
