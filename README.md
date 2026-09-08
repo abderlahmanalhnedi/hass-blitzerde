@@ -7,9 +7,8 @@
 [![HACS](https://img.shields.io/badge/HACS-Custom%20Repository-41BDF5)](https://hacs.xyz/)
 
 [![Open this repository in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=abderlahmanalhnedi&repository=hass-blitzerde&category=integration)
-[![Add Blitzer.de to Home Assistant](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=blitzerde)
 
-> **One-click install:** Use the **HACS** button first to open this custom repository in your Home Assistant instance. After downloading it and restarting Home Assistant, use **Add Integration** to start the Blitzer.de setup flow directly.
+> **Install order matters:** the HACS button only opens/adds the custom repository. You must still **Download Blitzer.de in HACS and restart Home Assistant** before Home Assistant can start the integration's UI configuration flow.
 
 A modern, resilient Home Assistant custom integration for nearby speed-camera reports from the map data used by Blitzer.de.
 
@@ -88,12 +87,17 @@ This repository can be installed as a **custom HACS repository**:
    \`https://github.com/abderlahmanalhnedi/hass-blitzerde\`
 
 4. Select **Integration** as the category.
-5. Search for **Blitzer.de** and download it.
-6. Restart Home Assistant when HACS asks you to.
-7. Restart Home Assistant.
-8. Click the button below to start the setup directly, or go to **Settings → Devices & services → Add integration → Blitzer.de**.
+5. Search for **Blitzer.de** and click **Download**.
+6. Wait until HACS confirms the integration has been downloaded.
+7. **Restart Home Assistant completely.**
+8. After the restart, go to **Settings → Devices & services → Add integration → Blitzer.de**.
+
+Only after steps 5–7 are complete, this shortcut should work:
 
 [![Add Blitzer.de to Home Assistant](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=blitzerde)
+
+> [!NOTE]
+> If Home Assistant shows **“This integration does not support configuration via the UI”**, the custom integration has not been loaded yet. Usually this means it was only added as a HACS custom repository but not downloaded, or Home Assistant has not been restarted after the download.
 
 ### Manual
 
