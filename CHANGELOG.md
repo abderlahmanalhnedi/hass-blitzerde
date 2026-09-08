@@ -13,6 +13,8 @@ All notable user-facing changes are documented here.
 - `new` and `age_minutes` report attributes
 - New-report count on the aggregate sensor and dashboard card
 - Camera ID ignore list for persistent false positives
+- Automation-friendly **New speed cameras** sensor
+- One-click mobile notification blueprint with distance and area/route filters
 - Online/offline and last-update status in the Blitzer.de Radar card
 - Unit tests for upstream timestamp freshness parsing
 - CodeQL security scanning, Dependabot, CODEOWNERS and PR quality checklist
