@@ -53,6 +53,9 @@ async def async_setup_entry(
             BlitzerLastUpdateSensor(
                 coordinator, entry
             ),
+            BlitzerNewCountSensor(
+                coordinator, entry
+            ),
         ]
     )
 
@@ -291,4 +294,36 @@ class BlitzerLastUpdateSensor(BlitzerSensorEntity):
             "update_interval_minutes": (
                 self.coordinator.update_interval_minutes
             ),
+        }
+
+
+class BlitzerNewCountSensor(BlitzerSensorEntity):
+    """Number of reports inside the configured freshness window."""
+
+    _attr_icon = "mdi:new-box"
+    _attr_name = "New speed cameras"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        coordinator: BlitzerdeCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = (
+            f"{DOMAIN}-"
+            f"{coordinator.displayname}-new"
+        )
+
+    @property
+    def native_value(self) -> int:
+        """Return the number of currently fresh reports."""
+        return self.coordinator.new_count
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return the active freshness window."""
+        return {
+            "new_minutes": self.coordinator.new_minutes,
+            "enabled": self.coordinator.new_minutes > 0,
         }
