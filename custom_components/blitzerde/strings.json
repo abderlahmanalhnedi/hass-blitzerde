@@ -1,0 +1,270 @@
+{
+  "title": "Blitzer.de",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Blitzer.de",
+        "description": "Choose a name and whether to monitor a radius or a route corridor.",
+        "data": {
+          "name": "Display name",
+          "search_mode": "Search mode"
+        },
+        "data_description": {
+          "name": "A short name used to identify this monitored area or route in Home Assistant.",
+          "search_mode": "Choose a circular area or a waypoint-based route corridor."
+        }
+      },
+      "area": {
+        "title": "Area search",
+        "description": "Choose the center, radius and camera filters.",
+        "data": {
+          "location": "Area"
+        },
+        "sections": {
+          "type": {
+            "name": "Camera types",
+            "data": {
+              "mobile": "Mobile",
+              "trailer": "Trailer",
+              "fixed": "Fixed"
+            },
+            "data_description": {
+              "mobile": "Include temporary or mobile speed-camera reports.",
+              "trailer": "Include semi-stationary trailer camera reports.",
+              "fixed": "Include permanently installed camera reports."
+            }
+          },
+          "optional": {
+            "name": "Advanced settings",
+            "data": {
+              "count": "Number of camera slots",
+              "selector": "City name regular expression",
+              "condition": "Only show confirmed reports",
+              "update_interval": "Update interval in minutes (0 = manual only)",
+              "new_minutes": "Counts as new for (minutes, 0 = off)",
+              "blacklist": "Ignored camera IDs (comma-separated)"
+            },
+            "data_description": {
+              "count": "Maximum number of camera entities exposed for this entry.",
+              "selector": "Optional regular expression matched against the reported city name.",
+              "condition": "Ignore community reports that are not confirmed. Permanent fixed cameras are treated as confirmed.",
+              "update_interval": "Minutes between automatic refreshes. Use 0 to refresh only through the action.",
+              "new_minutes": "How long a report is highlighted and counted as new. Use 0 to disable new-report counting.",
+              "blacklist": "Comma-separated camera IDs that should always be ignored."
+            }
+          }
+        },
+        "data_description": {
+          "location": "Move the map marker and choose the radius Home Assistant should monitor."
+        }
+      },
+      "waypoint": {
+        "title": "Add waypoint {count}",
+        "description": "Move the marker to waypoint {count}. Add at least two points. The corridor follows straight lines between points, so add waypoints on important bends.",
+        "data": {
+          "location": "Waypoint",
+          "add_another": "Add another waypoint"
+        },
+        "data_description": {
+          "location": "Place this waypoint on the route you want to monitor.",
+          "add_another": "Keep this enabled to add another waypoint after saving this point."
+        }
+      },
+      "route_options": {
+        "title": "Route corridor settings",
+        "description": "Choose the corridor width around the route and which camera reports to include.",
+        "data": {
+          "corridor_width": "Corridor width (meters)"
+        },
+        "sections": {
+          "type": {
+            "name": "Camera types",
+            "data": {
+              "mobile": "Mobile",
+              "trailer": "Trailer",
+              "fixed": "Fixed"
+            },
+            "data_description": {
+              "mobile": "Include temporary or mobile speed-camera reports.",
+              "trailer": "Include semi-stationary trailer camera reports.",
+              "fixed": "Include permanently installed camera reports."
+            }
+          },
+          "optional": {
+            "name": "Advanced settings",
+            "data": {
+              "count": "Number of camera slots",
+              "selector": "City name regular expression",
+              "condition": "Only show confirmed reports",
+              "update_interval": "Update interval in minutes (0 = manual only)",
+              "new_minutes": "Counts as new for (minutes, 0 = off)",
+              "blacklist": "Ignored camera IDs (comma-separated)"
+            },
+            "data_description": {
+              "count": "Maximum number of camera entities exposed for this entry.",
+              "selector": "Optional regular expression matched against the reported city name.",
+              "condition": "Ignore community reports that are not confirmed. Permanent fixed cameras are treated as confirmed.",
+              "update_interval": "Minutes between automatic refreshes. Use 0 to refresh only through the action.",
+              "new_minutes": "How long a report is highlighted and counted as new. Use 0 to disable new-report counting.",
+              "blacklist": "Comma-separated camera IDs that should always be ignored."
+            }
+          }
+        },
+        "data_description": {
+          "corridor_width": "Maximum search distance from the route polyline, in meters."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to the upstream Blitzer.de/atudo service.",
+      "invalid_name": "Enter a non-empty display name.",
+      "invalid_regex": "The city filter is not a valid regular expression.",
+      "location_missing": "Select a location on the map.",
+      "no_types_selected": "Enable at least one camera type.",
+      "route_needs_two_waypoints": "A route needs at least two waypoints.",
+      "route_too_large": "This route would require too many API queries. Increase the corridor width or use a shorter route."
+    },
+    "abort": {
+      "already_configured": "An entry with this display name is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "What do you want to edit?",
+        "menu_options": {
+          "route_settings": "Route settings",
+          "edit_waypoints": "Redraw waypoints"
+        }
+      },
+      "area": {
+        "title": "Area search",
+        "description": "Adjust the monitored area and filtering. Changes are applied after saving.",
+        "data": {
+          "location": "Area"
+        },
+        "sections": {
+          "type": {
+            "name": "Camera types",
+            "data": {
+              "mobile": "Mobile",
+              "trailer": "Trailer",
+              "fixed": "Fixed"
+            },
+            "data_description": {
+              "mobile": "Include temporary or mobile speed-camera reports.",
+              "trailer": "Include semi-stationary trailer camera reports.",
+              "fixed": "Include permanently installed camera reports."
+            }
+          },
+          "optional": {
+            "name": "Advanced settings",
+            "data": {
+              "count": "Number of camera slots",
+              "selector": "City name regular expression",
+              "condition": "Only show confirmed reports",
+              "update_interval": "Update interval in minutes (0 = manual only)",
+              "new_minutes": "Counts as new for (minutes, 0 = off)",
+              "blacklist": "Ignored camera IDs (comma-separated)"
+            },
+            "data_description": {
+              "count": "Maximum number of camera entities exposed for this entry.",
+              "selector": "Optional regular expression matched against the reported city name.",
+              "condition": "Ignore community reports that are not confirmed. Permanent fixed cameras are treated as confirmed.",
+              "update_interval": "Minutes between automatic refreshes. Use 0 to refresh only through the action.",
+              "new_minutes": "How long a report is highlighted and counted as new. Use 0 to disable new-report counting.",
+              "blacklist": "Comma-separated camera IDs that should always be ignored."
+            }
+          }
+        },
+        "data_description": {
+          "location": "Move the map marker and choose the radius Home Assistant should monitor."
+        }
+      },
+      "route_settings": {
+        "title": "Route corridor settings",
+        "description": "Choose the corridor width around the route and which camera reports to include.",
+        "data": {
+          "corridor_width": "Corridor width (meters)"
+        },
+        "sections": {
+          "type": {
+            "name": "Camera types",
+            "data": {
+              "mobile": "Mobile",
+              "trailer": "Trailer",
+              "fixed": "Fixed"
+            },
+            "data_description": {
+              "mobile": "Include temporary or mobile speed-camera reports.",
+              "trailer": "Include semi-stationary trailer camera reports.",
+              "fixed": "Include permanently installed camera reports."
+            }
+          },
+          "optional": {
+            "name": "Advanced settings",
+            "data": {
+              "count": "Number of camera slots",
+              "selector": "City name regular expression",
+              "condition": "Only show confirmed reports",
+              "update_interval": "Update interval in minutes (0 = manual only)",
+              "new_minutes": "Counts as new for (minutes, 0 = off)",
+              "blacklist": "Ignored camera IDs (comma-separated)"
+            },
+            "data_description": {
+              "count": "Maximum number of camera entities exposed for this entry.",
+              "selector": "Optional regular expression matched against the reported city name.",
+              "condition": "Ignore community reports that are not confirmed. Permanent fixed cameras are treated as confirmed.",
+              "update_interval": "Minutes between automatic refreshes. Use 0 to refresh only through the action.",
+              "new_minutes": "How long a report is highlighted and counted as new. Use 0 to disable new-report counting.",
+              "blacklist": "Comma-separated camera IDs that should always be ignored."
+            }
+          }
+        },
+        "data_description": {
+          "corridor_width": "Maximum search distance from the route polyline, in meters."
+        }
+      },
+      "route_waypoint": {
+        "title": "Add replacement waypoint {count}",
+        "description": "Redraw the route from the beginning. Add at least two points, then disable “Add another waypoint” to continue.",
+        "data": {
+          "location": "Waypoint",
+          "add_another": "Add another waypoint"
+        },
+        "data_description": {
+          "location": "Place this waypoint on the route you want to monitor.",
+          "add_another": "Keep this enabled to add another waypoint after saving this point."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to the upstream Blitzer.de/atudo service.",
+      "invalid_regex": "The city filter is not a valid regular expression.",
+      "location_missing": "Select a location on the map.",
+      "no_types_selected": "Enable at least one camera type.",
+      "route_needs_two_waypoints": "A route needs at least two waypoints.",
+      "route_too_large": "This route would require too many API queries. Increase the corridor width or use a shorter route."
+    }
+  },
+  "selector": {
+    "search_mode": {
+      "options": {
+        "area": "Area / radius",
+        "route": "Route / corridor"
+      }
+    }
+  },
+  "services": {
+    "refresh": {
+      "name": "Refresh speed cameras",
+      "description": "Immediately fetch the latest speed cameras for one configured area or route instead of waiting for the next scheduled update. Returns the cameras found.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Area or route",
+          "description": "Which configured Blitzer.de entry should be refreshed."
+        }
+      }
+    }
+  }
+}
