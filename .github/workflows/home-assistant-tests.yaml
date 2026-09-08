@@ -31,7 +31,21 @@ jobs:
           cache-dependency-path: requirements_test.txt
 
       - name: Install Home Assistant test dependencies
-        run: python -m pip install -r requirements_test.txt
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements_test.txt
+          python -m pip check
+
+      - name: Show tested Home Assistant version
+        run: |
+          python - <<'PY'
+          import importlib.metadata
+          print("Home Assistant:", importlib.metadata.version("homeassistant"))
+          print(
+              "pytest-homeassistant-custom-component:",
+              importlib.metadata.version("pytest-homeassistant-custom-component"),
+          )
+          PY
 
       - name: Run Home Assistant-aware tests
         run: >
