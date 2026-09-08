@@ -1,111 +1,223 @@
-import logging
+"""Sensor platform for Blitzer.de."""
+
+from __future__ import annotations
+
+from typing import Any
 
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers.entity_platform import (
+    AddConfigEntryEntitiesCallback,
+)
+from homeassistant.helpers.update_coordinator import (
+    CoordinatorEntity,
+)
 
-from .item_utils  import BlitzerItem
-from .const import DOMAIN
+from .const import ATTR_DISTANCE_KM, DOMAIN
 from .coordinator import BlitzerdeCoordinator
+from .item_utils import BlitzerItem
 
-_LOGGER = logging.getLogger(__name__)
+PARALLEL_UPDATES = 0
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    config_entry: ConfigEntry,
-    async_add_entities: AddEntitiesCallback,
+    entry: ConfigEntry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
+) -> None:
+    """Set up Blitzer.de sensors."""
+    coordinator: BlitzerdeCoordinator = entry.runtime_data
+    async_add_entities(
+        [
+            BlitzerCountSensor(
+                coordinator, entry
+            ),
+            BlitzerLatestSensor(
+                coordinator, entry
+            ),
+            BlitzerNearestSensor(
+                coordinator, entry
+            ),
+        ]
+    )
+
+
+class BlitzerSensorEntity(
+    CoordinatorEntity[BlitzerdeCoordinator],
+    SensorEntity,
 ):
-    """Set up the Sensors."""
-    # This gets the data update coordinator from hass.data as specified in your __init__.py
-    coordinator: BlitzerdeCoordinator = hass.data[DOMAIN][
-        config_entry.entry_id
-    ].coordinator
+    """Base class for Blitzer.de sensors."""
 
-    # Enumerate all the sensors in your data value from your DataUpdateCoordinator and add an instance of your sensor class
-    # to a list for each one.
-    # This maybe different in your specific case, depending on how your data is structured
-    sensors = [
-        SensorMapTotal(coordinator),
-        SensorLatest(coordinator)
-    ]
-
-    # Create the sensors.
-    async_add_entities(sensors)
-
-class SensorMapTotal(CoordinatorEntity):
-    
-    _attr_should_poll = False
     _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator: BlitzerdeCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator)
+        self._entry = entry
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name=(
+                f"Blitzer.de "
+                f"{coordinator.displayname}"
+            ),
+            manufacturer="Blitzer.de / atudo.net",
+            model="Cloud map service",
+        )
+
+
+class BlitzerCountSensor(BlitzerSensorEntity):
+    """Number of exposed camera slots currently active."""
+
     _attr_icon = "mdi:counter"
-    
-    def __init__(self, coordinator: BlitzerdeCoordinator) -> None:
-        super().__init__(coordinator)
-        self.name = f"Blitzer.de {self.coordinator.displayname} Anzahl"
-        self.unique_id = f"{DOMAIN}-{self.coordinator.displayname}-total"
+    _attr_name = "Detected speed cameras"
+    _attr_state_class = SensorStateClass.MEASUREMENT
 
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        self.async_write_ha_state()
-    
-    @property
-    def state(self):
-        item_count = len(self.coordinator.data.mapdata)
-        if item_count > self.coordinator.sensorcount:
-            return self.coordinator.sensorcount
-        return item_count
+    def __init__(
+        self,
+        coordinator: BlitzerdeCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = (
+            f"{DOMAIN}-"
+            f"{coordinator.displayname}-total"
+        )
 
     @property
-    def extra_state_attributes(self):
-        attrs = {}
-        attrs["state_class"] = SensorStateClass.MEASUREMENT
+    def native_value(self) -> int:
+        """Return the number of currently exposed camera entities."""
+        return min(
+            len(self.coordinator.data.mapdata),
+            self.coordinator.sensorcount,
+        )
+
+    @property
+    def extra_state_attributes(
+        self,
+    ) -> dict[str, Any]:
+        """Return useful aggregate information."""
+        city_counts: dict[str, int] = {}
         for mapitem in self.coordinator.data.mapdata:
-            name = mapitem['address']['city']
-            if name in attrs:
-                attrs[name] = attrs[name] + 1
-            else:
-                attrs[name] = 1
-        
-        return attrs
+            city = str(
+                (mapitem.get("address") or {}).get(
+                    "city"
+                )
+                or "Unknown"
+            )
+            city_counts[city] = (
+                city_counts.get(city, 0) + 1
+            )
+        return {
+            "total_detected": len(
+                self.coordinator.data.mapdata
+            ),
+            "entity_limit": (
+                self.coordinator.sensorcount
+            ),
+            "by_city": city_counts,
+        }
 
-class SensorLatest(CoordinatorEntity):
-    
-    _attr_should_poll = False
-    _attr_has_entity_name = True
+
+class BlitzerLatestSensor(BlitzerSensorEntity):
+    """Latest-looking upstream camera identifier."""
+
     _attr_icon = "mdi:car"
-    
-    def __init__(self, coordinator: BlitzerdeCoordinator) -> None:
-        super().__init__(coordinator)
-        self.name = f"Blitzer.de {self.coordinator.displayname} letzter Blitzer"
-        self.unique_id = f"{DOMAIN}-{self.coordinator.displayname}-latest"
+    _attr_name = "Latest speed camera"
 
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        self.async_write_ha_state()
-    
-    @property
-    def _has_latest_item(self):
-        item_count = len(self.coordinator.data.mapdata)
-        return item_count > 0
+    def __init__(
+        self,
+        coordinator: BlitzerdeCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = (
+            f"{DOMAIN}-"
+            f"{coordinator.displayname}-latest"
+        )
 
     @property
-    def _latest_item(self):
-        return sorted(self.coordinator.data.mapdata, key=lambda item: item['backend'], reverse=True)[0]
-    
-    @property
-    def state(self):
-        if not self._has_latest_item:
-            return "unknown"
-        return BlitzerItem.getBackendId(self._latest_item)
+    def _latest_item(
+        self,
+    ) -> dict[str, Any] | None:
+        if not self.coordinator.data.mapdata:
+            return None
+        return max(
+            self.coordinator.data.mapdata,
+            key=lambda item: str(
+                item.get("backend", "")
+            ),
+        )
 
     @property
-    def extra_state_attributes(self):
-        if not self._has_latest_item:
+    def native_value(self) -> str | None:
+        """Return the backend ID or None when no camera exists."""
+        if (item := self._latest_item) is None:
+            return None
+        return BlitzerItem.get_backend_id(item)
+
+    @property
+    def extra_state_attributes(
+        self,
+    ) -> dict[str, Any]:
+        """Return camera details."""
+        if (item := self._latest_item) is None:
             return {}
-        return BlitzerItem.getAttributes(self._latest_item, location=False)
+        return BlitzerItem.get_attributes(
+            item, include_location=False
+        )
+
+
+class BlitzerNearestSensor(BlitzerSensorEntity):
+    """Distance to the nearest reported camera."""
+
+    _attr_icon = "mdi:map-marker-distance"
+    _attr_name = "Nearest speed camera"
+    _attr_native_unit_of_measurement = "km"
+
+    def __init__(
+        self,
+        coordinator: BlitzerdeCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = (
+            f"{DOMAIN}-"
+            f"{coordinator.displayname}-nearest"
+        )
+
+    @property
+    def _nearest_item(
+        self,
+    ) -> dict[str, Any] | None:
+        if not self.coordinator.data.mapdata:
+            return None
+        return self.coordinator.data.mapdata[0]
+
+    @property
+    def native_value(self) -> float | None:
+        """Return distance in km to the nearest camera."""
+        if (item := self._nearest_item) is None:
+            return None
+        value = item.get(ATTR_DISTANCE_KM)
+        return (
+            float(value)
+            if value is not None
+            else None
+        )
+
+    @property
+    def extra_state_attributes(
+        self,
+    ) -> dict[str, Any]:
+        """Return nearest camera details."""
+        if (item := self._nearest_item) is None:
+            return {}
+        return BlitzerItem.get_attributes(item)
