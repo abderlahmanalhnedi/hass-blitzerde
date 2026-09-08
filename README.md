@@ -45,7 +45,7 @@ Monitor a radius around home, a commute corridor, or both — with map entities,
 
 ## Highlights
 
-- **Home Assistant 2026-ready architecture** using \`ConfigEntry.runtime_data\` and \`DataUpdateCoordinator\`
+- **Home Assistant 2026-ready architecture** using `ConfigEntry.runtime_data` and `DataUpdateCoordinator`
 - **UI configuration and options flow** — no YAML required
 - Mobile, trailer, and fixed camera types
 - Two search modes: **Area / radius** and **Route / corridor**
@@ -84,7 +84,7 @@ For every configured area, the integration creates one Home Assistant device and
 
 | Entity | Purpose |
 | --- | --- |
-| **Detected speed cameras** | Number of currently exposed camera slots. Attributes include \`total_detected\`, \`entity_limit\`, and a per-city summary. |
+| **Detected speed cameras** | Number of currently exposed camera slots. Attributes include `total_detected`, `entity_limit`, and a per-city summary. |
 | **Nearest speed camera** | Distance in km to the nearest current report, with camera/address attributes. |
 | **Latest speed camera** | Backend ID of the latest-looking upstream report, with camera/address attributes. |
 | **New speed cameras** | Automation-friendly count of reports inside the configured freshness window. |
@@ -95,16 +95,16 @@ For every configured area, the integration creates one Home Assistant device and
 
 Each active camera slot exposes useful attributes such as:
 
-- \`backend\`
-- \`vmax\`
-- \`counter\`
-- \`city\`
-- \`street\`
-- \`zip_code\`
-- \`latitude\` / \`longitude\`
-- \`distance_km\`
-- \`description\` when provided upstream
-- \`entity_picture\`
+- `backend`
+- `vmax`
+- `counter`
+- `city`
+- `street`
+- `zip_code`
+- `latitude` / `longitude`
+- `distance_km`
+- `description` when provided upstream
+- `entity_picture`
 
 ## Installation
 
@@ -118,7 +118,7 @@ This repository can be installed as a **custom HACS repository**:
 2. Open the three-dot menu and choose **Custom repositories**.
 3. Add:
 
-   \`https://github.com/abderlahmanalhnedi/hass-blitzerde\`
+   `https://github.com/abderlahmanalhnedi/hass-blitzerde`
 
 4. Select **Integration** as the category.
 5. Search for **Blitzer.de** and click **Download**.
@@ -137,11 +137,11 @@ Only after steps 5–7 are complete, this shortcut should work:
 
 Copy the directory:
 
-\`custom_components/blitzerde\`
+`custom_components/blitzerde`
 
 into:
 
-\`/config/custom_components/blitzerde\`
+`/config/custom_components/blitzerde`
 
 Then restart Home Assistant and add **Blitzer.de** from **Settings → Devices & services**.
 
@@ -149,11 +149,11 @@ Then restart Home Assistant and add **Blitzer.de** from **Settings → Devices &
 
 During setup you choose:
 
-- **Display name** — for example \`Dresden\` or \`Commute\`
+- **Display name** — for example `Dresden` or `Commute`
 - **Area** — center point plus radius
 - **Camera types** — mobile, trailer, fixed
 - **Number of camera slots** — 1 to 50, default 9
-- **City filter** — regular expression, default \`.*\`
+- **City filter** — regular expression, default `.*`
 - **Confirmed only** — enabled by default
 - **Update interval** — minutes between polls; set to `0` for manual-only refreshes
 - **Counts as new for** — freshness window in minutes; set to `0` to disable new-report highlighting
@@ -175,18 +175,16 @@ You can later open **Configure** on the integration entry and either change rout
 
 ### City filter examples
 
-| Goal | Regex |
-| --- | --- |
-| Everything | \`.*\` |
-| Dresden only | \`^Dresden$\` |
-| Dresden or Radebeul | \`^(Dresden|Radebeul)$\` |
-| Cities beginning with \`Dres\` | \`^Dres.*\` |
+- **Everything:** `.*`
+- **Dresden only:** `^Dresden$`
+- **Dresden or Radebeul:** `^(Dresden|Radebeul)$`
+- **Cities beginning with `Dres`:** `^Dres.*`
 
 Invalid regular expressions are rejected directly in the UI before the configuration is saved.
 
 ## Built-in Blitzer.de Radar card
 
-Version 1.2 ships a dashboard card **inside the integration**. Home Assistant serves and registers it automatically, so there is no JavaScript file to copy into `www` and no Lovelace resource to add manually.
+Version 1.3 ships a dashboard card **inside the integration**. Home Assistant serves and registers it automatically, so there is no JavaScript file to copy into `www` and no Lovelace resource to add manually.
 
 In dashboard edit mode, add a manual/custom card with:
 
@@ -270,9 +268,9 @@ The notification includes the report summary, distance, and speed limit when ava
 
 ## Example automation
 
-Choose one of the generated \`Speed camera N\` binary sensors and use it as the trigger:
+Choose one of the generated `Speed camera N` binary sensors and use it as the trigger:
 
-\`\`\`yaml
+```yaml
 alias: Nearby speed camera appeared
 triggers:
   - trigger: state
@@ -288,7 +286,7 @@ actions:
         {{ state_attr('binary_sensor.YOUR_SPEED_CAMERA_1', 'distance_km') }} km ·
         {{ state_attr('binary_sensor.YOUR_SPEED_CAMERA_1', 'vmax') }} km/h
 mode: single
-\`\`\`
+```
 
 ## Diagnostics
 
@@ -307,7 +305,7 @@ The diagnostics implementation intentionally redacts the configured map location
 
 Restart Home Assistant after downloading the integration. If it still does not appear, clear/reload the browser frontend and verify that this directory exists:
 
-\`/config/custom_components/blitzerde\`
+`/config/custom_components/blitzerde`
 
 ### Setup says it cannot connect
 
@@ -318,14 +316,14 @@ The config flow tests the upstream endpoint before saving. A failure can mean:
 - the upstream endpoint changed
 - the service rate-limited requests
 
-Home Assistant will also retry runtime failures automatically. HTTP 429 responses use the upstream \`Retry-After\` signal when available.
+Home Assistant will also retry runtime failures automatically. HTTP 429 responses use the upstream `Retry-After` signal when available.
 
 ### No cameras are shown
 
 Check these first:
 
 - increase the selected radius
-- temporarily use the city regex \`.*\`
+- temporarily use the city regex `.*`
 - enable more camera types
 - temporarily disable **Confirmed only**
 
