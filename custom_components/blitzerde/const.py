@@ -16,6 +16,9 @@ DEFAULT_SENSOR_COUNT: Final = 9
 MAX_SENSOR_COUNT: Final = 50
 DEFAULT_SELECTOR: Final = ".*"
 DEFAULT_ONLY_CONFIRMED: Final = True
+DEFAULT_NEW_MINUTES: Final = 60
+MAX_NEW_MINUTES: Final = 1440
+DEFAULT_BLACKLIST: Final = ""
 DEFAULT_TYPES: Final = {
     "mobile": True,
     "trailer": True,
@@ -24,6 +27,8 @@ DEFAULT_TYPES: Final = {
 
 CONF_OPTIONAL: Final = "optional"
 CONF_UPDATE_INTERVAL: Final = "update_interval"
+CONF_NEW_MINUTES: Final = "new_minutes"
+CONF_BLACKLIST: Final = "blacklist"
 
 CONF_SEARCH_MODE: Final = "search_mode"
 SEARCH_MODE_AREA: Final = "area"
