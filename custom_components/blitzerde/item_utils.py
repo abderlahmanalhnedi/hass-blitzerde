@@ -68,6 +68,8 @@ class BlitzerItem:
             "zip_code": address.get("zip_code"),
             "created": item.get("create_date"),
             "confirmed_at": item.get("confirm_date"),
+            "new": item.get("new"),
+            "age_minutes": item.get("age_minutes"),
         }
 
         if ATTR_DISTANCE_KM in item:

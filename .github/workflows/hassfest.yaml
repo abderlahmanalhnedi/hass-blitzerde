@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: hassfest-\${{ github.ref }}
+  group: hassfest-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

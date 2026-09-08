@@ -34,14 +34,74 @@ async def async_setup_entry(
     coordinator: BlitzerdeCoordinator = entry.runtime_data
     async_add_entities(
         [
-            BlitzerMapBinarySensor(
-                coordinator, entry, index
-            )
-            for index in range(
-                coordinator.sensorcount
-            )
+            BlitzerHealthBinarySensor(
+                coordinator, entry
+            ),
+            *[
+                BlitzerMapBinarySensor(
+                    coordinator, entry, index
+                )
+                for index in range(
+                    coordinator.sensorcount
+                )
+            ],
         ]
     )
+
+
+class BlitzerHealthBinarySensor(
+    CoordinatorEntity[BlitzerdeCoordinator],
+    BinarySensorEntity,
+):
+    """Connectivity/health entity for the upstream service."""
+
+    _attr_should_poll = False
+    _attr_has_entity_name = True
+    _attr_device_class = BinarySensorDeviceClass.CONNECTIVITY
+    _attr_name = "Upstream service"
+
+    def __init__(
+        self,
+        coordinator: BlitzerdeCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator)
+        self._attr_unique_id = (
+            f"{DOMAIN}-"
+            f"{coordinator.displayname}-health"
+        )
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name=f"Blitzer.de {coordinator.displayname}",
+            manufacturer="Blitzer.de / atudo.net",
+            model="Cloud map service",
+        )
+
+    @property
+    def is_on(self) -> bool:
+        """Return whether the last update completed successfully."""
+        return self.coordinator.last_update_success
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Expose useful troubleshooting telemetry."""
+        return {
+            "last_successful_update": (
+                self.coordinator.last_successful_update.isoformat()
+                if self.coordinator.last_successful_update
+                else None
+            ),
+            "last_update_duration_ms": (
+                self.coordinator.last_update_duration_ms
+            ),
+            "consecutive_failures": (
+                self.coordinator.consecutive_failures
+            ),
+            "update_interval_minutes": (
+                self.coordinator.update_interval_minutes
+            ),
+            "search_mode": self.coordinator.search_mode,
+        }
 
 
 class BlitzerMapBinarySensor(

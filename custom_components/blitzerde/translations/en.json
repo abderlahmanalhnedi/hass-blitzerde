@@ -31,7 +31,9 @@
               "count": "Number of camera slots",
               "selector": "City name regular expression",
               "condition": "Only show confirmed reports",
-              "update_interval": "Update interval in minutes (0 = manual only)"
+              "update_interval": "Update interval in minutes (0 = manual only)",
+              "new_minutes": "Counts as new for (minutes, 0 = off)",
+              "blacklist": "Ignored camera IDs (comma-separated)"
             }
           }
         }
@@ -65,7 +67,9 @@
               "count": "Number of camera slots",
               "selector": "City name regular expression",
               "condition": "Only show confirmed reports",
-              "update_interval": "Update interval in minutes (0 = manual only)"
+              "update_interval": "Update interval in minutes (0 = manual only)",
+              "new_minutes": "Counts as new for (minutes, 0 = off)",
+              "blacklist": "Ignored camera IDs (comma-separated)"
             }
           }
         }
@@ -114,7 +118,9 @@
               "count": "Number of camera slots",
               "selector": "City name regular expression",
               "condition": "Only show confirmed reports",
-              "update_interval": "Update interval in minutes (0 = manual only)"
+              "update_interval": "Update interval in minutes (0 = manual only)",
+              "new_minutes": "Counts as new for (minutes, 0 = off)",
+              "blacklist": "Ignored camera IDs (comma-separated)"
             }
           }
         }
@@ -140,7 +146,9 @@
               "count": "Number of camera slots",
               "selector": "City name regular expression",
               "condition": "Only show confirmed reports",
-              "update_interval": "Update interval in minutes (0 = manual only)"
+              "update_interval": "Update interval in minutes (0 = manual only)",
+              "new_minutes": "Counts as new for (minutes, 0 = off)",
+              "blacklist": "Ignored camera IDs (comma-separated)"
             }
           }
         }
