@@ -359,3 +359,99 @@ def test_confirmation_rules(item: dict, expected: bool) -> None:
     from custom_components.blitzerde.coordinator import _is_confirmed
 
     assert _is_confirmed(item) is expected
+
+
+async def test_area_update_handles_non_mapping_address_and_unknown_age(hass) -> None:
+    """Irregular address/date fields are ignored without breaking an update."""
+    entry = _entry(
+        hass,
+        options={
+            CONF_SELECTOR: ".*",
+            CONF_CONDITION: False,
+            CONF_BLACKLIST: "",
+        },
+    )
+    coordinator = BlitzerdeCoordinator(hass, entry)
+    coordinator.api.async_get_area = AsyncMock(
+        return_value=[
+            {
+                "backend": "1-weird",
+                "lat": 51.05,
+                "lng": 13.74,
+                ATTR_DISTANCE_KM: 0.4,
+                "address": False,
+                "create_date": "not-a-date",
+            }
+        ]
+    )
+
+    result = await coordinator._async_update_data()
+
+    assert result.mapdata[0]["backend"] == "1-weird"
+    assert "age_minutes" not in result.mapdata[0]
+    assert result.mapdata[0]["new"] is False
+
+
+async def test_enabled_types_can_disable_mobile(hass) -> None:
+    """Enabled type mapping covers a configuration without mobile cameras."""
+    entry = _entry(
+        hass,
+        options={
+            CONF_TYPE: {
+                "mobile": False,
+                "trailer": True,
+                "fixed": False,
+            }
+        },
+    )
+    coordinator = BlitzerdeCoordinator(hass, entry)
+
+    assert coordinator.enabled_types() == ["ts"]
+
+
+async def test_route_duplicate_keeps_nearer_existing_result(hass) -> None:
+    """A farther duplicate from a later route sample does not replace the nearer one."""
+    waypoints = [
+        {"latitude": 51.05, "longitude": 13.73},
+        {"latitude": 51.05, "longitude": 13.75},
+    ]
+    entry = _entry(
+        hass,
+        mode=SEARCH_MODE_ROUTE,
+        options={CONF_CONDITION: False},
+        **{
+            CONF_WAYPOINTS: waypoints,
+            CONF_CORRIDOR_WIDTH: 500,
+        },
+    )
+    coordinator = BlitzerdeCoordinator(hass, entry)
+    coordinator.api.async_get_area = AsyncMock(
+        side_effect=[
+            [
+                {
+                    "backend": "1-42",
+                    "lat": 51.05,
+                    "lng": 13.74,
+                }
+            ],
+            [
+                {
+                    "backend": "1-42",
+                    "lat": 51.06,
+                    "lng": 13.74,
+                }
+            ],
+        ]
+    )
+
+    with patch(
+        "custom_components.blitzerde.coordinator.route_sample_points",
+        return_value=[
+            (51.05, 13.73),
+            (51.05, 13.75),
+        ],
+    ):
+        result = await coordinator._async_get_route_data()
+
+    assert len(result) == 1
+    assert result[0]["lat"] == 51.05
