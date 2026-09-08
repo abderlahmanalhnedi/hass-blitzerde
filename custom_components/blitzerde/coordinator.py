@@ -25,16 +25,18 @@ from homeassistant.helpers.update_coordinator import (
 
 from .api import APIConnectionError, APIRateLimitError, BlitzerdeAPI
 from .const import (
+    CONF_UPDATE_INTERVAL,
     DEFAULT_ONLY_CONFIRMED,
-    DEFAULT_SCAN_INTERVAL_SECONDS,
     DEFAULT_SELECTOR,
     DEFAULT_SENSOR_COUNT,
     DEFAULT_TYPES,
+    DEFAULT_UPDATE_INTERVAL_MINUTES,
     DOMAIN,
     TYPE_FIXED,
     TYPE_MOBILE,
     TYPE_TRAILER,
 )
+from .item_utils import item_info
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -56,13 +58,25 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
         self.config_entry = config_entry
         self.api = BlitzerdeAPI(hass)
 
+        interval_minutes = int(
+            config_entry.options.get(
+                CONF_UPDATE_INTERVAL,
+                config_entry.data.get(
+                    CONF_UPDATE_INTERVAL,
+                    DEFAULT_UPDATE_INTERVAL_MINUTES,
+                ),
+            )
+        )
+
         super().__init__(
             hass,
             _LOGGER,
             config_entry=config_entry,
             name=f"{DOMAIN}:{config_entry.entry_id}",
-            update_interval=timedelta(
-                seconds=DEFAULT_SCAN_INTERVAL_SECONDS
+            update_interval=(
+                None
+                if interval_minutes <= 0
+                else timedelta(minutes=interval_minutes)
             ),
         )
 
@@ -87,9 +101,17 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
 
     @property
     def sensorcount(self) -> int:
-        """Return configured number of binary sensor slots."""
+        """Return configured number of binary/geolocation slots."""
+        return int(self._value(CONF_COUNT, DEFAULT_SENSOR_COUNT))
+
+    @property
+    def update_interval_minutes(self) -> int:
+        """Return the configured polling interval in minutes."""
         return int(
-            self._value(CONF_COUNT, DEFAULT_SENSOR_COUNT)
+            self._value(
+                CONF_UPDATE_INTERVAL,
+                DEFAULT_UPDATE_INTERVAL_MINUTES,
+            )
         )
 
     @property
@@ -160,14 +182,16 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
 
         filtered: list[dict[str, Any]] = []
         for item in mapdata:
-            address = item.get("address") or {}
+            address = item.get("address")
+            if not isinstance(address, dict):
+                address = {}
             city = str(address.get("city") or "")
             if not city_pattern.search(city):
                 continue
 
             if self.only_confirmed:
-                info = item.get("info") or {}
-                if info.get("confirmed") != 1:
+                info = item_info(item)
+                if str(info.get("confirmed", "")) != "1":
                     continue
 
             filtered.append(item)

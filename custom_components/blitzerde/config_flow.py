@@ -24,12 +24,15 @@ from homeassistant.util import slugify
 from .api import APIConnectionError, BlitzerdeAPI
 from .const import (
     CONF_OPTIONAL,
+    CONF_UPDATE_INTERVAL,
     DEFAULT_ONLY_CONFIRMED,
     DEFAULT_SELECTOR,
     DEFAULT_SENSOR_COUNT,
     DEFAULT_TYPES,
+    DEFAULT_UPDATE_INTERVAL_MINUTES,
     DOMAIN,
     MAX_SENSOR_COUNT,
+    MAX_UPDATE_INTERVAL_MINUTES,
     TYPE_FIXED,
     TYPE_MOBILE,
     TYPE_TRAILER,
@@ -39,7 +42,7 @@ from .const import (
 class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Blitzer.de."""
 
-    VERSION = 5
+    VERSION = 6
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
@@ -133,6 +136,9 @@ class BlitzerdeOptionsFlow(config_entries.OptionsFlow):
                         CONF_CONDITION: normalized[
                             CONF_CONDITION
                         ],
+                        CONF_UPDATE_INTERVAL: normalized[
+                            CONF_UPDATE_INTERVAL
+                        ],
                     }
                     return self.async_create_entry(
                         title="", data=options
@@ -178,6 +184,13 @@ def _build_schema(
         optional.get(
             CONF_CONDITION,
             DEFAULT_ONLY_CONFIRMED,
+        ),
+    )
+    default_update_interval = values.get(
+        CONF_UPDATE_INTERVAL,
+        optional.get(
+            CONF_UPDATE_INTERVAL,
+            DEFAULT_UPDATE_INTERVAL_MINUTES,
         ),
     )
 
@@ -242,6 +255,16 @@ def _build_schema(
                     CONF_CONDITION,
                     default=default_condition,
                 ): bool,
+                vol.Required(
+                    CONF_UPDATE_INTERVAL,
+                    default=default_update_interval,
+                ): vol.All(
+                    vol.Coerce(int),
+                    vol.Range(
+                        min=0,
+                        max=MAX_UPDATE_INTERVAL_MINUTES,
+                    ),
+                ),
             }
         ),
         {"collapsed": True},
@@ -294,6 +317,15 @@ def _normalize_input(
                 user_input.get(
                     CONF_CONDITION,
                     DEFAULT_ONLY_CONFIRMED,
+                ),
+            )
+        ),
+        CONF_UPDATE_INTERVAL: int(
+            optional.get(
+                CONF_UPDATE_INTERVAL,
+                user_input.get(
+                    CONF_UPDATE_INTERVAL,
+                    DEFAULT_UPDATE_INTERVAL_MINUTES,
                 ),
             )
         ),

@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: hacs-\${{ github.ref }}
+  group: hacs-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -25,3 +25,4 @@ jobs:
         uses: hacs/action@main
         with:
           category: integration
+          ignore: "topics issues license"

@@ -23,7 +23,8 @@
             "data": {
               "count": "Anzahl der Blitzer-Slots",
               "selector": "Regulärer Ausdruck für Städtenamen",
-              "condition": "Nur bestätigte Meldungen anzeigen"
+              "condition": "Nur bestätigte Meldungen anzeigen",
+              "update_interval": "Update-Intervall in Minuten (0 = nur manuell)"
             }
           }
         }
@@ -62,7 +63,8 @@
             "data": {
               "count": "Anzahl der Blitzer-Slots",
               "selector": "Regulärer Ausdruck für Städtenamen",
-              "condition": "Nur bestätigte Meldungen anzeigen"
+              "condition": "Nur bestätigte Meldungen anzeigen",
+              "update_interval": "Update-Intervall in Minuten (0 = nur manuell)"
             }
           }
         }
@@ -74,6 +76,18 @@
       "invalid_regex": "Der Städtefilter ist kein gültiger regulärer Ausdruck.",
       "location_missing": "Bitte Position und Radius auf der Karte auswählen.",
       "no_types_selected": "Aktiviere mindestens einen Blitzer-Typ."
+    }
+  },
+  "services": {
+    "refresh": {
+      "name": "Blitzer aktualisieren",
+      "description": "Ruft die aktuellen Blitzer für einen konfigurierten Bereich sofort ab, statt auf das nächste geplante Update zu warten. Gibt die gefundenen Blitzer zurück.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Bereich",
+          "description": "Welcher konfigurierte Blitzer.de-Bereich aktualisiert werden soll."
+        }
+      }
     }
   }
 }

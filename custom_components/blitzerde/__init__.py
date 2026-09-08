@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import logging
+from typing import Any
 
+import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    ATTR_CONFIG_ENTRY_ID,
     CONF_CONDITION,
     CONF_COUNT,
     CONF_LOCATION,
@@ -14,19 +17,53 @@ from homeassistant.const import (
     CONF_TYPE,
     Platform,
 )
-from homeassistant.core import HomeAssistant
+from homeassistant.core import (
+    HomeAssistant,
+    ServiceCall,
+    ServiceResponse,
+    SupportsResponse,
+)
+from homeassistant.exceptions import ServiceValidationError
+from homeassistant.helpers import config_validation as cv
 
 from .const import (
+    CONF_UPDATE_INTERVAL,
     DEFAULT_ONLY_CONFIRMED,
     DEFAULT_SELECTOR,
     DEFAULT_SENSOR_COUNT,
     DEFAULT_TYPES,
+    DEFAULT_UPDATE_INTERVAL_MINUTES,
+    DOMAIN,
+    SERVICE_REFRESH,
 )
 from .coordinator import BlitzerdeCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.BINARY_SENSOR]
+PLATFORMS: list[Platform] = [
+    Platform.SENSOR,
+    Platform.BINARY_SENSOR,
+    Platform.GEO_LOCATION,
+]
+
+_REFRESH_SCHEMA = vol.Schema(
+    {vol.Required(ATTR_CONFIG_ENTRY_ID): cv.string}
+)
+
+
+async def async_setup(
+    hass: HomeAssistant, config: dict[str, Any]
+) -> bool:
+    """Set up global Blitzer.de services."""
+    if not hass.services.has_service(DOMAIN, SERVICE_REFRESH):
+        hass.services.async_register(
+            DOMAIN,
+            SERVICE_REFRESH,
+            _async_handle_refresh,
+            schema=_REFRESH_SCHEMA,
+            supports_response=SupportsResponse.OPTIONAL,
+        )
+    return True
 
 
 async def async_setup_entry(
@@ -45,6 +82,49 @@ async def async_setup_entry(
         entry, PLATFORMS
     )
     return True
+
+
+async def _async_handle_refresh(
+    call: ServiceCall,
+) -> ServiceResponse:
+    """Refresh one configured area immediately and return its current data."""
+    hass = call.hass
+    entry_id = call.data[ATTR_CONFIG_ENTRY_ID]
+    entry = hass.config_entries.async_get_entry(entry_id)
+    if entry is None or entry.domain != DOMAIN:
+        raise ServiceValidationError(
+            f"'{entry_id}' is not a Blitzer.de config entry"
+        )
+
+    coordinator: BlitzerdeCoordinator = entry.runtime_data
+    await coordinator.async_request_refresh()
+
+    mapdata = coordinator.data.mapdata if coordinator.data else []
+    return {
+        "config_entry_id": entry.entry_id,
+        "area": coordinator.displayname,
+        "count": len(mapdata),
+        "cameras": [
+            {
+                "backend": str(item.get("backend", "")).rsplit("-", 1)[-1],
+                "vmax": item.get("vmax"),
+                "city": (
+                    item.get("address", {}).get("city")
+                    if isinstance(item.get("address"), dict)
+                    else None
+                ),
+                "street": (
+                    item.get("address", {}).get("street")
+                    if isinstance(item.get("address"), dict)
+                    else None
+                ),
+                "latitude": item.get("lat"),
+                "longitude": item.get("lng"),
+                "distance_km": item.get("distance_km"),
+            }
+            for item in mapdata[: coordinator.sensorcount]
+        ],
+    }
 
 
 async def _async_update_listener(
@@ -66,8 +146,8 @@ async def async_unload_entry(
 async def async_migrate_entry(
     hass: HomeAssistant, entry: ConfigEntry
 ) -> bool:
-    """Migrate older config entries to schema version 5."""
-    if entry.version >= 5:
+    """Migrate older config entries to schema version 6."""
+    if entry.version >= 6:
         return True
 
     _LOGGER.debug(
@@ -86,6 +166,10 @@ async def async_migrate_entry(
     data.setdefault(
         CONF_CONDITION, DEFAULT_ONLY_CONFIRMED
     )
+    data.setdefault(
+        CONF_UPDATE_INTERVAL,
+        DEFAULT_UPDATE_INTERVAL_MINUTES,
+    )
 
     if CONF_LOCATION not in data:
         _LOGGER.error(
@@ -94,9 +178,9 @@ async def async_migrate_entry(
         return False
 
     hass.config_entries.async_update_entry(
-        entry, data=data, version=5
+        entry, data=data, version=6
     )
     _LOGGER.debug(
-        "Blitzer.de config entry migration to version 5 completed"
+        "Blitzer.de config entry migration to version 6 completed"
     )
     return True

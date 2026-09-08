@@ -21,7 +21,11 @@ A modern, resilient Home Assistant custom integration for nearby speed-camera re
 - Optional confirmed-only filter
 - Cameras sorted **nearest first**
 - Distance to every result, plus a dedicated **Nearest speed camera** sensor
-- Up to 50 binary sensor slots
+- Native **Geo Location** entities for the Home Assistant map
+- `blitzerde_new_camera` event for genuinely new reports after startup
+- Configurable polling interval, including **manual-only** mode
+- `blitzerde.refresh` action for on-demand updates and response data
+- Up to 50 binary/geolocation camera slots
 - Robust timeout, malformed-response, HTTP, and rate-limit handling
 - Automatic retry/backoff through Home Assistant's coordinator
 - Privacy-conscious downloadable diagnostics
@@ -44,6 +48,7 @@ For every configured area, the integration creates one Home Assistant device and
 | **Nearest speed camera** | Distance in km to the nearest current report, with camera/address attributes. |
 | **Latest speed camera** | Backend ID of the latest-looking upstream report, with camera/address attributes. |
 | **Speed camera 1 … N** | Safety binary sensors. Slot 1 is the nearest report, slot 2 the next-nearest, and so on. |
+| **Geo Location markers** | One dynamic map marker per exposed camera, automatically added, updated, and removed as reports change. |
 
 Each active camera slot exposes useful attributes such as:
 
@@ -97,6 +102,7 @@ During setup you choose:
 - **Number of camera slots** — 1 to 50, default 9
 - **City filter** — regular expression, default \`.*\`
 - **Confirmed only** — enabled by default
+- **Update interval** — minutes between polls; set to `0` for manual-only refreshes
 
 The area radius returned by Home Assistant's location selector is interpreted in **meters**. Results from the rectangular upstream API query are then filtered again to the selected circular radius.
 
@@ -110,6 +116,45 @@ The area radius returned by Home Assistant's location selector is interpreted in
 | Cities beginning with \`Dres\` | \`^Dres.*\` |
 
 Invalid regular expressions are rejected directly in the UI before the configuration is saved.
+
+## Home Assistant map
+
+The integration now exposes current reports as native `geo_location` entities. Add Home Assistant's built-in **Map** card and select the Blitzer.de source for the configured area. Markers use the upstream coordinates, show their distance from the configured center, and carry useful attributes such as street, city, speed limit, report ID, camera type, and a short summary.
+
+Geo Location entities are dynamic: when a report disappears from the current result set, its marker is removed instead of being left behind as an unavailable ghost.
+
+## New-camera event
+
+After the first successful fetch, every camera ID that appears in a later poll fires:
+
+`blitzerde_new_camera`
+
+The first fetch after startup is intentionally treated as the baseline so Home Assistant does not send a burst of "new" notifications after every restart.
+
+Example automation trigger:
+
+```yaml
+triggers:
+  - trigger: event
+    event_type: blitzerde_new_camera
+actions:
+  - action: notify.mobile_app_YOUR_PHONE
+    data:
+      title: "New speed camera"
+      message: "{{ trigger.event.data.summary }} · {{ trigger.event.data.distance_km }} km"
+```
+
+The event payload includes `config_entry_id`, `area`, `id`, `camera_type`, `summary`, address fields, coordinates, `distance_km`, `vmax`, and other available camera metadata.
+
+## Polling and manual refresh
+
+The update interval is configurable per entry in minutes. The default is one minute. Set it to `0` if you want the integration to refresh only when an automation requests it.
+
+Use the Home Assistant action:
+
+`blitzerde.refresh`
+
+Select the integration entry in the action UI. The action refreshes immediately and can return the current camera list to automations that request response data.
 
 ## Example automation
 
@@ -190,6 +235,8 @@ The repository validates changes with:
 - **Ruff** static checks
 
 Pull requests are welcome. For bugs, include your Home Assistant version, integration version, relevant log lines, and the redacted diagnostics file when possible.
+
+The actively maintained [somansch/blitzer](https://github.com/somansch/blitzer) project was reviewed as a working reference for map entities, event-driven notifications, manual refresh and polling controls. See `THIRD_PARTY_NOTICES.md` for attribution and license details.
 
 ## Disclaimer
 

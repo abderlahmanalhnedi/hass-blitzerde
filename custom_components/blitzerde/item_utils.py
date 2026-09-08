@@ -9,6 +9,17 @@ from homeassistant.const import ATTR_LATITUDE, ATTR_LONGITUDE
 from .const import ATTR_DISTANCE_KM
 
 
+def item_info(item: dict[str, Any]) -> dict[str, Any]:
+    """Return the upstream info value only when it is actually a mapping.
+
+    The live endpoint has been observed returning dictionaries, booleans,
+    strings and lists in this field. Normalising it here prevents one malformed
+    POI from breaking an entire coordinator update.
+    """
+    info = item.get("info")
+    return info if isinstance(info, dict) else {}
+
+
 class BlitzerItem:
     """Helpers for a single upstream POI."""
 
@@ -27,10 +38,10 @@ class BlitzerItem:
         elif vmax == "/":
             vmax = "redlight"
 
-        info = item.get("info") or {}
-        if info.get("fixed"):
+        info = item_info(item)
+        if str(info.get("fixed", "")) == "1":
             return f"fixed_{vmax}"
-        if info.get("partly_fixed"):
+        if str(info.get("partly_fixed", "")) == "1":
             return f"ts_{vmax}"
         return f"mobile_{vmax}"
 
@@ -39,8 +50,11 @@ class BlitzerItem:
         item: dict[str, Any], *, include_location: bool = True
     ) -> dict[str, Any]:
         """Build safe state attributes from an upstream POI."""
-        address = item.get("address") or {}
-        info = item.get("info") or {}
+        address = item.get("address")
+        if not isinstance(address, dict):
+            address = {}
+
+        info = item_info(item)
         attrs: dict[str, Any] = {
             "backend": BlitzerItem.get_backend_id(item),
             "vmax": item.get("vmax"),
@@ -52,6 +66,8 @@ class BlitzerItem:
             "city": address.get("city"),
             "street": address.get("street"),
             "zip_code": address.get("zip_code"),
+            "created": item.get("create_date"),
+            "confirmed_at": item.get("confirm_date"),
         }
 
         if ATTR_DISTANCE_KM in item:
