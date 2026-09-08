@@ -23,7 +23,8 @@
             "data": {
               "count": "Number of camera slots",
               "selector": "City name regular expression",
-              "condition": "Only show confirmed reports"
+              "condition": "Only show confirmed reports",
+              "update_interval": "Update interval in minutes (0 = manual only)"
             }
           }
         }
@@ -62,7 +63,8 @@
             "data": {
               "count": "Number of camera slots",
               "selector": "City name regular expression",
-              "condition": "Only show confirmed reports"
+              "condition": "Only show confirmed reports",
+              "update_interval": "Update interval in minutes (0 = manual only)"
             }
           }
         }
