@@ -6,7 +6,7 @@ The roadmap prioritizes features that improve daily usefulness, trust, and Home 
 
 ### Reliability and onboarding
 
-- Add Home Assistant Repairs issues for repeated upstream failures.
+- Continue expanding Home Assistant runtime coverage beyond config-flow and Repairs paths.
 - Add a setup-success screen with direct links to the device, map, and dashboard-card instructions.
 - ✅ Add Home Assistant-aware config/options-flow tests with enforced 100% coverage.
 - ✅ Add coordinator and extraction-ready API client tests.
