@@ -16,7 +16,9 @@ A modern, resilient Home Assistant custom integration for nearby speed-camera re
 - **Home Assistant 2026-ready architecture** using \`ConfigEntry.runtime_data\` and \`DataUpdateCoordinator\`
 - **UI configuration and options flow** — no YAML required
 - Mobile, trailer, and fixed camera types
-- Configurable map center and **radius in meters**
+- Two search modes: **Area / radius** and **Route / corridor**
+- Multi-step waypoint editor for commute and travel routes
+- Bounded, deduplicated route sampling with accurate distance-to-route calculation
 - Optional city regex filter
 - Optional confirmed-only filter
 - Cameras sorted **nearest first**
@@ -25,12 +27,15 @@ A modern, resilient Home Assistant custom integration for nearby speed-camera re
 - `blitzerde_new_camera` event for genuinely new reports after startup
 - Configurable polling interval, including **manual-only** mode
 - `blitzerde.refresh` action for on-demand updates and response data
+- Built-in **Blitzer.de Radar** Lovelace card — no manual resource installation
+- Responsive card editor, map/refresh actions, compact mode and source selection
+- German, English **and Arabic** UI/card language support
 - Up to 50 binary/geolocation camera slots
 - Robust timeout, malformed-response, HTTP, and rate-limit handling
 - Automatic retry/backoff through Home Assistant's coordinator
 - Privacy-conscious downloadable diagnostics
-- German and English configuration UI
-- HACS and Hassfest validation workflows
+- Privacy-conscious diagnostics for both area centers and route waypoints
+- HACS, Hassfest, Ruff, Python compilation and JavaScript syntax validation
 
 ## Why this fork exists
 
@@ -106,6 +111,18 @@ During setup you choose:
 
 The area radius returned by Home Assistant's location selector is interpreted in **meters**. Results from the rectangular upstream API query are then filtered again to the selected circular radius.
 
+## Route / corridor mode
+
+Route mode is designed for commutes and regularly travelled roads. Add waypoints one by one on the Home Assistant map. The integration connects them as straight segments and searches overlapping circles along the resulting polyline.
+
+The configured **corridor width** is interpreted as the search distance from the route in meters. Results from overlapping requests are merged by the upstream camera ID, deduplicated, and then given an accurate shortest distance to the route before sorting.
+
+To avoid accidentally issuing hundreds of requests every minute, a route is limited to **120 query points per refresh**. If a very long route exceeds that budget, the setup flow asks you to increase the corridor width or shorten the route. This is intentionally safer than silently hammering the upstream service.
+
+> Route segments are straight lines between your waypoints. Put an extra waypoint on important bends or highway changes so the search corridor follows the road closely.
+
+You can later open **Configure** on the integration entry and either change route settings or redraw the waypoints.
+
 ### City filter examples
 
 | Goal | Regex |
@@ -116,6 +133,37 @@ The area radius returned by Home Assistant's location selector is interpreted in
 | Cities beginning with \`Dres\` | \`^Dres.*\` |
 
 Invalid regular expressions are rejected directly in the UI before the configuration is saved.
+
+## Built-in Blitzer.de Radar card
+
+Version 1.2 ships a dashboard card **inside the integration**. Home Assistant serves and registers it automatically, so there is no JavaScript file to copy into `www` and no Lovelace resource to add manually.
+
+In dashboard edit mode, add a manual/custom card with:
+
+```yaml
+type: custom:blitzerde-card
+title: Blitzer.de Radar
+max_items: 6
+show_map: true
+show_refresh: true
+compact: false
+```
+
+The visual editor can also configure the title, source, maximum rows, map button, refresh button and compact mode.
+
+The card automatically discovers this integration's `geo_location` and count entities. It shows:
+
+- current camera count
+- nearest camera as a highlighted hero item
+- distance and speed limit
+- street/city and camera type
+- Area vs Route mode
+- direct **Refresh** action
+- direct link to the Home Assistant map
+- responsive layout for mobile dashboards
+- German, English and Arabic labels based on the Home Assistant frontend language
+
+If you configure several Blitzer.de entries, choose a specific source in the card editor.
 
 ## Home Assistant map
 
@@ -221,7 +269,7 @@ An empty but valid upstream result is not treated as a connection error.
 
 ## Data and privacy
 
-The integration sends the selected map bounding box to the upstream map service in order to retrieve nearby reports. No Home Assistant credentials are sent. The integration has no authentication token of its own.
+In area mode, the integration sends the selected map bounding box to the upstream map service in order to retrieve nearby reports. In route mode, it sends a bounded series of overlapping bounding-box requests along the waypoint route. No Home Assistant credentials are sent. The integration has no authentication token of its own.
 
 Because the endpoint is unofficial and undocumented, review the relevant service terms and local rules before relying on it.
 
@@ -233,10 +281,11 @@ The repository validates changes with:
 - **HACS Action**
 - Python byte-code compilation
 - **Ruff** static checks
+- Node.js syntax validation for the bundled dashboard card
 
 Pull requests are welcome. For bugs, include your Home Assistant version, integration version, relevant log lines, and the redacted diagnostics file when possible.
 
-The actively maintained [somansch/blitzer](https://github.com/somansch/blitzer) project was reviewed as a working reference for map entities, event-driven notifications, manual refresh and polling controls. See `THIRD_PARTY_NOTICES.md` for attribution and license details.
+The actively maintained [somansch/blitzer](https://github.com/somansch/blitzer) project was reviewed as a working reference for map entities, event-driven notifications, manual refresh, polling controls, route search and bundled dashboard UX. See `THIRD_PARTY_NOTICES.md` for attribution and license details.
 
 ## Disclaimer
 
