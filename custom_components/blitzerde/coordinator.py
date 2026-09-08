@@ -233,7 +233,6 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
         }
 
     @property
-    @property
     def kinds(self) -> dict[str, bool]:
         """Return enabled semantic control kinds."""
         raw = self._value(CONF_KINDS, KIND_DEFAULTS)
