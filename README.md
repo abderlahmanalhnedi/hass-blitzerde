@@ -1,19 +1,47 @@
-# Blitzer.de for Home Assistant 🚗⚡
+<div align="center">
 
-[![Hassfest](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/hassfest.yaml)
-[![HACS validation](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/action.yaml/badge.svg)](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/action.yaml)
-[![Python quality](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/quality.yaml/badge.svg)](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/quality.yaml)
+# 🚗⚡ Blitzer.de for Home Assistant
+
+**Area and route-based speed-camera awareness, built natively for Home Assistant.**
+
+Monitor a radius around home, a commute corridor, or both — with map entities, useful automations, a polished dashboard card, and privacy-conscious diagnostics.
+
+[![Version](https://img.shields.io/badge/version-1.3.0-4c8bf5)](CHANGELOG.md)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2025.12%2B-41BDF5?logo=homeassistant&logoColor=white)](https://www.home-assistant.io/)
 [![HACS](https://img.shields.io/badge/HACS-Custom%20Repository-41BDF5)](https://hacs.xyz/)
+[![Hassfest](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/hassfest.yaml)
+[![Code quality](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/quality.yaml/badge.svg)](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/quality.yaml)
+[![CodeQL](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/codeql.yaml/badge.svg)](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/codeql.yaml)
+[![Languages](https://img.shields.io/badge/UI-DE%20%7C%20EN%20%7C%20AR-8a63d2)](#configuration)
 
 [![Open this repository in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=abderlahmanalhnedi&repository=hass-blitzerde&category=integration)
 
-> **Install order matters:** the HACS button only opens/adds the custom repository. You must still **Download Blitzer.de in HACS and restart Home Assistant** before Home Assistant can start the integration's UI configuration flow.
-
-A modern, resilient Home Assistant custom integration for nearby speed-camera reports from the map data used by Blitzer.de.
+</div>
 
 > [!IMPORTANT]
-> This project is unofficial. It is not endorsed, operated, or supported by Blitzer.de. The upstream map endpoint is undocumented and may change without notice.
+> This is an **unofficial community integration** and is not endorsed or supported by Blitzer.de. The upstream map endpoint is undocumented and can change. The integration is designed to fail safely, surface health clearly, and avoid hiding upstream problems.
+
+## Why install it?
+
+| 🗺️ Useful | 🛡️ Trust-focused | ⚡ Home Assistant-native | 🎨 Polished |
+| --- | --- | --- | --- |
+| Area + route corridor monitoring | No upstream account/token required | Config Flow + Options Flow | Built-in Radar card |
+| Nearest + new report awareness | Location/waypoints redacted in diagnostics | Geo Location map entities | Mobile responsive |
+| Ignore persistent false-positive IDs | Bounded API requests + rate-limit handling | Events + manual refresh action | DE / EN / AR |
+| New-report time window | Hassfest, HACS, Ruff, tests, CodeQL | Stable entity unique IDs | Online/offline + last update |
+
+### Trust at a glance
+
+- **No YAML required** for normal setup.
+- **No Blitzer.de credentials** are stored or transmitted.
+- **Health is visible**: upstream connectivity, last successful update, request duration, and failure count.
+- **Privacy-aware diagnostics** redact area coordinates and route waypoints.
+- **API abuse protection**: timeouts, rate-limit backoff, bounded route query count, and bounded concurrency.
+- **Regression protection**: unit tests for timestamp parsing and route geometry plus Home Assistant/HACS validation.
+- **Transparent maintenance**: [Changelog](CHANGELOG.md), [Roadmap](ROADMAP.md), [Security policy](SECURITY.md), [Support guide](SUPPORT.md), and [Architecture](docs/ARCHITECTURE.md).
+
+> [!NOTE]
+> The HACS button opens/adds the custom repository. You must still **Download Blitzer.de in HACS and restart Home Assistant** before starting the integration setup.
 
 ## Highlights
 
@@ -30,6 +58,9 @@ A modern, resilient Home Assistant custom integration for nearby speed-camera re
 - Native **Geo Location** entities for the Home Assistant map
 - `blitzerde_new_camera` event for genuinely new reports after startup
 - Configurable polling interval, including **manual-only** mode
+- Configurable **new report** window with `new` / `age_minutes` attributes
+- Camera ID **ignore list** for persistent false positives
+- Visible **upstream health** and **last successful update** entities
 - `blitzerde.refresh` action for on-demand updates and response data
 - Built-in **Blitzer.de Radar** Lovelace card — no manual resource installation
 - Responsive card editor, map/refresh actions, compact mode and source selection
@@ -39,7 +70,7 @@ A modern, resilient Home Assistant custom integration for nearby speed-camera re
 - Automatic retry/backoff through Home Assistant's coordinator
 - Privacy-conscious downloadable diagnostics
 - Privacy-conscious diagnostics for both area centers and route waypoints
-- HACS, Hassfest, Ruff, Python compilation and JavaScript syntax validation
+- HACS, Hassfest, Ruff, Python compilation, unit tests, JavaScript validation and CodeQL security scanning
 
 ## Why this fork exists
 
@@ -56,6 +87,8 @@ For every configured area, the integration creates one Home Assistant device and
 | **Detected speed cameras** | Number of currently exposed camera slots. Attributes include \`total_detected\`, \`entity_limit\`, and a per-city summary. |
 | **Nearest speed camera** | Distance in km to the nearest current report, with camera/address attributes. |
 | **Latest speed camera** | Backend ID of the latest-looking upstream report, with camera/address attributes. |
+| **Last successful update** | Timestamp of the most recent successful upstream refresh. |
+| **Upstream service** | Connectivity health with duration, failure count, interval, and search-mode telemetry. |
 | **Speed camera 1 … N** | Safety binary sensors. Slot 1 is the nearest report, slot 2 the next-nearest, and so on. |
 | **Geo Location markers** | One dynamic map marker per exposed camera, automatically added, updated, and removed as reports change. |
 
@@ -122,6 +155,8 @@ During setup you choose:
 - **City filter** — regular expression, default \`.*\`
 - **Confirmed only** — enabled by default
 - **Update interval** — minutes between polls; set to `0` for manual-only refreshes
+- **Counts as new for** — freshness window in minutes; set to `0` to disable new-report highlighting
+- **Ignored camera IDs** — comma-separated backend/public IDs that should never be exposed for this entry
 
 The area radius returned by Home Assistant's location selector is interpreted in **meters**. Results from the rectangular upstream API query are then filtered again to the selected circular radius.
 
@@ -294,10 +329,22 @@ The repository validates changes with:
 - Home Assistant **Hassfest**
 - **HACS Action**
 - Python byte-code compilation
+- unit tests for pure freshness and route geometry
 - **Ruff** static checks
 - Node.js syntax validation for the bundled dashboard card
+- **CodeQL** security analysis
+- Dependabot for GitHub Actions
 
 Pull requests are welcome. For bugs, include your Home Assistant version, integration version, relevant log lines, and the redacted diagnostics file when possible.
+
+Project documentation:
+
+- [Changelog](CHANGELOG.md)
+- [Roadmap](ROADMAP.md)
+- [Security policy](SECURITY.md)
+- [Support guide](SUPPORT.md)
+- [Contributing](CONTRIBUTING.md)
+- [Architecture](docs/ARCHITECTURE.md)
 
 The actively maintained [somansch/blitzer](https://github.com/somansch/blitzer) project was reviewed as a working reference for map entities, event-driven notifications, manual refresh, polling controls, route search and bundled dashboard UX. See `THIRD_PARTY_NOTICES.md` for attribution and license details.
 
