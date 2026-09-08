@@ -24,6 +24,7 @@ from homeassistant.util import slugify
 from .api import APIConnectionError, BlitzerdeAPI
 from .const import (
     CONF_OPTIONAL,
+    CONF_UPDATE_INTERVAL,
     DEFAULT_ONLY_CONFIRMED,
     DEFAULT_SELECTOR,
     DEFAULT_SENSOR_COUNT,
@@ -35,7 +36,6 @@ from .const import (
     TYPE_FIXED,
     TYPE_MOBILE,
     TYPE_TRAILER,
-    CONF_UPDATE_INTERVAL,
 )
 
 
