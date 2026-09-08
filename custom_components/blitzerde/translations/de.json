@@ -26,12 +26,14 @@
             "data": {
               "mobile": "Mobil",
               "trailer": "Anhänger",
-              "fixed": "Fest installiert"
+              "fixed": "Fest installiert",
+              "archive": "Archiv"
             },
             "data_description": {
               "mobile": "Temporäre oder mobile Blitzer-Meldungen einbeziehen.",
               "trailer": "Semistationäre Anhänger-Blitzer einbeziehen.",
-              "fixed": "Fest installierte Blitzer einbeziehen."
+              "fixed": "Fest installierte Blitzer einbeziehen.",
+              "archive": "Historische Archiv-Meldungen einbeziehen. Archiv-Einträge sind keine aktuellen Meldungen."
             }
           },
           "optional": {
@@ -51,6 +53,47 @@
               "update_interval": "Minuten zwischen automatischen Aktualisierungen. 0 bedeutet nur manuelle Aktualisierung.",
               "new_minutes": "Wie lange eine Meldung als neu markiert und gezählt wird. 0 deaktiviert die Neu-Zählung.",
               "blacklist": "Kommagetrennte Blitzer-IDs, die immer ignoriert werden sollen."
+            }
+          },
+          "kinds": {
+            "name": "Kontrollarten",
+            "data": {
+              "speed": "Geschwindigkeit",
+              "redlight": "Rotlicht",
+              "redlight_speed": "Rotlicht + Geschwindigkeit",
+              "section_control": "Abschnittskontrolle",
+              "tunnel": "Tunnelblitzer",
+              "distance": "Abstand",
+              "weight": "Gewicht",
+              "height": "Höhe",
+              "lane": "Spur",
+              "entry": "Einfahrt",
+              "access": "Auffahrt",
+              "crosswalk": "Fußgängerüberweg",
+              "overtaking": "Überholverbot",
+              "police": "Polizeikontrolle",
+              "alcohol": "Alkoholkontrolle",
+              "dummy": "Attrappe",
+              "unknown": "Unbekannt / sonstige"
+            },
+            "data_description": {
+              "speed": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "redlight": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "redlight_speed": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "section_control": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "tunnel": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "distance": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "weight": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "height": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "lane": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "entry": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "access": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "crosswalk": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "overtaking": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "police": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "alcohol": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "dummy": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "unknown": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen."
             }
           }
         },
@@ -82,12 +125,14 @@
             "data": {
               "mobile": "Mobil",
               "trailer": "Anhänger",
-              "fixed": "Fest installiert"
+              "fixed": "Fest installiert",
+              "archive": "Archiv"
             },
             "data_description": {
               "mobile": "Temporäre oder mobile Blitzer-Meldungen einbeziehen.",
               "trailer": "Semistationäre Anhänger-Blitzer einbeziehen.",
-              "fixed": "Fest installierte Blitzer einbeziehen."
+              "fixed": "Fest installierte Blitzer einbeziehen.",
+              "archive": "Historische Archiv-Meldungen einbeziehen. Archiv-Einträge sind keine aktuellen Meldungen."
             }
           },
           "optional": {
@@ -108,6 +153,47 @@
               "new_minutes": "Wie lange eine Meldung als neu markiert und gezählt wird. 0 deaktiviert die Neu-Zählung.",
               "blacklist": "Kommagetrennte Blitzer-IDs, die immer ignoriert werden sollen."
             }
+          },
+          "kinds": {
+            "name": "Kontrollarten",
+            "data": {
+              "speed": "Geschwindigkeit",
+              "redlight": "Rotlicht",
+              "redlight_speed": "Rotlicht + Geschwindigkeit",
+              "section_control": "Abschnittskontrolle",
+              "tunnel": "Tunnelblitzer",
+              "distance": "Abstand",
+              "weight": "Gewicht",
+              "height": "Höhe",
+              "lane": "Spur",
+              "entry": "Einfahrt",
+              "access": "Auffahrt",
+              "crosswalk": "Fußgängerüberweg",
+              "overtaking": "Überholverbot",
+              "police": "Polizeikontrolle",
+              "alcohol": "Alkoholkontrolle",
+              "dummy": "Attrappe",
+              "unknown": "Unbekannt / sonstige"
+            },
+            "data_description": {
+              "speed": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "redlight": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "redlight_speed": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "section_control": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "tunnel": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "distance": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "weight": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "height": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "lane": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "entry": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "access": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "crosswalk": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "overtaking": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "police": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "alcohol": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "dummy": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "unknown": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen."
+            }
           }
         },
         "data_description": {
@@ -122,7 +208,8 @@
       "location_missing": "Bitte eine Position auf der Karte auswählen.",
       "no_types_selected": "Aktiviere mindestens einen Blitzer-Typ.",
       "route_needs_two_waypoints": "Eine Route benötigt mindestens zwei Wegpunkte.",
-      "route_too_large": "Diese Route würde zu viele API-Abfragen benötigen. Erhöhe die Korridorbreite oder verkürze die Route."
+      "route_too_large": "Diese Route würde zu viele API-Abfragen benötigen. Erhöhe die Korridorbreite oder verkürze die Route.",
+      "no_kinds_selected": "Aktiviere mindestens eine Kontrollart."
     },
     "abort": {
       "already_configured": "Ein Eintrag mit diesem Anzeigenamen ist bereits eingerichtet."
@@ -149,12 +236,14 @@
             "data": {
               "mobile": "Mobil",
               "trailer": "Anhänger",
-              "fixed": "Fest installiert"
+              "fixed": "Fest installiert",
+              "archive": "Archiv"
             },
             "data_description": {
               "mobile": "Temporäre oder mobile Blitzer-Meldungen einbeziehen.",
               "trailer": "Semistationäre Anhänger-Blitzer einbeziehen.",
-              "fixed": "Fest installierte Blitzer einbeziehen."
+              "fixed": "Fest installierte Blitzer einbeziehen.",
+              "archive": "Historische Archiv-Meldungen einbeziehen. Archiv-Einträge sind keine aktuellen Meldungen."
             }
           },
           "optional": {
@@ -174,6 +263,47 @@
               "update_interval": "Minuten zwischen automatischen Aktualisierungen. 0 bedeutet nur manuelle Aktualisierung.",
               "new_minutes": "Wie lange eine Meldung als neu markiert und gezählt wird. 0 deaktiviert die Neu-Zählung.",
               "blacklist": "Kommagetrennte Blitzer-IDs, die immer ignoriert werden sollen."
+            }
+          },
+          "kinds": {
+            "name": "Kontrollarten",
+            "data": {
+              "speed": "Geschwindigkeit",
+              "redlight": "Rotlicht",
+              "redlight_speed": "Rotlicht + Geschwindigkeit",
+              "section_control": "Abschnittskontrolle",
+              "tunnel": "Tunnelblitzer",
+              "distance": "Abstand",
+              "weight": "Gewicht",
+              "height": "Höhe",
+              "lane": "Spur",
+              "entry": "Einfahrt",
+              "access": "Auffahrt",
+              "crosswalk": "Fußgängerüberweg",
+              "overtaking": "Überholverbot",
+              "police": "Polizeikontrolle",
+              "alcohol": "Alkoholkontrolle",
+              "dummy": "Attrappe",
+              "unknown": "Unbekannt / sonstige"
+            },
+            "data_description": {
+              "speed": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "redlight": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "redlight_speed": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "section_control": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "tunnel": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "distance": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "weight": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "height": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "lane": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "entry": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "access": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "crosswalk": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "overtaking": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "police": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "alcohol": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "dummy": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "unknown": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen."
             }
           }
         },
@@ -193,12 +323,14 @@
             "data": {
               "mobile": "Mobil",
               "trailer": "Anhänger",
-              "fixed": "Fest installiert"
+              "fixed": "Fest installiert",
+              "archive": "Archiv"
             },
             "data_description": {
               "mobile": "Temporäre oder mobile Blitzer-Meldungen einbeziehen.",
               "trailer": "Semistationäre Anhänger-Blitzer einbeziehen.",
-              "fixed": "Fest installierte Blitzer einbeziehen."
+              "fixed": "Fest installierte Blitzer einbeziehen.",
+              "archive": "Historische Archiv-Meldungen einbeziehen. Archiv-Einträge sind keine aktuellen Meldungen."
             }
           },
           "optional": {
@@ -218,6 +350,47 @@
               "update_interval": "Minuten zwischen automatischen Aktualisierungen. 0 bedeutet nur manuelle Aktualisierung.",
               "new_minutes": "Wie lange eine Meldung als neu markiert und gezählt wird. 0 deaktiviert die Neu-Zählung.",
               "blacklist": "Kommagetrennte Blitzer-IDs, die immer ignoriert werden sollen."
+            }
+          },
+          "kinds": {
+            "name": "Kontrollarten",
+            "data": {
+              "speed": "Geschwindigkeit",
+              "redlight": "Rotlicht",
+              "redlight_speed": "Rotlicht + Geschwindigkeit",
+              "section_control": "Abschnittskontrolle",
+              "tunnel": "Tunnelblitzer",
+              "distance": "Abstand",
+              "weight": "Gewicht",
+              "height": "Höhe",
+              "lane": "Spur",
+              "entry": "Einfahrt",
+              "access": "Auffahrt",
+              "crosswalk": "Fußgängerüberweg",
+              "overtaking": "Überholverbot",
+              "police": "Polizeikontrolle",
+              "alcohol": "Alkoholkontrolle",
+              "dummy": "Attrappe",
+              "unknown": "Unbekannt / sonstige"
+            },
+            "data_description": {
+              "speed": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "redlight": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "redlight_speed": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "section_control": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "tunnel": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "distance": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "weight": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "height": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "lane": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "entry": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "access": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "crosswalk": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "overtaking": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "police": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "alcohol": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "dummy": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen.",
+              "unknown": "Nur Meldungen mit aktivierter Kontrollart werden übernommen. Installationsform und Kontrollart müssen beide passen."
             }
           }
         },
@@ -244,7 +417,8 @@
       "location_missing": "Bitte eine Position auf der Karte auswählen.",
       "no_types_selected": "Aktiviere mindestens einen Blitzer-Typ.",
       "route_needs_two_waypoints": "Eine Route benötigt mindestens zwei Wegpunkte.",
-      "route_too_large": "Diese Route würde zu viele API-Abfragen benötigen. Erhöhe die Korridorbreite oder verkürze die Route."
+      "route_too_large": "Diese Route würde zu viele API-Abfragen benötigen. Erhöhe die Korridorbreite oder verkürze die Route.",
+      "no_kinds_selected": "Aktiviere mindestens eine Kontrollart."
     }
   },
   "selector": {
