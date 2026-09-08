@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from homeassistant.components.sensor import (
+    SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
 )
@@ -47,6 +48,9 @@ async def async_setup_entry(
                 coordinator, entry
             ),
             BlitzerNearestSensor(
+                coordinator, entry
+            ),
+            BlitzerLastUpdateSensor(
                 coordinator, entry
             ),
         ]
@@ -129,6 +133,20 @@ class BlitzerCountSensor(BlitzerSensorEntity):
                 self.coordinator.sensorcount
             ),
             "by_city": city_counts,
+            "new": self.coordinator.new_count,
+            "new_minutes": self.coordinator.new_minutes,
+            "ignored": len(self.coordinator.blacklist_ids),
+            "last_successful_update": (
+                self.coordinator.last_successful_update.isoformat()
+                if self.coordinator.last_successful_update
+                else None
+            ),
+            "last_update_duration_ms": (
+                self.coordinator.last_update_duration_ms
+            ),
+            "service_online": (
+                self.coordinator.last_update_success
+            ),
             ATTR_CONFIG_ENTRY_ID: self._entry.entry_id,
             "blitzerde_source": (
                 f"{DOMAIN}_{slugify(self.coordinator.displayname)}"
@@ -237,3 +255,40 @@ class BlitzerNearestSensor(BlitzerSensorEntity):
         if (item := self._nearest_item) is None:
             return {}
         return BlitzerItem.get_attributes(item)
+
+
+class BlitzerLastUpdateSensor(BlitzerSensorEntity):
+    """Timestamp of the last successful upstream refresh."""
+
+    _attr_icon = "mdi:update"
+    _attr_name = "Last successful update"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    def __init__(
+        self,
+        coordinator: BlitzerdeCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = (
+            f"{DOMAIN}-"
+            f"{coordinator.displayname}-last-update"
+        )
+
+    @property
+    def native_value(self):
+        """Return the most recent successful coordinator update."""
+        return self.coordinator.last_successful_update
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return lightweight refresh telemetry."""
+        return {
+            "duration_ms": self.coordinator.last_update_duration_ms,
+            "consecutive_failures": (
+                self.coordinator.consecutive_failures
+            ),
+            "update_interval_minutes": (
+                self.coordinator.update_interval_minutes
+            ),
+        }
