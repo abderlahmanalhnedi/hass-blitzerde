@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import importlib.util
-from datetime import datetime
-from pathlib import Path
 import unittest
+from datetime import datetime, timezone
+from pathlib import Path
 
 MODULE_PATH = (
     Path(__file__).parents[1]
@@ -25,7 +25,9 @@ class FreshnessTests(unittest.TestCase):
     """Validate the upstream timestamp formats we support."""
 
     def setUp(self) -> None:
-        self.now = datetime(2026, 9, 8, 14, 30)
+        self.now = datetime(
+            2026, 9, 8, 14, 30, tzinfo=timezone.utc
+        )
 
     def test_same_day_time(self) -> None:
         self.assertEqual(
