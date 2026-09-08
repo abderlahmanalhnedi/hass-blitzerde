@@ -325,3 +325,78 @@ async def test_timeout_is_mapped() -> None:
 
     with pytest.raises(APIConnectionError, match="timed out"):
         await api._request_json(params={"type": "0"})
+
+
+async def test_client_error_is_mapped() -> None:
+    """Low-level aiohttp client failures become APIConnectionError."""
+    from aiohttp import ClientError
+
+    class ClientErrorContext:
+        async def __aenter__(self):
+            raise ClientError("network down")
+
+        async def __aexit__(self, exc_type, exc, tb):
+            return False
+
+    class ClientErrorSession:
+        def get(self, url: str, *, params: dict[str, str]):
+            return ClientErrorContext()
+
+    api = BlitzerdeAPI(ClientErrorSession())  # type: ignore[arg-type]
+
+    with pytest.raises(APIConnectionError, match="Failed to connect"):
+        await api._request_json(params={"type": "0"})
+
+
+async def test_request_pois_sets_connected_and_filters_non_objects() -> None:
+    """Successful POI requests mark the client connected and keep mappings only."""
+    api = BlitzerdeAPI(  # type: ignore[arg-type]
+        FakeSession(
+            FakeResponse(
+                body='{"pois": [{"backend": "1-42"}, false, "bad"]}'
+            )
+        )
+    )
+
+    pois = await api._request_pois(
+        low_lat=51.0,
+        low_lng=13.0,
+        high_lat=52.0,
+        high_lng=14.0,
+        types=[0],
+    )
+
+    assert api.connected is True
+    assert pois == [{"backend": "1-42"}]
+
+
+async def test_area_ignores_cluster_left_after_resolution() -> None:
+    """A defensive leftover cluster is never exposed as a camera."""
+    api = BlitzerdeAPI(  # type: ignore[arg-type]
+        FakeSession(FakeResponse())
+    )
+    api._request_pois = AsyncMock(return_value=[])
+    api._resolve_clusters = AsyncMock(
+        return_value=[
+            {
+                "type": "cluster",
+                "lat": 51.05,
+                "lng": 13.73,
+            },
+            {
+                "backend": "1-42",
+                "type": 0,
+                "lat": 51.0505,
+                "lng": 13.7373,
+            },
+        ]
+    )
+
+    result = await api.async_get_area(
+        latitude=51.0504,
+        longitude=13.7373,
+        radius=1000,
+        types=[0],
+    )
+
+    assert [item["backend"] for item in result] == ["1-42"]
