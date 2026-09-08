@@ -25,6 +25,7 @@ from homeassistant.core import (
 )
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.issue_registry import async_delete_issue
 
 from .bundle import async_register_card
 from .const import (
@@ -41,6 +42,7 @@ from .const import (
     DEFAULT_TYPES,
     DEFAULT_UPDATE_INTERVAL_MINUTES,
     DOMAIN,
+    REPAIR_UPSTREAM_UNAVAILABLE,
     SEARCH_MODE_AREA,
     SERVICE_REFRESH,
 )
@@ -153,6 +155,17 @@ async def async_unload_entry(
     """Unload a config entry."""
     return await hass.config_entries.async_unload_platforms(
         entry, PLATFORMS
+    )
+
+
+async def async_remove_entry(
+    hass: HomeAssistant, entry: ConfigEntry
+) -> None:
+    """Clean integration-level state when a config entry is removed."""
+    async_delete_issue(
+        hass,
+        DOMAIN,
+        f"{REPAIR_UPSTREAM_UNAVAILABLE}_{entry.entry_id}",
     )
 
 
