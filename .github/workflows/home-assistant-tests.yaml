@@ -40,3 +40,9 @@ jobs:
           -q
           --cov=custom_components.blitzerde
           --cov-report=term-missing
+
+      - name: Enforce config flow coverage
+        run: >
+          python -m coverage report
+          --include="*/config_flow.py"
+          --fail-under=100
