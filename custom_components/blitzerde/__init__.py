@@ -31,6 +31,7 @@ from .const import (
     CONF_BLACKLIST,
     CONF_NEW_MINUTES,
     CONF_SEARCH_MODE,
+    CONF_WAYPOINTS,
     CONF_UPDATE_INTERVAL,
     DEFAULT_BLACKLIST,
     DEFAULT_NEW_MINUTES,
@@ -186,9 +187,21 @@ async def async_migrate_entry(
     data.setdefault(CONF_NEW_MINUTES, DEFAULT_NEW_MINUTES)
     data.setdefault(CONF_BLACKLIST, DEFAULT_BLACKLIST)
 
-    if CONF_LOCATION not in data:
+    search_mode = data.get(CONF_SEARCH_MODE, SEARCH_MODE_AREA)
+    if (
+        search_mode == SEARCH_MODE_AREA
+        and CONF_LOCATION not in data
+    ):
         _LOGGER.error(
-            "Cannot migrate Blitzer.de entry without a configured location"
+            "Cannot migrate area entry without a configured location"
+        )
+        return False
+    if (
+        search_mode != SEARCH_MODE_AREA
+        and not data.get(CONF_WAYPOINTS)
+    ):
+        _LOGGER.error(
+            "Cannot migrate route entry without configured waypoints"
         )
         return False
 
