@@ -21,12 +21,14 @@ from custom_components.blitzerde.api import APIConnectionError
 from custom_components.blitzerde.const import (
     CONF_BLACKLIST,
     CONF_CORRIDOR_WIDTH,
+    CONF_KINDS,
     CONF_NEW_MINUTES,
     CONF_OPTIONAL,
     CONF_SEARCH_MODE,
     CONF_UPDATE_INTERVAL,
     CONF_WAYPOINTS,
     DOMAIN,
+    KIND_DEFAULTS,
     SEARCH_MODE_AREA,
     SEARCH_MODE_ROUTE,
 )
@@ -48,7 +50,9 @@ TYPE_INPUT = {
     "mobile": True,
     "trailer": True,
     "fixed": False,
+    "archive": False,
 }
+KINDS_INPUT = dict(KIND_DEFAULTS)
 OPTIONAL_INPUT = {
     CONF_COUNT: 9,
     CONF_SELECTOR: ".*",
@@ -60,11 +64,13 @@ OPTIONAL_INPUT = {
 AREA_INPUT = {
     CONF_LOCATION: AREA_LOCATION,
     CONF_TYPE: TYPE_INPUT,
+    CONF_KINDS: KINDS_INPUT,
     CONF_OPTIONAL: OPTIONAL_INPUT,
 }
 ROUTE_OPTIONS_INPUT = {
     CONF_CORRIDOR_WIDTH: 500,
     CONF_TYPE: TYPE_INPUT,
+    CONF_KINDS: KINDS_INPUT,
     CONF_OPTIONAL: OPTIONAL_INPUT,
 }
 
@@ -194,6 +200,7 @@ async def test_area_validation_errors(hass) -> None:
             "mobile": False,
             "trailer": False,
             "fixed": False,
+            "archive": False,
         },
     }
     result = await hass.config_entries.flow.async_configure(
@@ -432,6 +439,7 @@ async def test_route_options_validation_and_connection_recovery(hass) -> None:
             "mobile": False,
             "trailer": False,
             "fixed": False,
+            "archive": False,
         },
     }
     result = await hass.config_entries.flow.async_configure(
@@ -652,6 +660,7 @@ def test_validate_area_missing_location_shapes() -> None:
     """Area validation rejects absent and incomplete location mappings."""
     base = {
         CONF_TYPE: TYPE_INPUT,
+        CONF_KINDS: KINDS_INPUT,
         CONF_SELECTOR: ".*",
     }
     assert (
@@ -674,10 +683,26 @@ def test_validate_area_missing_location_shapes() -> None:
     )
 
 
+def test_validate_common_rejects_empty_control_kinds() -> None:
+    """At least one semantic control kind must remain enabled."""
+    data = {
+        CONF_TYPE: TYPE_INPUT,
+        CONF_KINDS: {
+            key: False for key in KIND_DEFAULTS
+        },
+        CONF_SELECTOR: ".*",
+    }
+    assert (
+        config_flow_module._validate_common(data)
+        == "no_kinds_selected"
+    )
+
+
 def test_validate_route_common_short_and_too_large() -> None:
     """Route validation covers common errors, minimum points and query budget."""
     base = {
         CONF_TYPE: TYPE_INPUT,
+        CONF_KINDS: KINDS_INPUT,
         CONF_SELECTOR: ".*",
         CONF_CORRIDOR_WIDTH: 100,
     }
@@ -727,12 +752,15 @@ def test_enabled_types_covers_all_type_combinations() -> None:
                 "mobile": True,
                 "trailer": True,
                 "fixed": True,
-            }
+                "archive": True,
+            },
+            CONF_KINDS: KINDS_INPUT,
         }
     )
     assert enabled
     assert "ts" in enabled
     assert 101 in enabled
+    assert 201 in enabled
 
     assert (
         config_flow_module._enabled_types(
@@ -741,7 +769,9 @@ def test_enabled_types_covers_all_type_combinations() -> None:
                     "mobile": False,
                     "trailer": False,
                     "fixed": False,
-                }
+                    "archive": False,
+                },
+                CONF_KINDS: KINDS_INPUT,
             }
         )
         == []
