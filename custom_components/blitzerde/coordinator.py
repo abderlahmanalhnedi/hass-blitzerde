@@ -9,7 +9,6 @@ import re
 import time
 from dataclasses import dataclass
 from datetime import timedelta
-from itertools import pairwise
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -55,12 +54,11 @@ from .const import (
 )
 from .freshness import is_new_report, minutes_since
 from .item_utils import item_info
+from .route import distance_to_route_km, route_sample_points
 
 _LOGGER = logging.getLogger(__name__)
 
 _ROUTE_QUERY_CONCURRENCY = 5
-_EARTH_RADIUS_M = 6_371_008.8
-
 
 @dataclass(slots=True)
 class BlitzerdeAPIData:
@@ -341,7 +339,7 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
         if len(waypoints) < 2:
             raise ValueError("Route requires at least two waypoints")
 
-        sample_points = _route_sample_points(
+        sample_points = route_sample_points(
             waypoints, self.corridor_width
         )
         if len(sample_points) > MAX_ROUTE_QUERY_POINTS:
@@ -380,7 +378,7 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
                     item = dict(raw_item)
                     try:
                         item[ATTR_DISTANCE_KM] = round(
-                            _distance_to_route_km(
+                            distance_to_route_km(
                                 float(item["lat"]),
                                 float(item["lng"]),
                                 waypoints,
@@ -419,7 +417,7 @@ def _is_confirmed(item: dict[str, Any]) -> bool:
     return code.isdigit() and 100 <= int(code) < 200
 
 
-def _route_sample_points(
+def route_sample_points(
     waypoints: list[dict[str, float]],
     corridor_width_m: float,
 ) -> list[tuple[float, float]]:
@@ -468,13 +466,13 @@ def route_query_count(
     if len(waypoints) < 2:
         return 0
     return len(
-        _route_sample_points(
+        route_sample_points(
             waypoints, corridor_width_m
         )
     )
 
 
-def _distance_to_route_km(
+def distance_to_route_km(
     latitude: float,
     longitude: float,
     waypoints: list[dict[str, float]],
