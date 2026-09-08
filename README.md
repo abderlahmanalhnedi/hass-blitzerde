@@ -39,6 +39,7 @@ Monitor a radius around home, a commute corridor, or both — with map entities,
 - **No YAML required** for normal setup.
 - **No Blitzer.de credentials** are stored or transmitted.
 - **Health is visible**: upstream connectivity, last successful update, request duration, and failure count.
+- **Home Assistant Repairs** warns after repeated upstream failures and clears automatically after recovery.
 - **Privacy-aware diagnostics** redact area coordinates and route waypoints.
 - **API abuse protection**: timeouts, rate-limit backoff, bounded route query count, and bounded concurrency.
 - **Regression protection**: unit tests for timestamp parsing and route geometry plus Home Assistant/HACS validation.
@@ -65,6 +66,7 @@ Monitor a radius around home, a commute corridor, or both — with map entities,
 - Configurable **new report** window with `new` / `age_minutes` attributes
 - Camera ID **ignore list** for persistent false positives
 - Visible **upstream health** and **last successful update** entities
+- Home Assistant **Repairs** warning after repeated upstream failures, with automatic recovery cleanup
 - `blitzerde.refresh` action for on-demand updates and response data
 - Built-in **Blitzer.de Radar** Lovelace card — no manual resource installation
 - Responsive card editor, map/refresh actions, compact mode and source selection
@@ -423,6 +425,7 @@ Speed-camera information can be incomplete, delayed, inaccurate, or unavailable.
 - **Kein YAML erforderlich** für die normale Einrichtung.
 - **Keine Blitzer.de-Zugangsdaten** werden gespeichert oder übertragen.
 - **Zustand sichtbar**: Upstream-Erreichbarkeit, letztes erfolgreiches Update, Request-Dauer und Fehlerzähler.
+- **Home Assistant Reparaturen** warnt nach wiederholten Upstream-Fehlern und verschwindet nach erfolgreicher Erholung automatisch.
 - **Datenschutzbewusste Diagnosen**: Bereichskoordinaten und Routen-Wegpunkte werden geschwärzt.
 - **Schutz vor API-Missbrauch**: Timeouts, Rate-Limit-Backoff, begrenzte Anzahl von Routenabfragen und begrenzte Parallelität.
 - **Schutz vor Regressionen**: Unit-Tests für Zeitstempel und Routengeometrie plus Home-Assistant-/HACS-Validierung.
@@ -449,6 +452,7 @@ Speed-camera information can be incomplete, delayed, inaccurate, or unavailable.
 - Konfigurierbares Zeitfenster für **neue Meldungen**
 - Ignore-Liste für bekannte Fehlmeldungs-IDs
 - Sichtbare Upstream-Gesundheit und letztes erfolgreiches Update
+- Home-Assistant-**Reparaturhinweis** nach wiederholten Upstream-Fehlern mit automatischer Bereinigung nach der Erholung
 - Action `blitzerde.refresh` für sofortige Aktualisierung
 - Integrierte **Blitzer.de Radar** Lovelace-Karte
 - Responsiver Karteneditor mit Map-/Refresh-Buttons und Compact Mode
