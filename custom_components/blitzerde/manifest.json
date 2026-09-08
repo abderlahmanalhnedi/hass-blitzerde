@@ -8,5 +8,9 @@
   "documentation": "https://github.com/abderlahmanalhnedi/hass-blitzerde",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/abderlahmanalhnedi/hass-blitzerde/issues",
-  "version": "1.1.0"
+  "version": "1.2.0",
+  "dependencies": [
+    "frontend",
+    "http"
+  ]
 }
