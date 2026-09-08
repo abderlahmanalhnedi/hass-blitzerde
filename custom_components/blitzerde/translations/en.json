@@ -8,6 +8,10 @@
         "data": {
           "name": "Display name",
           "search_mode": "Search mode"
+        },
+        "data_description": {
+          "name": "A short name used to identify this monitored area or route in Home Assistant.",
+          "search_mode": "Choose a circular area or a waypoint-based route corridor."
         }
       },
       "area": {
@@ -23,6 +27,11 @@
               "mobile": "Mobile",
               "trailer": "Trailer",
               "fixed": "Fixed"
+            },
+            "data_description": {
+              "mobile": "Include temporary or mobile speed-camera reports.",
+              "trailer": "Include semi-stationary trailer camera reports.",
+              "fixed": "Include permanently installed camera reports."
             }
           },
           "optional": {
@@ -34,8 +43,19 @@
               "update_interval": "Update interval in minutes (0 = manual only)",
               "new_minutes": "Counts as new for (minutes, 0 = off)",
               "blacklist": "Ignored camera IDs (comma-separated)"
+            },
+            "data_description": {
+              "count": "Maximum number of camera entities exposed for this entry.",
+              "selector": "Optional regular expression matched against the reported city name.",
+              "condition": "Ignore community reports that are not confirmed. Permanent fixed cameras are treated as confirmed.",
+              "update_interval": "Minutes between automatic refreshes. Use 0 to refresh only through the action.",
+              "new_minutes": "How long a report is highlighted and counted as new. Use 0 to disable new-report counting.",
+              "blacklist": "Comma-separated camera IDs that should always be ignored."
             }
           }
+        },
+        "data_description": {
+          "location": "Move the map marker and choose the radius Home Assistant should monitor."
         }
       },
       "waypoint": {
@@ -44,6 +64,10 @@
         "data": {
           "location": "Waypoint",
           "add_another": "Add another waypoint"
+        },
+        "data_description": {
+          "location": "Place this waypoint on the route you want to monitor.",
+          "add_another": "Keep this enabled to add another waypoint after saving this point."
         }
       },
       "route_options": {
@@ -59,6 +83,11 @@
               "mobile": "Mobile",
               "trailer": "Trailer",
               "fixed": "Fixed"
+            },
+            "data_description": {
+              "mobile": "Include temporary or mobile speed-camera reports.",
+              "trailer": "Include semi-stationary trailer camera reports.",
+              "fixed": "Include permanently installed camera reports."
             }
           },
           "optional": {
@@ -70,8 +99,19 @@
               "update_interval": "Update interval in minutes (0 = manual only)",
               "new_minutes": "Counts as new for (minutes, 0 = off)",
               "blacklist": "Ignored camera IDs (comma-separated)"
+            },
+            "data_description": {
+              "count": "Maximum number of camera entities exposed for this entry.",
+              "selector": "Optional regular expression matched against the reported city name.",
+              "condition": "Ignore community reports that are not confirmed. Permanent fixed cameras are treated as confirmed.",
+              "update_interval": "Minutes between automatic refreshes. Use 0 to refresh only through the action.",
+              "new_minutes": "How long a report is highlighted and counted as new. Use 0 to disable new-report counting.",
+              "blacklist": "Comma-separated camera IDs that should always be ignored."
             }
           }
+        },
+        "data_description": {
+          "corridor_width": "Maximum search distance from the route polyline, in meters."
         }
       }
     },
@@ -110,6 +150,11 @@
               "mobile": "Mobile",
               "trailer": "Trailer",
               "fixed": "Fixed"
+            },
+            "data_description": {
+              "mobile": "Include temporary or mobile speed-camera reports.",
+              "trailer": "Include semi-stationary trailer camera reports.",
+              "fixed": "Include permanently installed camera reports."
             }
           },
           "optional": {
@@ -121,8 +166,19 @@
               "update_interval": "Update interval in minutes (0 = manual only)",
               "new_minutes": "Counts as new for (minutes, 0 = off)",
               "blacklist": "Ignored camera IDs (comma-separated)"
+            },
+            "data_description": {
+              "count": "Maximum number of camera entities exposed for this entry.",
+              "selector": "Optional regular expression matched against the reported city name.",
+              "condition": "Ignore community reports that are not confirmed. Permanent fixed cameras are treated as confirmed.",
+              "update_interval": "Minutes between automatic refreshes. Use 0 to refresh only through the action.",
+              "new_minutes": "How long a report is highlighted and counted as new. Use 0 to disable new-report counting.",
+              "blacklist": "Comma-separated camera IDs that should always be ignored."
             }
           }
+        },
+        "data_description": {
+          "location": "Move the map marker and choose the radius Home Assistant should monitor."
         }
       },
       "route_settings": {
@@ -138,6 +194,11 @@
               "mobile": "Mobile",
               "trailer": "Trailer",
               "fixed": "Fixed"
+            },
+            "data_description": {
+              "mobile": "Include temporary or mobile speed-camera reports.",
+              "trailer": "Include semi-stationary trailer camera reports.",
+              "fixed": "Include permanently installed camera reports."
             }
           },
           "optional": {
@@ -149,8 +210,19 @@
               "update_interval": "Update interval in minutes (0 = manual only)",
               "new_minutes": "Counts as new for (minutes, 0 = off)",
               "blacklist": "Ignored camera IDs (comma-separated)"
+            },
+            "data_description": {
+              "count": "Maximum number of camera entities exposed for this entry.",
+              "selector": "Optional regular expression matched against the reported city name.",
+              "condition": "Ignore community reports that are not confirmed. Permanent fixed cameras are treated as confirmed.",
+              "update_interval": "Minutes between automatic refreshes. Use 0 to refresh only through the action.",
+              "new_minutes": "How long a report is highlighted and counted as new. Use 0 to disable new-report counting.",
+              "blacklist": "Comma-separated camera IDs that should always be ignored."
             }
           }
+        },
+        "data_description": {
+          "corridor_width": "Maximum search distance from the route polyline, in meters."
         }
       },
       "route_waypoint": {
@@ -159,6 +231,10 @@
         "data": {
           "location": "Waypoint",
           "add_another": "Add another waypoint"
+        },
+        "data_description": {
+          "location": "Place this waypoint on the route you want to monitor.",
+          "add_another": "Keep this enabled to add another waypoint after saving this point."
         }
       }
     },
