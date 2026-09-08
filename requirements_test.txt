@@ -1,0 +1,2 @@
+# Tracks Home Assistant 2026.9.x and provides Core-like pytest fixtures.
+pytest-homeassistant-custom-component==0.13.364
