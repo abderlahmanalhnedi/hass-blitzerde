@@ -11,7 +11,12 @@ from typing import Any
 
 from aiohttp import ClientError, ClientResponseError, ClientSession
 
-from .const import API_TIMEOUT_SECONDS, API_URL, ATTR_DISTANCE_KM
+from .const import (
+    API_TIMEOUT_SECONDS,
+    API_URL,
+    ATTR_DISTANCE_KM,
+    HAZARD_TYPES,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -154,6 +159,36 @@ class BlitzerdeAPI:
             key=lambda item: float(item.get(ATTR_DISTANCE_KM, math.inf))
         )
         return result
+
+    async def async_get_hazards(
+        self,
+        *,
+        latitude: float,
+        longitude: float,
+        radius: float,
+        enabled: Iterable[str],
+    ) -> list[JsonObject]:
+        """Return enabled traffic hazards as an isolated bounded query.
+
+        Hazards intentionally do not share a request with controls. Busy hazard
+        layers can otherwise consume the upstream response budget and hide
+        cameras. Unknown semantic keys are ignored so older Home Assistant
+        config entries remain safe if an option is removed in a future release.
+        """
+        hazard_codes = tuple(
+            HAZARD_TYPES[kind]
+            for kind in dict.fromkeys(enabled)
+            if kind in HAZARD_TYPES
+        )
+        if not hazard_codes:
+            return []
+
+        return await self.async_get_area(
+            latitude=latitude,
+            longitude=longitude,
+            radius=radius,
+            types=hazard_codes,
+        )
 
     async def async_test_connection(
         self,
