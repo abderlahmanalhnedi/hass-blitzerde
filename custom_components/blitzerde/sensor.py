@@ -17,8 +17,14 @@ from homeassistant.helpers.entity_platform import (
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
 )
+from homeassistant.util import slugify
 
-from .const import ATTR_DISTANCE_KM, DOMAIN
+from .const import (
+    ATTR_CONFIG_ENTRY_ID,
+    ATTR_DISTANCE_KM,
+    DOMAIN,
+    SEARCH_MODE_ROUTE,
+)
 from .coordinator import BlitzerdeCoordinator
 from .item_utils import BlitzerItem
 
@@ -106,11 +112,11 @@ class BlitzerCountSensor(BlitzerSensorEntity):
         """Return useful aggregate information."""
         city_counts: dict[str, int] = {}
         for mapitem in self.coordinator.data.mapdata:
+            address = mapitem.get("address")
+            if not isinstance(address, dict):
+                address = {}
             city = str(
-                (mapitem.get("address") or {}).get(
-                    "city"
-                )
-                or "Unknown"
+                address.get("city") or "Unknown"
             )
             city_counts[city] = (
                 city_counts.get(city, 0) + 1
@@ -123,6 +129,16 @@ class BlitzerCountSensor(BlitzerSensorEntity):
                 self.coordinator.sensorcount
             ),
             "by_city": city_counts,
+            ATTR_CONFIG_ENTRY_ID: self._entry.entry_id,
+            "blitzerde_source": (
+                f"{DOMAIN}_{slugify(self.coordinator.displayname)}"
+            ),
+            "search_mode": self.coordinator.search_mode,
+            "corridor_width": (
+                self.coordinator.corridor_width
+                if self.coordinator.search_mode == SEARCH_MODE_ROUTE
+                else None
+            ),
         }
 
 
