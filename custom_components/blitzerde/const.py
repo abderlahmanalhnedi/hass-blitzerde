@@ -25,6 +25,34 @@ DEFAULT_TYPES: Final = {
     "mobile": True,
     "trailer": True,
     "fixed": False,
+    "archive": False,
+}
+
+CONF_KINDS: Final = "kinds"
+CONTROL_KINDS: Final = {
+    "speed": ("1", "7", "107", "201"),
+    "redlight": ("2", "11", "111"),
+    "redlight_speed": ("110",),
+    "section_control": ("12", "112", "113"),
+    "tunnel": ("114",),
+    "distance": ("6", "101", "206"),
+    "weight": ("3", "108"),
+    "height": ("109",),
+    "lane": ("104",),
+    "entry": ("105",),
+    "access": ("103",),
+    "crosswalk": ("106",),
+    "overtaking": ("115",),
+    "police": ("4", "117"),
+    "alcohol": ("5",),
+    "dummy": ("102",),
+    "unknown": ("0",),
+}
+KIND_DEFAULTS: Final = {key: True for key in CONTROL_KINDS}
+CODE_KIND: Final = {
+    code: kind
+    for kind, codes in CONTROL_KINDS.items()
+    for code in codes
 }
 
 CONF_OPTIONAL: Final = "optional"
@@ -50,6 +78,7 @@ SERVICE_REFRESH: Final = "refresh"
 
 TYPE_MOBILE: Final = (0, 1, 2, 3, 4, 5, 6)
 TYPE_TRAILER: Final = ("ts",)
+TYPE_ARCHIVE: Final = (201, 206)
 TYPE_FIXED: Final = (
     101,
     102,
