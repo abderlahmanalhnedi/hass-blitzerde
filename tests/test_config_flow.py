@@ -19,6 +19,9 @@ from homeassistant.util import slugify
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.blitzerde.api import APIConnectionError
+pytestmark = pytest.mark.asyncio
+
+
 from custom_components.blitzerde.const import (
     CONF_BLACKLIST,
     CONF_CORRIDOR_WIDTH,
