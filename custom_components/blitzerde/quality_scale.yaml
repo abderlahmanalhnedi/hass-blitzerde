@@ -16,11 +16,7 @@ rules:
       Home Assistant-aware config and options flow tests are being added in this
       repository. The rule stays todo until coverage is verified at 100%.
 
-  config-flow:
-    status: todo
-    comment: >
-      The UI flow exists and uses ConfigEntry.data/options, but Core-facing
-      data_description text still needs to be completed for every field.
+  config-flow: done
 
   dependency-transparency:
     status: todo
@@ -44,11 +40,7 @@ rules:
   docs-high-level-description: done
   docs-installation-instructions: done
 
-  docs-removal-instructions:
-    status: todo
-    comment: >
-      Core documentation needs an explicit removal section describing entity,
-      device and dashboard-card cleanup.
+  docs-removal-instructions: done
 
   entity-event-setup: done
   entity-unique-id: done
