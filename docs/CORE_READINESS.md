@@ -28,8 +28,9 @@ Additional platforms and advanced features can follow in later pull requests.
 - [x] Add config-flow happy-path, failure-recovery, duplicate and route tests.
 - [x] Track Bronze rules in `quality_scale.yaml`.
 - [ ] Reach verified 100% config/options-flow coverage.
-- [ ] Add setup/unload/coordinator/entity tests.
-- [ ] Add explicit config-flow `data_description` strings.
+- [x] Add setup/unload/migration tests.
+- [ ] Add coordinator/entity tests.
+- [x] Add explicit config-flow `data_description` strings.
 
 ## Phase 2 — external client library
 
@@ -101,8 +102,6 @@ At the time this document was added:
 - official Home Assistant brand assets
 - external transparent PyPI dependency
 - verified 100% config/options-flow coverage
-- config-flow field descriptions
-- explicit removal documentation
 
 The current status is kept machine-readable in
 `custom_components/blitzerde/quality_scale.yaml`.
