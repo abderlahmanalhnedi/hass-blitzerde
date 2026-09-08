@@ -30,6 +30,7 @@ from homeassistant.helpers.issue_registry import async_delete_issue
 from .bundle import async_register_card
 from .const import (
     CONF_BLACKLIST,
+    CONF_KINDS,
     CONF_NEW_MINUTES,
     CONF_SEARCH_MODE,
     CONF_UPDATE_INTERVAL,
@@ -37,6 +38,7 @@ from .const import (
     DEFAULT_BLACKLIST,
     DEFAULT_NEW_MINUTES,
     DEFAULT_ONLY_CONFIRMED,
+    KIND_DEFAULTS,
     DEFAULT_SELECTOR,
     DEFAULT_SENSOR_COUNT,
     DEFAULT_TYPES,
@@ -172,8 +174,8 @@ async def async_remove_entry(
 async def async_migrate_entry(
     hass: HomeAssistant, entry: ConfigEntry
 ) -> bool:
-    """Migrate older config entries to schema version 8."""
-    if entry.version >= 8:
+    """Migrate older config entries to schema version 9."""
+    if entry.version >= 9:
         return True
 
     _LOGGER.debug(
@@ -187,7 +189,14 @@ async def async_migrate_entry(
         entry.title.removeprefix("Blitzer.de ") or "Home",
     )
     data.setdefault(CONF_COUNT, DEFAULT_SENSOR_COUNT)
-    data.setdefault(CONF_TYPE, dict(DEFAULT_TYPES))
+    types = dict(data.get(CONF_TYPE, {}))
+    for key, default in DEFAULT_TYPES.items():
+        types.setdefault(key, default)
+    data[CONF_TYPE] = types
+    kinds = dict(data.get(CONF_KINDS, {}))
+    for key, default in KIND_DEFAULTS.items():
+        kinds.setdefault(key, default)
+    data[CONF_KINDS] = kinds
     data.setdefault(CONF_SELECTOR, DEFAULT_SELECTOR)
     data.setdefault(
         CONF_CONDITION, DEFAULT_ONLY_CONFIRMED
@@ -219,9 +228,9 @@ async def async_migrate_entry(
         return False
 
     hass.config_entries.async_update_entry(
-        entry, data=data, version=8
+        entry, data=data, version=9
     )
     _LOGGER.debug(
-        "Blitzer.de config entry migration to version 8 completed"
+        "Blitzer.de config entry migration to version 9 completed"
     )
     return True
