@@ -7,6 +7,7 @@ import logging
 import math
 import re
 from dataclasses import dataclass
+from itertools import pairwise
 from datetime import timedelta
 from typing import Any
 
@@ -347,7 +348,7 @@ def _route_sample_points(
         )
     ]
 
-    for start, end in zip(waypoints, waypoints[1:]):
+    for start, end in pairwise(waypoints):
         start_lat = float(start["latitude"])
         start_lng = float(start["longitude"])
         end_lat = float(end["latitude"])
