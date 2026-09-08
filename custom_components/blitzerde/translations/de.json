@@ -8,6 +8,10 @@
         "data": {
           "name": "Anzeigename",
           "search_mode": "Suchart"
+        },
+        "data_description": {
+          "name": "Ein verständlicher Name für diesen überwachten Bereich oder diese Route in Home Assistant.",
+          "search_mode": "Bereich überwacht einen Radius um einen Punkt. Route überwacht einen Korridor entlang von mindestens zwei Wegpunkten."
         }
       },
       "area": {
@@ -34,8 +38,19 @@
               "update_interval": "Update-Intervall in Minuten (0 = nur manuell)",
               "new_minutes": "Als neu markieren für (Minuten, 0 = aus)",
               "blacklist": "Ignorierte Blitzer-IDs (kommagetrennt)"
+            },
+            "data_description": {
+              "count": "Maximale Anzahl der Blitzer-Slots und Kartenmarker für diesen Eintrag.",
+              "selector": "Optionaler regulärer Ausdruck für Städtenamen. .* erlaubt alle Städte.",
+              "condition": "Wenn aktiv, müssen Community-Meldungen bestätigt sein; dauerhaft feste Blitzer gelten als bestätigt.",
+              "update_interval": "Minuten zwischen automatischen Aktualisierungen. 0 bedeutet Aktualisierung nur über die Blitzer.de-Aktion.",
+              "new_minutes": "Wie lange eine Meldung als neu markiert wird. 0 deaktiviert die Neu-Markierung.",
+              "blacklist": "Kommagetrennte öffentliche oder Backend-Blitzer-IDs, die immer ignoriert werden."
             }
           }
+        },
+        "data_description": {
+          "location": "Wähle die Kartenposition und den Suchradius in Metern."
         }
       },
       "waypoint": {
@@ -44,6 +59,10 @@
         "data": {
           "location": "Wegpunkt",
           "add_another": "Weiteren Wegpunkt hinzufügen"
+        },
+        "data_description": {
+          "location": "Setze diesen Punkt auf die Route. Füge an wichtigen Kurven weitere Wegpunkte hinzu, da die Segmente gerade verbunden werden.",
+          "add_another": "Aktiv lassen, um einen weiteren Wegpunkt hinzuzufügen. Deaktivieren, wenn die Route fertig ist."
         }
       },
       "route_options": {
@@ -70,8 +89,19 @@
               "update_interval": "Update-Intervall in Minuten (0 = nur manuell)",
               "new_minutes": "Als neu markieren für (Minuten, 0 = aus)",
               "blacklist": "Ignorierte Blitzer-IDs (kommagetrennt)"
+            },
+            "data_description": {
+              "count": "Maximale Anzahl der Blitzer-Slots und Kartenmarker für diesen Eintrag.",
+              "selector": "Optionaler regulärer Ausdruck für Städtenamen. .* erlaubt alle Städte.",
+              "condition": "Wenn aktiv, müssen Community-Meldungen bestätigt sein; dauerhaft feste Blitzer gelten als bestätigt.",
+              "update_interval": "Minuten zwischen automatischen Aktualisierungen. 0 bedeutet Aktualisierung nur über die Blitzer.de-Aktion.",
+              "new_minutes": "Wie lange eine Meldung als neu markiert wird. 0 deaktiviert die Neu-Markierung.",
+              "blacklist": "Kommagetrennte öffentliche oder Backend-Blitzer-IDs, die immer ignoriert werden."
             }
           }
+        },
+        "data_description": {
+          "corridor_width": "Maximaler Suchabstand von der Route in Metern. Breitere Korridore benötigen weniger Upstream-Abfragen."
         }
       }
     },
@@ -121,8 +151,19 @@
               "update_interval": "Update-Intervall in Minuten (0 = nur manuell)",
               "new_minutes": "Als neu markieren für (Minuten, 0 = aus)",
               "blacklist": "Ignorierte Blitzer-IDs (kommagetrennt)"
+            },
+            "data_description": {
+              "count": "Maximale Anzahl der Blitzer-Slots und Kartenmarker für diesen Eintrag.",
+              "selector": "Optionaler regulärer Ausdruck für Städtenamen. .* erlaubt alle Städte.",
+              "condition": "Wenn aktiv, müssen Community-Meldungen bestätigt sein; dauerhaft feste Blitzer gelten als bestätigt.",
+              "update_interval": "Minuten zwischen automatischen Aktualisierungen. 0 bedeutet Aktualisierung nur über die Blitzer.de-Aktion.",
+              "new_minutes": "Wie lange eine Meldung als neu markiert wird. 0 deaktiviert die Neu-Markierung.",
+              "blacklist": "Kommagetrennte öffentliche oder Backend-Blitzer-IDs, die immer ignoriert werden."
             }
           }
+        },
+        "data_description": {
+          "location": "Wähle die Kartenposition und den Suchradius in Metern."
         }
       },
       "route_settings": {
@@ -149,8 +190,19 @@
               "update_interval": "Update-Intervall in Minuten (0 = nur manuell)",
               "new_minutes": "Als neu markieren für (Minuten, 0 = aus)",
               "blacklist": "Ignorierte Blitzer-IDs (kommagetrennt)"
+            },
+            "data_description": {
+              "count": "Maximale Anzahl der Blitzer-Slots und Kartenmarker für diesen Eintrag.",
+              "selector": "Optionaler regulärer Ausdruck für Städtenamen. .* erlaubt alle Städte.",
+              "condition": "Wenn aktiv, müssen Community-Meldungen bestätigt sein; dauerhaft feste Blitzer gelten als bestätigt.",
+              "update_interval": "Minuten zwischen automatischen Aktualisierungen. 0 bedeutet Aktualisierung nur über die Blitzer.de-Aktion.",
+              "new_minutes": "Wie lange eine Meldung als neu markiert wird. 0 deaktiviert die Neu-Markierung.",
+              "blacklist": "Kommagetrennte öffentliche oder Backend-Blitzer-IDs, die immer ignoriert werden."
             }
           }
+        },
+        "data_description": {
+          "corridor_width": "Maximaler Suchabstand von der Route in Metern. Breitere Korridore benötigen weniger Upstream-Abfragen."
         }
       },
       "route_waypoint": {
@@ -159,6 +211,10 @@
         "data": {
           "location": "Wegpunkt",
           "add_another": "Weiteren Wegpunkt hinzufügen"
+        },
+        "data_description": {
+          "location": "Setze diesen Punkt auf die Route. Füge an wichtigen Kurven weitere Wegpunkte hinzu, da die Segmente gerade verbunden werden.",
+          "add_another": "Aktiv lassen, um einen weiteren Wegpunkt hinzuzufügen. Deaktivieren, wenn die Route fertig ist."
         }
       }
     },
@@ -189,6 +245,12 @@
           "description": "Welcher konfigurierte Blitzer.de-Eintrag aktualisiert werden soll."
         }
       }
+    }
+  },
+  "issues": {
+    "upstream_unavailable": {
+      "title": "Blitzer.de-Dienst ist wiederholt nicht erreichbar",
+      "description": "Der Blitzer.de-Eintrag **{name}** konnte **{failures}** Aktualisierungen in Folge nicht durchführen. Home Assistant versucht es automatisch weiter. Prüfe Internet/DNS und die Integrationsdiagnose. Wenn andere Internetdienste funktionieren, ist der Blitzer.de/atudo-Dienst möglicherweise vorübergehend nicht erreichbar oder begrenzt Anfragen."
     }
   }
 }
