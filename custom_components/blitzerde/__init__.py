@@ -26,6 +26,7 @@ from homeassistant.core import (
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 
+from .bundle import async_register_card
 from .const import (
     CONF_SEARCH_MODE,
     CONF_UPDATE_INTERVAL,
@@ -38,7 +39,6 @@ from .const import (
     SEARCH_MODE_AREA,
     SERVICE_REFRESH,
 )
-from .bundle import async_register_card
 from .coordinator import BlitzerdeCoordinator
 
 _LOGGER = logging.getLogger(__name__)
