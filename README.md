@@ -1,5 +1,9 @@
 <div align="center">
 
+[🇬🇧 English](#english) · [🇩🇪 Deutsch](#deutsch)
+
+<a id="english"></a>
+
 # 🚗⚡ Blitzer.de for Home Assistant
 
 **Area and route-based speed-camera awareness, built natively for Home Assistant.**
@@ -375,3 +379,404 @@ The actively maintained [somansch/blitzer](https://github.com/somansch/blitzer) 
 ## Disclaimer
 
 Speed-camera information can be incomplete, delayed, inaccurate, or unavailable. Do not use this integration in a way that distracts you while driving. Always follow applicable road-safety laws and local regulations.
+
+---
+
+<a id="deutsch"></a>
+
+# 🇩🇪 Deutsche Dokumentation
+
+<div align="center">
+
+# 🚗⚡ Blitzer.de für Home Assistant
+
+**Blitzer-Warnungen für Bereiche und Routen – nativ in Home Assistant integriert.**
+
+Überwache einen Radius rund um dein Zuhause, einen Pendelweg oder beides – mit Karten-Entitäten, Automationen, einer integrierten Dashboard-Karte und datenschutzbewussten Diagnosedaten.
+
+[![Version](https://img.shields.io/badge/version-1.3.0-4c8bf5)](CHANGELOG.md)
+[![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2025.12%2B-41BDF5?logo=homeassistant&logoColor=white)](https://www.home-assistant.io/)
+[![HACS](https://img.shields.io/badge/HACS-Custom%20Repository-41BDF5)](https://hacs.xyz/)
+[![Hassfest](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/hassfest.yaml)
+[![Code quality](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/quality.yaml/badge.svg)](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/quality.yaml)
+[![CodeQL](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/codeql.yaml/badge.svg)](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/codeql.yaml)
+[![Sprachen](https://img.shields.io/badge/UI-DE%20%7C%20EN%20%7C%20AR-8a63d2)](#konfiguration)
+
+[![Repository in HACS öffnen](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=abderlahmanalhnedi&repository=hass-blitzerde&category=integration)
+
+</div>
+
+> [!IMPORTANT]
+> Dies ist eine **inoffizielle Community-Integration** und wird nicht von Blitzer.de unterstützt oder betrieben. Der verwendete Karten-Endpunkt ist nicht offiziell dokumentiert und kann sich ändern. Die Integration ist deshalb so aufgebaut, dass Fehler sicher behandelt, Zustände sichtbar gemacht und Probleme mit dem Upstream-Dienst nicht versteckt werden.
+
+## Warum diese Integration?
+
+| 🗺️ Praktisch | 🛡️ Vertrauenswürdig aufgebaut | ⚡ Home-Assistant-nativ | 🎨 Modern |
+| --- | --- | --- | --- |
+| Bereichs- und Routenkorridor-Überwachung | Kein Blitzer.de-Konto oder Token nötig | Config Flow + Options Flow | Integrierte Radar-Karte |
+| Nächster und neuer Blitzer | Standort/Wegpunkte in Diagnosen geschwärzt | Geo-Location-Entitäten | Für Mobilgeräte optimiert |
+| Dauerhafte Fehlmeldungen ignorierbar | Begrenzte API-Abfragen + Rate-Limit-Handling | Events + manuelle Aktualisierung | DE / EN / AR |
+| Zeitfenster für neue Meldungen | Hassfest, HACS, Ruff, Tests, CodeQL | Stabile Unique IDs | Online/Offline + letztes Update |
+
+### Vertrauen auf einen Blick
+
+- **Kein YAML erforderlich** für die normale Einrichtung.
+- **Keine Blitzer.de-Zugangsdaten** werden gespeichert oder übertragen.
+- **Zustand sichtbar**: Upstream-Erreichbarkeit, letztes erfolgreiches Update, Request-Dauer und Fehlerzähler.
+- **Datenschutzbewusste Diagnosen**: Bereichskoordinaten und Routen-Wegpunkte werden geschwärzt.
+- **Schutz vor API-Missbrauch**: Timeouts, Rate-Limit-Backoff, begrenzte Anzahl von Routenabfragen und begrenzte Parallelität.
+- **Schutz vor Regressionen**: Unit-Tests für Zeitstempel und Routengeometrie plus Home-Assistant-/HACS-Validierung.
+- **Transparente Wartung**: [Changelog](CHANGELOG.md), [Roadmap](ROADMAP.md), [Security Policy](SECURITY.md), [Support](SUPPORT.md) und [Architektur](docs/ARCHITECTURE.md).
+
+> [!NOTE]
+> Der HACS-Button öffnet bzw. fügt das Custom Repository hinzu. Danach musst du **Blitzer.de in HACS herunterladen und Home Assistant neu starten**, bevor du die Integration einrichten kannst.
+
+## Highlights
+
+- **Für Home Assistant 2026 vorbereitet** mit `ConfigEntry.runtime_data` und `DataUpdateCoordinator`
+- Vollständige Einrichtung und Optionen über die Benutzeroberfläche
+- Mobile, Trailer- und feste Blitzer
+- Zwei Suchmodi: **Bereich / Radius** und **Route / Korridor**
+- Mehrstufiger Wegpunkt-Editor für Pendel- und Reiserouten
+- Begrenzte und deduplizierte Routenabfragen mit genauer Distanz zur Route
+- Optionaler Städtefilter per regulärem Ausdruck
+- Optional nur bestätigte Meldungen
+- Blitzer nach Entfernung sortiert
+- Eigener Sensor für den **nächsten Blitzer**
+- Native **Geo Location**-Entitäten für die Home-Assistant-Karte
+- Event `blitzerde_new_camera` für neu auftauchende Meldungen
+- Einstellbares Polling inklusive **nur manuell**
+- Konfigurierbares Zeitfenster für **neue Meldungen**
+- Ignore-Liste für bekannte Fehlmeldungs-IDs
+- Sichtbare Upstream-Gesundheit und letztes erfolgreiches Update
+- Action `blitzerde.refresh` für sofortige Aktualisierung
+- Integrierte **Blitzer.de Radar** Lovelace-Karte
+- Responsiver Karteneditor mit Map-/Refresh-Buttons und Compact Mode
+- Benutzeroberfläche und Karte auf Deutsch, Englisch und Arabisch
+- Bis zu 50 Binary-/Geo-Location-Slots
+- Robuste Behandlung von Timeouts, fehlerhaften Antworten, HTTP-Fehlern und Rate Limits
+- Automatisches Retry/Backoff über den Home-Assistant-Coordinator
+- Datenschutzbewusste Diagnosedaten
+- HACS, Hassfest, Ruff, Python-Kompilierung, Unit-Tests, JavaScript-Prüfung und CodeQL
+
+## Warum gibt es diesen Fork?
+
+Das Repository wurde modernisiert, nachdem eine fehlerhafte Coordinator-Änderung die Integration unbrauchbar gemacht hatte. Die aktuelle Implementierung entfernt den defekten doppelten Coordinator, stellt einen klaren API-/Coordinator-Pfad wieder her und aktualisiert die Integration auf aktuelle Home-Assistant-Muster.
+
+Das ursprüngliche Community-Projekt wurde von **Tim Niklas** erstellt. Dieses Repository enthält eine umfangreich modernisierte und gepflegte Weiterentwicklung von **Abdelrahman Al Hnedi**.
+
+## Entitäten
+
+Für jeden konfigurierten Bereich bzw. jede Route erstellt die Integration ein Home-Assistant-Gerät mit folgenden Entitäten:
+
+| Entität | Zweck |
+| --- | --- |
+| **Detected speed cameras** | Anzahl der aktuell bereitgestellten Blitzer-Slots. Enthält u. a. `total_detected`, `entity_limit` und eine Zusammenfassung nach Stadt. |
+| **Nearest speed camera** | Entfernung in km zur nächsten aktuellen Meldung inklusive Kamera-/Adressattributen. |
+| **Latest speed camera** | Backend-ID der aktuellsten erkannten Upstream-Meldung. |
+| **New speed cameras** | Anzahl der Meldungen innerhalb des konfigurierten Neu-Zeitfensters. |
+| **Last successful update** | Zeitpunkt der letzten erfolgreichen Aktualisierung. |
+| **Upstream service** | Verbindungsstatus mit Dauer, Fehleranzahl, Intervall und Suchmodus. |
+| **Speed camera 1 … N** | Safety-Binary-Sensoren. Slot 1 ist der nächste Blitzer, Slot 2 der zweitnächste usw. |
+| **Geo Location markers** | Dynamische Kartenmarker für aktuelle Blitzer, die automatisch hinzugefügt, aktualisiert und entfernt werden. |
+
+Typische Attribute eines aktiven Blitzers:
+
+- `backend`
+- `vmax`
+- `counter`
+- `city`
+- `street`
+- `zip_code`
+- `latitude` / `longitude`
+- `distance_km`
+- `description`, sofern vorhanden
+- `entity_picture`
+
+## Installation
+
+### HACS — empfohlen
+
+[![Repository in HACS öffnen](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=abderlahmanalhnedi&repository=hass-blitzerde&category=integration)
+
+Installation als **Custom HACS Repository**:
+
+1. Öffne **HACS** in Home Assistant.
+2. Öffne das Drei-Punkte-Menü und wähle **Custom repositories**.
+3. Füge dieses Repository hinzu:
+
+   `https://github.com/abderlahmanalhnedi/hass-blitzerde`
+
+4. Wähle **Integration** als Kategorie.
+5. Suche nach **Blitzer.de** und klicke auf **Download**.
+6. Warte, bis HACS den Download bestätigt.
+7. **Starte Home Assistant vollständig neu.**
+8. Gehe danach zu **Einstellungen → Geräte & Dienste → Integration hinzufügen → Blitzer.de**.
+
+Erst nachdem die Schritte 5–7 abgeschlossen sind, funktioniert dieser Direktlink zuverlässig:
+
+[![Blitzer.de zu Home Assistant hinzufügen](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=blitzerde)
+
+> [!NOTE]
+> Wenn Home Assistant meldet **„Diese Integration unterstützt keine Konfiguration über die Benutzeroberfläche“**, wurde die Custom Integration noch nicht geladen. Meist wurde sie nur als HACS-Repository hinzugefügt, aber noch nicht heruntergeladen oder Home Assistant wurde danach noch nicht neu gestartet.
+
+### Manuell
+
+Kopiere den Ordner:
+
+`custom_components/blitzerde`
+
+nach:
+
+`/config/custom_components/blitzerde`
+
+Starte Home Assistant anschließend neu und füge **Blitzer.de** unter **Einstellungen → Geräte & Dienste** hinzu.
+
+## Konfiguration
+
+Während der Einrichtung wählst du:
+
+- **Anzeigename** — zum Beispiel `Dresden` oder `Arbeitsweg`
+- **Suchmodus** — Bereich/Radius oder Route/Korridor
+- **Bereich** — Mittelpunkt und Radius
+- **Blitzer-Typen** — mobil, Trailer, fest
+- **Anzahl der Slots** — 1 bis 50, Standard 9
+- **Städtefilter** — regulärer Ausdruck, Standard `.*`
+- **Nur bestätigte Meldungen** — standardmäßig aktiviert
+- **Update-Intervall** — Minuten zwischen Aktualisierungen; `0` = nur manuell
+- **Als neu zählen für** — Zeitfenster in Minuten; `0` = deaktiviert
+- **Ignorierte Blitzer-IDs** — kommagetrennte IDs, die dauerhaft ignoriert werden
+
+Der Radius des Home-Assistant-Location-Selectors wird in **Metern** interpretiert. Ergebnisse der rechteckigen Upstream-Abfrage werden anschließend noch einmal auf den tatsächlich gewählten Kreis gefiltert.
+
+## Route / Korridor
+
+Der Routenmodus ist für Pendelwege und regelmäßig gefahrene Strecken gedacht. Du fügst auf der Home-Assistant-Karte mehrere Wegpunkte hinzu. Die Integration verbindet diese als gerade Segmente und durchsucht überlappende Kreise entlang der Route.
+
+Die **Korridorbreite** definiert den maximalen Suchabstand zur Route in Metern. Ergebnisse aus überlappenden Abfragen werden anhand der Kamera-ID zusammengeführt, dedupliziert und nach dem kürzesten Abstand zur Route sortiert.
+
+Zum Schutz des Upstream-Dienstes ist eine Route auf **120 Query Points pro Aktualisierung** begrenzt. Wenn eine sehr lange Route diese Grenze überschreitet, fordert die Einrichtung dazu auf, den Korridor zu verbreitern oder die Route zu verkürzen.
+
+> Die Segmente zwischen den Wegpunkten sind gerade Linien. Setze deshalb zusätzliche Wegpunkte an wichtigen Kurven, Autobahnwechseln oder Abzweigungen.
+
+Später kannst du unter **Konfigurieren** entweder die Routeneinstellungen ändern oder die Wegpunkte neu zeichnen.
+
+### Beispiele für den Städtefilter
+
+- **Alles:** `.*`
+- **Nur Dresden:** `^Dresden$`
+- **Dresden oder Radebeul:** `^(Dresden|Radebeul)$`
+- **Alle Städte, die mit Dres beginnen:** `^Dres.*`
+
+Ungültige reguläre Ausdrücke werden bereits in der Benutzeroberfläche abgelehnt.
+
+## Integrierte Blitzer.de Radar-Karte
+
+Version 1.3 enthält eine Dashboard-Karte **direkt in der Integration**. Es muss keine JavaScript-Datei nach `www` kopiert und keine Lovelace-Ressource manuell angelegt werden.
+
+Beispiel:
+
+```yaml
+type: custom:blitzerde-card
+title: Blitzer.de Radar
+max_items: 6
+show_map: true
+show_refresh: true
+compact: false
+```
+
+Über den visuellen Editor kannst du zusätzlich Titel, Quelle, maximale Anzahl von Zeilen, Map-Button, Refresh-Button und Compact Mode einstellen.
+
+Die Karte erkennt automatisch die `geo_location`- und Count-Entitäten dieser Integration und zeigt unter anderem:
+
+- aktuelle Anzahl der Blitzer
+- nächsten Blitzer hervorgehoben
+- Entfernung und Geschwindigkeitslimit
+- Straße, Stadt und Blitzer-Typ
+- Bereichs- oder Routenmodus
+- direkten **Refresh**
+- Link zur Home-Assistant-Karte
+- responsives Layout
+- deutsche, englische und arabische Texte passend zur Home-Assistant-Sprache
+
+Bei mehreren Blitzer.de-Einträgen kannst du im Karteneditor eine bestimmte Quelle auswählen.
+
+## Home-Assistant-Karte
+
+Aktuelle Meldungen werden als native `geo_location`-Entitäten bereitgestellt. Füge die eingebaute **Map**-Karte von Home Assistant hinzu und wähle die Blitzer.de-Quelle des gewünschten Bereichs bzw. der Route.
+
+Die Marker enthalten unter anderem:
+
+- Koordinaten
+- Entfernung
+- Straße und Stadt
+- Geschwindigkeitslimit
+- Report-ID
+- Blitzer-Typ
+- Kurzbeschreibung
+
+Die Entitäten sind dynamisch. Verschwindet eine Meldung aus den aktuellen Ergebnissen, wird der entsprechende Marker entfernt und bleibt nicht als verwaiste `unavailable`-Entität zurück.
+
+## Event für neue Blitzer
+
+Nach der ersten erfolgreichen Abfrage erzeugt jede neu auftauchende Kamera-ID das Event:
+
+`blitzerde_new_camera`
+
+Die erste Abfrage nach einem Neustart dient absichtlich als Baseline. Dadurch erzeugt Home Assistant nach jedem Neustart nicht sofort eine Flut vermeintlich neuer Meldungen.
+
+Beispiel:
+
+```yaml
+triggers:
+  - trigger: event
+    event_type: blitzerde_new_camera
+actions:
+  - action: notify.mobile_app_YOUR_PHONE
+    data:
+      title: "Neuer Blitzer"
+      message: "{{ trigger.event.data.summary }} · {{ trigger.event.data.distance_km }} km"
+```
+
+Der Event-Payload enthält unter anderem `config_entry_id`, `area`, `id`, `camera_type`, `summary`, Adressdaten, Koordinaten, `distance_km` und `vmax`.
+
+## Polling und manuelle Aktualisierung
+
+Das Update-Intervall wird pro Eintrag in Minuten konfiguriert. Standard ist eine Minute. Mit `0` wird nur dann aktualisiert, wenn eine Automation oder der Benutzer eine Aktualisierung auslöst.
+
+Dafür gibt es die Home-Assistant-Action:
+
+`blitzerde.refresh`
+
+Sie aktualisiert den gewählten Integrationseintrag sofort und kann die aktuelle Trefferliste als Response Data an Automationen zurückgeben.
+
+## Fertige Notification-Blueprint
+
+Für Benachrichtigungen ohne eigene Templates gibt es die enthaltene **New camera nearby** Blueprint:
+
+[![Blitzer.de Notification Blueprint importieren](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fabderlahmanalhnedi%2Fhass-blitzerde%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fblitzerde%2Fnew_camera_mobile_notification.yaml)
+
+Du kannst festlegen:
+
+- welches Home-Assistant-Companion-App-Gerät benachrichtigt wird
+- maximale Entfernung
+- optional einen exakten Bereichs-/Routennamen
+
+Die Benachrichtigung enthält Kurzbeschreibung, Entfernung und – sofern verfügbar – das Geschwindigkeitslimit.
+
+## Beispiel-Automation
+
+Du kannst einen der erzeugten `Speed camera N`-Binary-Sensoren als Trigger verwenden:
+
+```yaml
+alias: Blitzer in der Nähe erkannt
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.YOUR_SPEED_CAMERA_1
+    from: "off"
+    to: "on"
+actions:
+  - action: notify.mobile_app_YOUR_PHONE
+    data:
+      title: "Blitzer in der Nähe"
+      message: >-
+        {{ state_attr('binary_sensor.YOUR_SPEED_CAMERA_1', 'street') }} ·
+        {{ state_attr('binary_sensor.YOUR_SPEED_CAMERA_1', 'distance_km') }} km ·
+        {{ state_attr('binary_sensor.YOUR_SPEED_CAMERA_1', 'vmax') }} km/h
+mode: single
+```
+
+## Diagnosedaten
+
+Wenn etwas nicht funktioniert:
+
+1. Gehe zu **Einstellungen → Geräte & Dienste → Blitzer.de**.
+2. Öffne das Menü des Integrationseintrags.
+3. Lade **Diagnosedaten** herunter.
+4. Hänge die Datei an ein GitHub-Issue an.
+
+Standortdaten und Routen-Wegpunkte werden dabei absichtlich geschwärzt.
+
+## Fehlerbehebung
+
+### Integration erscheint nach der HACS-Installation nicht
+
+Starte Home Assistant nach dem Download der Integration vollständig neu. Falls sie weiterhin nicht erscheint, lade das Browser-Frontend neu und prüfe, ob dieser Ordner existiert:
+
+`/config/custom_components/blitzerde`
+
+### Einrichtung meldet, dass keine Verbindung möglich ist
+
+Der Config Flow prüft den Upstream-Endpunkt vor dem Speichern. Mögliche Ursachen:
+
+- temporäre Netzwerk- oder DNS-Probleme
+- Upstream-Dienst nicht erreichbar
+- Upstream-Endpunkt wurde geändert
+- Rate Limit wurde ausgelöst
+
+Auch zur Laufzeit versucht Home Assistant Aktualisierungen automatisch erneut. HTTP-429-Antworten berücksichtigen `Retry-After`, sofern vorhanden.
+
+### Keine Blitzer sichtbar
+
+Prüfe zuerst:
+
+- Radius erhöhen
+- testweise Städtefilter auf `.*` setzen
+- weitere Blitzer-Typen aktivieren
+- testweise **Nur bestätigte Meldungen** deaktivieren
+
+Ein gültiges, aber leeres Ergebnis wird nicht als Verbindungsfehler gewertet.
+
+## Entfernen
+
+So entfernst du die Integration sauber:
+
+1. Gehe zu **Einstellungen → Geräte & Dienste → Blitzer.de**.
+2. Öffne das Menü des gewünschten Eintrags und wähle **Löschen**.
+3. Entferne Dashboard-Karten und Automationen, die Entitäten dieses Eintrags verwenden.
+4. Wenn keine Blitzer.de-Einträge mehr vorhanden sind, kannst du die Integration anschließend aus HACS entfernen und Home Assistant neu starten.
+
+Beim Löschen eines Config Entries werden Sensor-, Binary-Sensor- und Geo-Location-Plattformen entladen. Dynamische Kartenmarker dieses Eintrags werden ebenfalls entfernt.
+
+## Daten und Datenschutz
+
+Im Bereichsmodus sendet die Integration den gewählten Kartenbereich an den Upstream-Kartendienst, um Meldungen in der Nähe abzurufen. Im Routenmodus werden mehrere begrenzte Bounding-Box-Abfragen entlang der Wegpunkte durchgeführt.
+
+Es werden **keine Home-Assistant-Zugangsdaten** übertragen. Die Integration besitzt auch keinen eigenen Login-Token.
+
+Da der verwendete Endpunkt inoffiziell und nicht dokumentiert ist, solltest du die jeweils geltenden Nutzungsbedingungen und lokalen Regeln beachten.
+
+## Entwicklung
+
+Das Repository validiert Änderungen unter anderem mit:
+
+- Home Assistant **Hassfest**
+- **HACS Action**
+- Python-Kompilierung
+- Unit-Tests für Zeitstempel und Routengeometrie
+- Home-Assistant-aware Config-/Runtime-Tests
+- **Ruff**
+- Node.js-Syntaxprüfung der Dashboard-Karte
+- **CodeQL**
+- Dependabot
+
+Beiträge sind willkommen. Bei Fehlern sollten möglichst Home-Assistant-Version, Integrationsversion, relevante Log-Zeilen und die geschwärzte Diagnosedatei angegeben werden.
+
+Weitere Projektdokumentation:
+
+- [Changelog](CHANGELOG.md)
+- [Roadmap](ROADMAP.md)
+- [Security Policy](SECURITY.md)
+- [Support](SUPPORT.md)
+- [Contributing](CONTRIBUTING.md)
+- [Architektur](docs/ARCHITECTURE.md)
+- [Core Readiness](docs/CORE_READINESS.md)
+
+Das aktiv gepflegte Projekt [somansch/blitzer](https://github.com/somansch/blitzer) wurde als technische Referenz für Geo-Location-Entitäten, Events, Polling, manuelle Aktualisierung, Routensuche und Dashboard-UX betrachtet. Details zur Attribution und zu Lizenzen stehen in `THIRD_PARTY_NOTICES.md`.
+
+## Hinweis
+
+Blitzerinformationen können unvollständig, verspätet, falsch oder zeitweise nicht verfügbar sein. Verwende die Integration nicht auf eine Weise, die dich während der Fahrt ablenkt. Beachte immer die geltenden Verkehrsregeln und lokalen Vorschriften.
+
+[⬆️ Zurück zur englischen Version](#english)
+
