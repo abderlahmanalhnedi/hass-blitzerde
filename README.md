@@ -87,6 +87,7 @@ For every configured area, the integration creates one Home Assistant device and
 | **Detected speed cameras** | Number of currently exposed camera slots. Attributes include \`total_detected\`, \`entity_limit\`, and a per-city summary. |
 | **Nearest speed camera** | Distance in km to the nearest current report, with camera/address attributes. |
 | **Latest speed camera** | Backend ID of the latest-looking upstream report, with camera/address attributes. |
+| **New speed cameras** | Automation-friendly count of reports inside the configured freshness window. |
 | **Last successful update** | Timestamp of the most recent successful upstream refresh. |
 | **Upstream service** | Connectivity health with duration, failure count, interval, and search-mode telemetry. |
 | **Speed camera 1 … N** | Safety binary sensors. Slot 1 is the nearest report, slot 2 the next-nearest, and so on. |
@@ -252,6 +253,20 @@ Use the Home Assistant action:
 `blitzerde.refresh`
 
 Select the integration entry in the action UI. The action refreshes immediately and can return the current camera list to automations that request response data.
+
+## Ready-made notification blueprint
+
+Want a useful automation without writing templates? Import the bundled **New camera nearby** blueprint:
+
+[![Import Blitzer.de notification blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2Fabderlahmanalhnedi%2Fhass-blitzerde%2Fblob%2Fmain%2Fblueprints%2Fautomation%2Fblitzerde%2Fnew_camera_mobile_notification.yaml)
+
+It lets you choose:
+
+- the Home Assistant Companion App device to notify
+- a maximum distance from the configured area/route
+- an optional exact area/route name filter
+
+The notification includes the report summary, distance, and speed limit when available. It listens to `blitzerde_new_camera`, so the first refresh after a Home Assistant restart is treated as a baseline instead of producing a notification storm.
 
 ## Example automation
 
