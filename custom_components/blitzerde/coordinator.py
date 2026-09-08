@@ -36,8 +36,10 @@ from homeassistant.util import dt as dt_util
 from .api import APIConnectionError, APIRateLimitError, BlitzerdeAPI
 from .const import (
     ATTR_DISTANCE_KM,
+    CODE_KIND,
     CONF_BLACKLIST,
     CONF_CORRIDOR_WIDTH,
+    CONF_KINDS,
     CONF_NEW_MINUTES,
     CONF_SEARCH_MODE,
     CONF_UPDATE_INTERVAL,
@@ -47,6 +49,7 @@ from .const import (
     DEFAULT_NEW_MINUTES,
     DEFAULT_ONLY_CONFIRMED,
     DEFAULT_SELECTOR,
+    KIND_DEFAULTS,
     DEFAULT_SENSOR_COUNT,
     DEFAULT_TYPES,
     DEFAULT_UPDATE_INTERVAL_MINUTES,
@@ -55,6 +58,7 @@ from .const import (
     REPAIR_UPSTREAM_UNAVAILABLE,
     SEARCH_MODE_AREA,
     SEARCH_MODE_ROUTE,
+    TYPE_ARCHIVE,
     TYPE_FIXED,
     TYPE_MOBILE,
     TYPE_TRAILER,
@@ -229,6 +233,21 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
         }
 
     @property
+    @property
+    def kinds(self) -> dict[str, bool]:
+        """Return enabled semantic control kinds."""
+        raw = self._value(CONF_KINDS, KIND_DEFAULTS)
+        return {
+            key: bool(raw.get(key, default))
+            for key, default in KIND_DEFAULTS.items()
+        }
+
+    def _kind_enabled(self, item: dict[str, Any]) -> bool:
+        """Return whether the arriving POI matches the selected kind filter."""
+        kind = CODE_KIND.get(str(item.get("type", "")), "unknown")
+        return self.kinds.get(kind, False)
+
+    @property
     def only_confirmed(self) -> bool:
         """Return whether only confirmed reports should be included."""
         return bool(
@@ -252,6 +271,8 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
             selected.extend(TYPE_TRAILER)
         if self.types["fixed"]:
             selected.extend(TYPE_FIXED)
+        if self.types.get("archive", False):
+            selected.extend(TYPE_ARCHIVE)
         return selected
 
     async def _async_update_data(self) -> BlitzerdeAPIData:
@@ -308,6 +329,9 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
                 backend in blacklist_ids
                 or public_id in blacklist_ids
             ):
+                continue
+
+            if not self._kind_enabled(item):
                 continue
 
             if self.only_confirmed and not _is_confirmed(item):
@@ -459,5 +483,7 @@ def _is_confirmed(item: dict[str, Any]) -> bool:
 
     code = str(item.get("type", ""))
     if str(info.get("fixed", "")) == "1":
+        return True
+    if code.isdigit() and 200 <= int(code) < 300:
         return True
     return code.isdigit() and 100 <= int(code) < 200
