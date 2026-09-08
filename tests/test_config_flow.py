@@ -16,6 +16,7 @@ from homeassistant.const import (
 from homeassistant.data_entry_flow import FlowResultType
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
+import custom_components.blitzerde.config_flow as config_flow_module
 from custom_components.blitzerde.api import APIConnectionError
 from custom_components.blitzerde.const import (
     CONF_BLACKLIST,
@@ -384,3 +385,420 @@ async def test_route_options_menu_and_settings(hass) -> None:
         ROUTE_START,
         ROUTE_END,
     ]
+
+
+async def test_legacy_duplicate_name_without_unique_id_is_rejected(hass) -> None:
+    """Legacy entries without a unique ID still block duplicate display names."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Blitzer.de Legacy",
+        unique_id=None,
+        data={
+            CONF_NAME: "Legacy",
+            CONF_SEARCH_MODE: SEARCH_MODE_AREA,
+            CONF_LOCATION: AREA_LOCATION,
+            CONF_TYPE: TYPE_INPUT,
+            **OPTIONAL_INPUT,
+        },
+    )
+    entry.add_to_hass(hass)
+
+    result = await _start_flow(
+        hass, name="Legacy", mode=SEARCH_MODE_AREA
+    )
+
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "already_configured"
+
+
+async def test_route_waypoint_rejects_missing_location(hass) -> None:
+    """The route waypoint step handles malformed location input."""
+    result = await _start_flow(
+        hass, name="Missing waypoint", mode=SEARCH_MODE_ROUTE
+    )
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {
+            CONF_LOCATION: None,
+            "add_another": True,
+        },
+    )
+
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "waypoint"
+    assert result["errors"] == {"base": "location_missing"}
+
+
+async def test_route_options_validation_and_connection_recovery(hass) -> None:
+    """Route settings recover from local validation and API failures."""
+    result = await _start_flow(
+        hass, name="Route recovery", mode=SEARCH_MODE_ROUTE
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {CONF_LOCATION: ROUTE_START, "add_another": True},
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        {CONF_LOCATION: ROUTE_END, "add_another": False},
+    )
+    assert result["step_id"] == "route_options"
+
+    invalid = {
+        **ROUTE_OPTIONS_INPUT,
+        CONF_TYPE: {
+            "mobile": False,
+            "trailer": False,
+            "fixed": False,
+        },
+    }
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], invalid
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {"base": "no_types_selected"}
+
+    with patch(
+        "custom_components.blitzerde.config_flow.BlitzerdeAPI.async_test_connection",
+        new=AsyncMock(
+            side_effect=[
+                APIConnectionError("temporary failure"),
+                None,
+            ]
+        ),
+    ):
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], ROUTE_OPTIONS_INPUT
+        )
+        assert result["type"] is FlowResultType.FORM
+        assert result["errors"] == {"base": "cannot_connect"}
+
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], ROUTE_OPTIONS_INPUT
+        )
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+
+
+async def test_area_options_validation_and_connection_recovery(hass) -> None:
+    """Area options preserve the flow after validation and API failures."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Blitzer.de Area options",
+        unique_id="area-options",
+        data={
+            CONF_NAME: "Area options",
+            CONF_SEARCH_MODE: SEARCH_MODE_AREA,
+            CONF_LOCATION: AREA_LOCATION,
+            CONF_TYPE: TYPE_INPUT,
+            **OPTIONAL_INPUT,
+        },
+    )
+    entry.add_to_hass(hass)
+
+    result = await hass.config_entries.options.async_init(
+        entry.entry_id
+    )
+
+    invalid = {
+        **AREA_INPUT,
+        CONF_OPTIONAL: {
+            **OPTIONAL_INPUT,
+            CONF_SELECTOR: "[",
+        },
+    }
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], invalid
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {"base": "invalid_regex"}
+
+    with patch(
+        "custom_components.blitzerde.config_flow.BlitzerdeAPI.async_test_connection",
+        new=AsyncMock(
+            side_effect=[
+                APIConnectionError("temporary failure"),
+                None,
+            ]
+        ),
+    ):
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], AREA_INPUT
+        )
+        assert result["type"] is FlowResultType.FORM
+        assert result["errors"] == {"base": "cannot_connect"}
+
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], AREA_INPUT
+        )
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+
+
+async def test_route_settings_validation_and_connection_recovery(hass) -> None:
+    """Existing route settings recover from bad input and API failures."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Blitzer.de Route options",
+        unique_id="route-options",
+        data={
+            CONF_NAME: "Route options",
+            CONF_SEARCH_MODE: SEARCH_MODE_ROUTE,
+            CONF_WAYPOINTS: [ROUTE_START, ROUTE_END],
+            CONF_CORRIDOR_WIDTH: 500,
+            CONF_TYPE: TYPE_INPUT,
+            **OPTIONAL_INPUT,
+        },
+    )
+    entry.add_to_hass(hass)
+
+    result = await hass.config_entries.options.async_init(
+        entry.entry_id
+    )
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {"next_step_id": "route_settings"},
+    )
+
+    invalid = {
+        **ROUTE_OPTIONS_INPUT,
+        CONF_OPTIONAL: {
+            **OPTIONAL_INPUT,
+            CONF_SELECTOR: "[",
+        },
+    }
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], invalid
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {"base": "invalid_regex"}
+
+    with patch(
+        "custom_components.blitzerde.config_flow.BlitzerdeAPI.async_test_connection",
+        new=AsyncMock(
+            side_effect=[
+                APIConnectionError("temporary failure"),
+                None,
+            ]
+        ),
+    ):
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], ROUTE_OPTIONS_INPUT
+        )
+        assert result["type"] is FlowResultType.FORM
+        assert result["errors"] == {"base": "cannot_connect"}
+
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], ROUTE_OPTIONS_INPUT
+        )
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+
+
+async def test_route_waypoint_redraw_flow(hass) -> None:
+    """Existing route waypoints can be redrawn from the options menu."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Blitzer.de Redraw",
+        unique_id="redraw",
+        data={
+            CONF_NAME: "Redraw",
+            CONF_SEARCH_MODE: SEARCH_MODE_ROUTE,
+            CONF_WAYPOINTS: [ROUTE_START, ROUTE_END],
+            CONF_CORRIDOR_WIDTH: 500,
+            CONF_TYPE: TYPE_INPUT,
+            **OPTIONAL_INPUT,
+        },
+    )
+    entry.add_to_hass(hass)
+
+    result = await hass.config_entries.options.async_init(
+        entry.entry_id
+    )
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {"next_step_id": "edit_waypoints"},
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "route_waypoint"
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {
+            CONF_LOCATION: ROUTE_START,
+            "add_another": False,
+        },
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "route_waypoint"
+    assert result["errors"] == {
+        "base": "route_needs_two_waypoints"
+    }
+
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {
+            CONF_LOCATION: ROUTE_END,
+            "add_another": False,
+        },
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "route_settings"
+
+    with patch(
+        "custom_components.blitzerde.config_flow.BlitzerdeAPI.async_test_connection",
+        new_callable=AsyncMock,
+    ):
+        result = await hass.config_entries.options.async_configure(
+            result["flow_id"], ROUTE_OPTIONS_INPUT
+        )
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["data"][CONF_WAYPOINTS] == [
+        ROUTE_START,
+        ROUTE_END,
+    ]
+
+
+async def test_route_waypoint_redraw_rejects_missing_location(hass) -> None:
+    """Waypoint redraw reports malformed location data instead of crashing."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Blitzer.de Redraw invalid",
+        unique_id="redraw-invalid",
+        data={
+            CONF_NAME: "Redraw invalid",
+            CONF_SEARCH_MODE: SEARCH_MODE_ROUTE,
+            CONF_WAYPOINTS: [ROUTE_START, ROUTE_END],
+            CONF_CORRIDOR_WIDTH: 500,
+            CONF_TYPE: TYPE_INPUT,
+            **OPTIONAL_INPUT,
+        },
+    )
+    entry.add_to_hass(hass)
+
+    result = await hass.config_entries.options.async_init(
+        entry.entry_id
+    )
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {"next_step_id": "edit_waypoints"},
+    )
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {
+            CONF_LOCATION: None,
+            "add_another": True,
+        },
+    )
+
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "route_waypoint"
+    assert result["errors"] == {"base": "location_missing"}
+
+
+def test_area_schema_uses_safe_default_location() -> None:
+    """Area schema can be built without persisted coordinates."""
+    schema = config_flow_module._area_schema({})
+    assert schema is not None
+
+
+def test_validate_area_missing_location_shapes() -> None:
+    """Area validation rejects absent and incomplete location mappings."""
+    base = {
+        CONF_TYPE: TYPE_INPUT,
+        CONF_SELECTOR: ".*",
+    }
+    assert (
+        config_flow_module._validate_area(
+            {**base, CONF_LOCATION: None}
+        )
+        == "location_missing"
+    )
+    assert (
+        config_flow_module._validate_area(
+            {
+                **base,
+                CONF_LOCATION: {
+                    "latitude": 51.05,
+                    "longitude": 13.73,
+                },
+            }
+        )
+        == "location_missing"
+    )
+
+
+def test_validate_route_common_short_and_too_large() -> None:
+    """Route validation covers common errors, minimum points and query budget."""
+    base = {
+        CONF_TYPE: TYPE_INPUT,
+        CONF_SELECTOR: ".*",
+        CONF_CORRIDOR_WIDTH: 100,
+    }
+
+    assert (
+        config_flow_module._validate_route(
+            {
+                **base,
+                CONF_TYPE: {
+                    "mobile": False,
+                    "trailer": False,
+                    "fixed": False,
+                },
+                CONF_WAYPOINTS: [ROUTE_START, ROUTE_END],
+            }
+        )
+        == "no_types_selected"
+    )
+    assert (
+        config_flow_module._validate_route(
+            {**base, CONF_WAYPOINTS: [ROUTE_START]}
+        )
+        == "route_needs_two_waypoints"
+    )
+    assert (
+        config_flow_module._validate_route(
+            {
+                **base,
+                CONF_WAYPOINTS: [
+                    ROUTE_START,
+                    {
+                        "latitude": 53.5511,
+                        "longitude": 9.9937,
+                    },
+                ],
+            }
+        )
+        == "route_too_large"
+    )
+
+
+def test_enabled_types_covers_all_type_combinations() -> None:
+    """All three public camera type switches map to upstream IDs."""
+    enabled = config_flow_module._enabled_types(
+        {
+            CONF_TYPE: {
+                "mobile": True,
+                "trailer": True,
+                "fixed": True,
+            }
+        }
+    )
+    assert enabled
+    assert "ts" in enabled
+    assert 101 in enabled
+
+    assert (
+        config_flow_module._enabled_types(
+            {
+                CONF_TYPE: {
+                    "mobile": False,
+                    "trailer": False,
+                    "fixed": False,
+                }
+            }
+        )
+        == []
+    )
