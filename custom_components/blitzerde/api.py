@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Iterable, Sequence
 import json
 import logging
 import math
+from collections.abc import Iterable, Sequence
 from typing import Any
 
 from aiohttp import ClientError, ClientResponseError, ClientSession
