@@ -52,6 +52,7 @@ from .const import (
     DOMAIN,
     MAX_ROUTE_QUERY_POINTS,
     SEARCH_MODE_AREA,
+    REPAIR_UPSTREAM_UNAVAILABLE,
     SEARCH_MODE_ROUTE,
     TYPE_FIXED,
     TYPE_MOBILE,
@@ -87,7 +88,7 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
         self.last_update_duration_ms: int | None = None
         self.consecutive_failures = 0
         self._repair_issue_id = (
-            f"upstream_unavailable_{config_entry.entry_id}"
+            f"{REPAIR_UPSTREAM_UNAVAILABLE}_{config_entry.entry_id}"
         )
 
         interval_minutes = int(
@@ -353,7 +354,7 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
             is_fixable=False,
             is_persistent=False,
             severity=IssueSeverity.WARNING,
-            translation_key="upstream_unavailable",
+            translation_key=REPAIR_UPSTREAM_UNAVAILABLE,
             translation_placeholders={
                 "name": self.displayname,
                 "failures": str(self.consecutive_failures),
