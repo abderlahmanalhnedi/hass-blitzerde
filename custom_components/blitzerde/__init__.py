@@ -28,8 +28,12 @@ from homeassistant.helpers import config_validation as cv
 
 from .bundle import async_register_card
 from .const import (
+    CONF_BLACKLIST,
+    CONF_NEW_MINUTES,
     CONF_SEARCH_MODE,
     CONF_UPDATE_INTERVAL,
+    DEFAULT_BLACKLIST,
+    DEFAULT_NEW_MINUTES,
     DEFAULT_ONLY_CONFIRMED,
     DEFAULT_SELECTOR,
     DEFAULT_SENSOR_COUNT,
@@ -154,8 +158,8 @@ async def async_unload_entry(
 async def async_migrate_entry(
     hass: HomeAssistant, entry: ConfigEntry
 ) -> bool:
-    """Migrate older config entries to schema version 7."""
-    if entry.version >= 7:
+    """Migrate older config entries to schema version 8."""
+    if entry.version >= 8:
         return True
 
     _LOGGER.debug(
@@ -179,6 +183,8 @@ async def async_migrate_entry(
         DEFAULT_UPDATE_INTERVAL_MINUTES,
     )
     data.setdefault(CONF_SEARCH_MODE, SEARCH_MODE_AREA)
+    data.setdefault(CONF_NEW_MINUTES, DEFAULT_NEW_MINUTES)
+    data.setdefault(CONF_BLACKLIST, DEFAULT_BLACKLIST)
 
     if CONF_LOCATION not in data:
         _LOGGER.error(
@@ -187,9 +193,9 @@ async def async_migrate_entry(
         return False
 
     hass.config_entries.async_update_entry(
-        entry, data=data, version=7
+        entry, data=data, version=8
     )
     _LOGGER.debug(
-        "Blitzer.de config entry migration to version 7 completed"
+        "Blitzer.de config entry migration to version 8 completed"
     )
     return True
