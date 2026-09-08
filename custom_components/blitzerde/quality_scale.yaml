@@ -1,0 +1,59 @@
+rules:
+  # Bronze
+  action-setup: done
+  appropriate-polling: done
+
+  brands:
+    status: todo
+    comment: >
+      Core branding still needs a separate pull request to home-assistant/brands.
+
+  common-modules: done
+
+  config-flow-test-coverage:
+    status: todo
+    comment: >
+      Home Assistant-aware config and options flow tests are being added in this
+      repository. The rule stays todo until coverage is verified at 100%.
+
+  config-flow:
+    status: todo
+    comment: >
+      The UI flow exists and uses ConfigEntry.data/options, but Core-facing
+      data_description text still needs to be completed for every field.
+
+  dependency-transparency:
+    status: todo
+    comment: >
+      The aiohttp client has been decoupled from Home Assistant and accepts an
+      injected ClientSession. It still needs to be extracted to an
+      Apache-2.0-compatible open-source PyPI dependency before a Core PR.
+
+  docs-actions: done
+
+  docs-triggers:
+    status: exempt
+    comment: >
+      The integration currently exposes an event for automations but no Home
+      Assistant trigger platform.
+
+  docs-conditions:
+    status: exempt
+    comment: The integration does not expose conditions.
+
+  docs-high-level-description: done
+  docs-installation-instructions: done
+
+  docs-removal-instructions:
+    status: todo
+    comment: >
+      Core documentation needs an explicit removal section describing entity,
+      device and dashboard-card cleanup.
+
+  entity-event-setup: done
+  entity-unique-id: done
+  has-entity-name: done
+  runtime-data: done
+  test-before-configure: done
+  test-before-setup: done
+  unique-config-entry: done
