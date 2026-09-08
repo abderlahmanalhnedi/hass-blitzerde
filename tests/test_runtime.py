@@ -5,6 +5,7 @@ from __future__ import annotations
 import time
 from unittest.mock import AsyncMock, patch
 
+import pytest
 from homeassistant.const import (
     CONF_CONDITION,
     CONF_COUNT,
@@ -14,6 +15,9 @@ from homeassistant.const import (
     CONF_TYPE,
 )
 from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+pytestmark = pytest.mark.asyncio
+
 
 from custom_components.blitzerde.const import (
     CONF_BLACKLIST,
