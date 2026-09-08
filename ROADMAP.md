@@ -13,10 +13,11 @@ The roadmap prioritizes features that improve daily usefulness, trust, and Home 
 
 ### Notifications
 
-- Ship optional automation blueprints for:
-  - new report within a configurable distance
-  - route/corridor report alert
-  - notify only when selected person/device tracker is away from home or travelling
+- Expand the shipped notification blueprint with optional:
+  - person/device-tracker presence conditions
+  - quiet hours
+  - camera-type filtering
+- Add a second route-focused blueprint if it provides behavior that cannot be expressed cleanly through the existing distance/area filter
 
 ### Dashboard
 
