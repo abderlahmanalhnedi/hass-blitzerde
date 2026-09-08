@@ -16,8 +16,6 @@ from homeassistant.const import (
 )
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-pytestmark = pytest.mark.asyncio
-
 
 from custom_components.blitzerde.const import (
     CONF_BLACKLIST,
@@ -29,6 +27,8 @@ from custom_components.blitzerde.const import (
     UPSTREAM_REPAIR_FAILURE_THRESHOLD,
 )
 from custom_components.blitzerde.coordinator import BlitzerdeCoordinator
+
+pytestmark = pytest.mark.asyncio
 
 ENTRY_DATA = {
     CONF_NAME: "Dresden",
