@@ -10,11 +10,7 @@ rules:
 
   common-modules: done
 
-  config-flow-test-coverage:
-    status: todo
-    comment: >
-      Home Assistant-aware config and options flow tests are being added in this
-      repository. The rule stays todo until coverage is verified at 100%.
+  config-flow-test-coverage: done
 
   config-flow: done
 
