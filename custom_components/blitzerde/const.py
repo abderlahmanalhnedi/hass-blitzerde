@@ -25,6 +25,16 @@ DEFAULT_TYPES: Final = {
 CONF_OPTIONAL: Final = "optional"
 CONF_UPDATE_INTERVAL: Final = "update_interval"
 
+CONF_SEARCH_MODE: Final = "search_mode"
+SEARCH_MODE_AREA: Final = "area"
+SEARCH_MODE_ROUTE: Final = "route"
+CONF_WAYPOINTS: Final = "waypoints"
+CONF_CORRIDOR_WIDTH: Final = "corridor_width"
+DEFAULT_CORRIDOR_WIDTH_METERS: Final = 500
+MIN_CORRIDOR_WIDTH_METERS: Final = 100
+MAX_CORRIDOR_WIDTH_METERS: Final = 5000
+MAX_ROUTE_QUERY_POINTS: Final = 120
+
 ATTR_CONFIG_ENTRY_ID: Final = "config_entry_id"
 ATTR_DISTANCE_KM: Final = "distance_km"
 
