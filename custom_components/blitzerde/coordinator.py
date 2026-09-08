@@ -6,6 +6,7 @@ import asyncio
 import logging
 import math
 import re
+import time
 from dataclasses import dataclass
 from datetime import timedelta
 from itertools import pairwise
@@ -25,15 +26,20 @@ from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     UpdateFailed,
 )
+from homeassistant.util import dt as dt_util
 
 from .api import APIConnectionError, APIRateLimitError, BlitzerdeAPI
 from .const import (
     ATTR_DISTANCE_KM,
+    CONF_BLACKLIST,
     CONF_CORRIDOR_WIDTH,
+    CONF_NEW_MINUTES,
     CONF_SEARCH_MODE,
     CONF_UPDATE_INTERVAL,
     CONF_WAYPOINTS,
+    DEFAULT_BLACKLIST,
     DEFAULT_CORRIDOR_WIDTH_METERS,
+    DEFAULT_NEW_MINUTES,
     DEFAULT_ONLY_CONFIRMED,
     DEFAULT_SELECTOR,
     DEFAULT_SENSOR_COUNT,
@@ -47,6 +53,7 @@ from .const import (
     TYPE_MOBILE,
     TYPE_TRAILER,
 )
+from .freshness import is_new_report, minutes_since
 from .item_utils import item_info
 
 _LOGGER = logging.getLogger(__name__)
@@ -71,6 +78,9 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
         """Initialize the coordinator."""
         self.config_entry = config_entry
         self.api = BlitzerdeAPI(hass)
+        self.last_successful_update = None
+        self.last_update_duration_ms: int | None = None
+        self.consecutive_failures = 0
 
         interval_minutes = int(
             config_entry.options.get(
@@ -162,6 +172,43 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
             )
         )
 
+
+    @property
+    def new_minutes(self) -> int:
+        """Return how long a report counts as new."""
+        return int(
+            self._value(
+                CONF_NEW_MINUTES,
+                DEFAULT_NEW_MINUTES,
+            )
+        )
+
+    @property
+    def blacklist_ids(self) -> set[str]:
+        """Return ignored public or full backend camera IDs."""
+        raw = str(
+            self._value(
+                CONF_BLACKLIST,
+                DEFAULT_BLACKLIST,
+            )
+        )
+        return {
+            part.strip()
+            for part in raw.replace("\n", ",").split(",")
+            if part.strip()
+        }
+
+    @property
+    def new_count(self) -> int:
+        """Return how many currently filtered reports are marked new."""
+        if not self.data:
+            return 0
+        return sum(
+            1
+            for item in self.data.mapdata
+            if item.get("new") is True
+        )
+
     @property
     def types(self) -> dict[str, bool]:
         """Return enabled camera types."""
@@ -199,6 +246,7 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
 
     async def _async_update_data(self) -> BlitzerdeAPIData:
         """Fetch, filter and sort current camera data."""
+        started = time.perf_counter()
         try:
             if self.search_mode == SEARCH_MODE_ROUTE:
                 mapdata = await self._async_get_route_data()
@@ -211,6 +259,10 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
                     types=self.enabled_types(),
                 )
         except APIRateLimitError as err:
+            self.consecutive_failures += 1
+            self.last_update_duration_ms = round(
+                (time.perf_counter() - started) * 1000
+            )
             raise UpdateFailed(
                 retry_after=err.retry_after
             ) from err
@@ -220,6 +272,10 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
             TypeError,
             ValueError,
         ) as err:
+            self.consecutive_failures += 1
+            self.last_update_duration_ms = round(
+                (time.perf_counter() - started) * 1000
+            )
             raise UpdateFailed(
                 f"Error communicating with Blitzer.de: {err}"
             ) from err
@@ -232,6 +288,8 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
             ) from err
 
         filtered: list[dict[str, Any]] = []
+        blacklist_ids = self.blacklist_ids
+        now = dt_util.now()
         for item in mapdata:
             address = item.get("address")
             if not isinstance(address, dict):
@@ -240,16 +298,41 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
             if not city_pattern.search(city):
                 continue
 
+            backend = str(item.get("backend", "")).strip()
+            public_id = backend.rsplit("-", 1)[-1] if backend else ""
+            if (
+                backend in blacklist_ids
+                or public_id in blacklist_ids
+            ):
+                continue
+
             if self.only_confirmed and not _is_confirmed(item):
                 continue
 
-            filtered.append(item)
+            normalized = dict(item)
+            age_minutes = minutes_since(
+                normalized.get("create_date"),
+                now,
+            )
+            if age_minutes is not None:
+                normalized["age_minutes"] = age_minutes
+            normalized["new"] = is_new_report(
+                normalized.get("create_date"),
+                now,
+                self.new_minutes,
+            )
+            filtered.append(normalized)
 
         filtered.sort(
             key=lambda item: float(
                 item.get(ATTR_DISTANCE_KM, math.inf)
             )
         )
+        self.last_update_duration_ms = round(
+            (time.perf_counter() - started) * 1000
+        )
+        self.last_successful_update = dt_util.now()
+        self.consecutive_failures = 0
         return BlitzerdeAPIData(mapdata=filtered)
 
     async def _async_get_route_data(self) -> list[dict[str, Any]]:
