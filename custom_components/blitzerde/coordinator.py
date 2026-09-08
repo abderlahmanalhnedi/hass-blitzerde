@@ -21,6 +21,11 @@ from homeassistant.const import (
     CONF_TYPE,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.issue_registry import (
+    IssueSeverity,
+    async_create_issue,
+    async_delete_issue,
+)
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     UpdateFailed,
@@ -51,6 +56,7 @@ from .const import (
     TYPE_FIXED,
     TYPE_MOBILE,
     TYPE_TRAILER,
+    UPSTREAM_REPAIR_FAILURE_THRESHOLD,
 )
 from .freshness import is_new_report, minutes_since
 from .item_utils import item_info
@@ -80,6 +86,9 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
         self.last_successful_update = None
         self.last_update_duration_ms: int | None = None
         self.consecutive_failures = 0
+        self._repair_issue_id = (
+            f"upstream_unavailable_{config_entry.entry_id}"
+        )
 
         interval_minutes = int(
             config_entry.options.get(
@@ -258,10 +267,7 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
                     types=self.enabled_types(),
                 )
         except APIRateLimitError as err:
-            self.consecutive_failures += 1
-            self.last_update_duration_ms = round(
-                (time.perf_counter() - started) * 1000
-            )
+            self._record_failure(started)
             raise UpdateFailed(
                 retry_after=err.retry_after
             ) from err
@@ -271,10 +277,7 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
             TypeError,
             ValueError,
         ) as err:
-            self.consecutive_failures += 1
-            self.last_update_duration_ms = round(
-                (time.perf_counter() - started) * 1000
-            )
+            self._record_failure(started)
             raise UpdateFailed(
                 f"Error communicating with Blitzer.de: {err}"
             ) from err
@@ -327,12 +330,52 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
                 item.get(ATTR_DISTANCE_KM, math.inf)
             )
         )
+        self._record_success(started)
+        return BlitzerdeAPIData(mapdata=filtered)
+
+    def _record_failure(self, started: float) -> None:
+        """Record a failed refresh and surface persistent trouble via Repairs."""
+        self.consecutive_failures += 1
+        self.last_update_duration_ms = round(
+            (time.perf_counter() - started) * 1000
+        )
+
+        if (
+            self.consecutive_failures
+            < UPSTREAM_REPAIR_FAILURE_THRESHOLD
+        ):
+            return
+
+        async_create_issue(
+            self.hass,
+            DOMAIN,
+            self._repair_issue_id,
+            is_fixable=False,
+            is_persistent=False,
+            severity=IssueSeverity.WARNING,
+            translation_key="upstream_unavailable",
+            translation_placeholders={
+                "name": self.displayname,
+                "failures": str(self.consecutive_failures),
+            },
+            learn_more_url=(
+                "https://github.com/abderlahmanalhnedi/"
+                "hass-blitzerde#troubleshooting"
+            ),
+        )
+
+    def _record_success(self, started: float) -> None:
+        """Record a successful refresh and clear any upstream repair issue."""
         self.last_update_duration_ms = round(
             (time.perf_counter() - started) * 1000
         )
         self.last_successful_update = dt_util.now()
         self.consecutive_failures = 0
-        return BlitzerdeAPIData(mapdata=filtered)
+        async_delete_issue(
+            self.hass,
+            DOMAIN,
+            self._repair_issue_id,
+        )
 
     async def _async_get_route_data(self) -> list[dict[str, Any]]:
         """Search circles along the configured route and merge the results."""
