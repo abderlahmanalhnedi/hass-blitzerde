@@ -50,5 +50,8 @@ jobs:
       - name: Run Home Assistant runtime tests
         run: >-
           python -m pytest -q
+          tests/test_api.py
           tests/test_config_flow.py
           tests/test_runtime.py
+          --cov=custom_components.blitzerde
+          --cov-report=term-missing
