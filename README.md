@@ -76,7 +76,7 @@ Monitor a radius around home, a commute corridor, or both — with map entities,
 
 The repository was modernized after a broken coordinator change made the integration unloadable. The current code removes that broken duplicate coordinator implementation, restores a single API/coordinator path, and updates the integration to current Home Assistant patterns.
 
-The original community project was created by **Tim Niklas**. This repository contains a substantially modernized maintenance branch by **Abderlahman Al Hnedi**.
+The original community project was created by **Tim Niklas**. This repository contains a substantially modernized maintenance branch by **Abdelrahman Al Hnedi**.
 
 ## Entities
 
