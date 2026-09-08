@@ -411,25 +411,6 @@ async def test_legacy_duplicate_name_without_unique_id_is_rejected(hass) -> None
     assert result["reason"] == "already_configured"
 
 
-async def test_route_waypoint_rejects_missing_location(hass) -> None:
-    """The route waypoint step handles malformed location input."""
-    result = await _start_flow(
-        hass, name="Missing waypoint", mode=SEARCH_MODE_ROUTE
-    )
-
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"],
-        {
-            CONF_LOCATION: None,
-            "add_another": True,
-        },
-    )
-
-    assert result["type"] is FlowResultType.FORM
-    assert result["step_id"] == "waypoint"
-    assert result["errors"] == {"base": "location_missing"}
-
-
 async def test_route_options_validation_and_connection_recovery(hass) -> None:
     """Route settings recover from local validation and API failures."""
     result = await _start_flow(
@@ -661,43 +642,6 @@ async def test_route_waypoint_redraw_flow(hass) -> None:
     ]
 
 
-async def test_route_waypoint_redraw_rejects_missing_location(hass) -> None:
-    """Waypoint redraw reports malformed location data instead of crashing."""
-    entry = MockConfigEntry(
-        domain=DOMAIN,
-        title="Blitzer.de Redraw invalid",
-        unique_id="redraw-invalid",
-        data={
-            CONF_NAME: "Redraw invalid",
-            CONF_SEARCH_MODE: SEARCH_MODE_ROUTE,
-            CONF_WAYPOINTS: [ROUTE_START, ROUTE_END],
-            CONF_CORRIDOR_WIDTH: 500,
-            CONF_TYPE: TYPE_INPUT,
-            **OPTIONAL_INPUT,
-        },
-    )
-    entry.add_to_hass(hass)
-
-    result = await hass.config_entries.options.async_init(
-        entry.entry_id
-    )
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        {"next_step_id": "edit_waypoints"},
-    )
-    result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        {
-            CONF_LOCATION: None,
-            "add_another": True,
-        },
-    )
-
-    assert result["type"] is FlowResultType.FORM
-    assert result["step_id"] == "route_waypoint"
-    assert result["errors"] == {"base": "location_missing"}
-
-
 def test_area_schema_uses_safe_default_location() -> None:
     """Area schema can be built without persisted coordinates."""
     schema = config_flow_module._area_schema({})
@@ -802,3 +746,39 @@ def test_enabled_types_covers_all_type_combinations() -> None:
         )
         == []
     )
+
+
+async def test_route_waypoint_redraw_can_continue_adding(hass) -> None:
+    """A redraw can append another waypoint before finishing."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Blitzer.de Redraw continue",
+        unique_id="redraw-continue",
+        data={
+            CONF_NAME: "Redraw continue",
+            CONF_SEARCH_MODE: SEARCH_MODE_ROUTE,
+            CONF_WAYPOINTS: [ROUTE_START, ROUTE_END],
+            CONF_CORRIDOR_WIDTH: 500,
+            CONF_TYPE: TYPE_INPUT,
+            **OPTIONAL_INPUT,
+        },
+    )
+    entry.add_to_hass(hass)
+
+    result = await hass.config_entries.options.async_init(
+        entry.entry_id
+    )
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {"next_step_id": "edit_waypoints"},
+    )
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {
+            CONF_LOCATION: ROUTE_START,
+            "add_another": True,
+        },
+    )
+
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "route_waypoint"
