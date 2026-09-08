@@ -1,64 +1,79 @@
 {
-    "title": "Blitzer.de",
-    "config": {
-        "step": {
-            "user": {
-                "title": "Blitzer.de Setup",
-                "description": "Select the section from which the data should be displayed",
-                "data": {
-                    "name": "Display name",
-                    "location": "Section"
-                },
-                "sections": {
-                    "type": {
-                        "name": "Types",
-                        "data": {
-                            "mobile": "Mobile",
-                            "trailer": "Trailer",
-                            "fixed": "Fixed"
-                        }
-                    },
-                    "optional": {
-                        "name": "Optional settings",
-                        "data": {
-                            "count": "Number of sensors",
-                            "selector": "Regex filter of city names (whitelist)",
-                            "condition": "Only show confirmed"
-                        }
-                    }
-                }
-            }
+  "title": "Blitzer.de",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Blitzer.de",
+        "description": "Select an area and which speed-camera reports should be exposed in Home Assistant.",
+        "data": {
+          "name": "Display name",
+          "location": "Area"
         },
-        "abort": {
-            "location_missing": "Please select a position. (move the map)"
-        }
-    },
-    "options": {
-        "step": {
-            "init": {
-                "title": "Blitzer.de Setup",
-                "description": "Select the section from which the data should be displayed.",
-                "data": {
-                    "location": "Section"
-                },
-                "sections": {
-                    "type": {
-                        "name": "Types",
-                        "data": {
-                            "mobile": "Mobile",
-                            "trailer": "Trailer",
-                            "fixed": "Fixed"
-                        }
-                    },
-                    "optional": {
-                        "name": "Optional settings",
-                        "data": {
-                            "selector": "Regex filter of city names (whitelist)",
-                            "condition": "Only show confirmed"
-                        }
-                    }
-                }
+        "sections": {
+          "type": {
+            "name": "Camera types",
+            "data": {
+              "mobile": "Mobile",
+              "trailer": "Trailer",
+              "fixed": "Fixed"
             }
+          },
+          "optional": {
+            "name": "Advanced settings",
+            "data": {
+              "count": "Number of camera slots",
+              "selector": "City name regular expression",
+              "condition": "Only show confirmed reports"
+            }
+          }
         }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to the upstream Blitzer.de/atudo service.",
+      "invalid_name": "Enter a non-empty display name.",
+      "invalid_regex": "The city filter is not a valid regular expression.",
+      "location_missing": "Select a location and radius on the map.",
+      "no_types_selected": "Enable at least one camera type."
+    },
+    "abort": {
+      "already_configured": "An entry with this display name is already configured."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Blitzer.de options",
+        "description": "Adjust the monitored area and filtering. Changes are applied after saving.",
+        "data": {
+          "location": "Area"
+        },
+        "sections": {
+          "type": {
+            "name": "Camera types",
+            "data": {
+              "mobile": "Mobile",
+              "trailer": "Trailer",
+              "fixed": "Fixed"
+            }
+          },
+          "optional": {
+            "name": "Advanced settings",
+            "data": {
+              "count": "Number of camera slots",
+              "selector": "City name regular expression",
+              "condition": "Only show confirmed reports"
+            }
+          }
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to the upstream Blitzer.de/atudo service.",
+      "invalid_name": "Enter a non-empty display name.",
+      "invalid_regex": "The city filter is not a valid regular expression.",
+      "location_missing": "Select a location and radius on the map.",
+      "no_types_selected": "Enable at least one camera type."
+    }
+  }
 }
