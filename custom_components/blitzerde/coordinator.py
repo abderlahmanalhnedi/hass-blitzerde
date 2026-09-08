@@ -344,7 +344,7 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
 
         if (
             self.consecutive_failures
-            < UPSTREAM_REPAIR_FAILURE_THRESHOLD
+            != UPSTREAM_REPAIR_FAILURE_THRESHOLD
         ):
             return
 
