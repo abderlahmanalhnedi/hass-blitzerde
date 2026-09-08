@@ -26,12 +26,14 @@
             "data": {
               "mobile": "Mobile",
               "trailer": "Trailer",
-              "fixed": "Fixed"
+              "fixed": "Fixed",
+              "archive": "Archive"
             },
             "data_description": {
               "mobile": "Include temporary or mobile speed-camera reports.",
               "trailer": "Include semi-stationary trailer camera reports.",
-              "fixed": "Include permanently installed camera reports."
+              "fixed": "Include permanently installed camera reports.",
+              "archive": "Include historical archive reports. Archive entries are not live reports."
             }
           },
           "optional": {
@@ -51,6 +53,47 @@
               "update_interval": "Minutes between automatic refreshes. Use 0 to refresh only through the action.",
               "new_minutes": "How long a report is highlighted and counted as new. Use 0 to disable new-report counting.",
               "blacklist": "Comma-separated camera IDs that should always be ignored."
+            }
+          },
+          "kinds": {
+            "name": "Control kinds",
+            "data": {
+              "speed": "Speed",
+              "redlight": "Red light",
+              "redlight_speed": "Red light + speed",
+              "section_control": "Section control",
+              "tunnel": "Tunnel camera",
+              "distance": "Distance",
+              "weight": "Weight",
+              "height": "Height",
+              "lane": "Lane",
+              "entry": "Entrance",
+              "access": "Access",
+              "crosswalk": "Pedestrian crossing",
+              "overtaking": "Overtaking ban",
+              "police": "Police check",
+              "alcohol": "Alcohol check",
+              "dummy": "Dummy",
+              "unknown": "Unknown / other"
+            },
+            "data_description": {
+              "speed": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "redlight": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "redlight_speed": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "section_control": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "tunnel": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "distance": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "weight": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "height": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "lane": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "entry": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "access": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "crosswalk": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "overtaking": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "police": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "alcohol": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "dummy": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "unknown": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match."
             }
           }
         },
@@ -82,12 +125,14 @@
             "data": {
               "mobile": "Mobile",
               "trailer": "Trailer",
-              "fixed": "Fixed"
+              "fixed": "Fixed",
+              "archive": "Archive"
             },
             "data_description": {
               "mobile": "Include temporary or mobile speed-camera reports.",
               "trailer": "Include semi-stationary trailer camera reports.",
-              "fixed": "Include permanently installed camera reports."
+              "fixed": "Include permanently installed camera reports.",
+              "archive": "Include historical archive reports. Archive entries are not live reports."
             }
           },
           "optional": {
@@ -108,6 +153,47 @@
               "new_minutes": "How long a report is highlighted and counted as new. Use 0 to disable new-report counting.",
               "blacklist": "Comma-separated camera IDs that should always be ignored."
             }
+          },
+          "kinds": {
+            "name": "Control kinds",
+            "data": {
+              "speed": "Speed",
+              "redlight": "Red light",
+              "redlight_speed": "Red light + speed",
+              "section_control": "Section control",
+              "tunnel": "Tunnel camera",
+              "distance": "Distance",
+              "weight": "Weight",
+              "height": "Height",
+              "lane": "Lane",
+              "entry": "Entrance",
+              "access": "Access",
+              "crosswalk": "Pedestrian crossing",
+              "overtaking": "Overtaking ban",
+              "police": "Police check",
+              "alcohol": "Alcohol check",
+              "dummy": "Dummy",
+              "unknown": "Unknown / other"
+            },
+            "data_description": {
+              "speed": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "redlight": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "redlight_speed": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "section_control": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "tunnel": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "distance": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "weight": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "height": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "lane": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "entry": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "access": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "crosswalk": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "overtaking": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "police": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "alcohol": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "dummy": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "unknown": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match."
+            }
           }
         },
         "data_description": {
@@ -122,7 +208,8 @@
       "location_missing": "Select a location on the map.",
       "no_types_selected": "Enable at least one camera type.",
       "route_needs_two_waypoints": "A route needs at least two waypoints.",
-      "route_too_large": "This route would require too many API queries. Increase the corridor width or use a shorter route."
+      "route_too_large": "This route would require too many API queries. Increase the corridor width or use a shorter route.",
+      "no_kinds_selected": "Enable at least one control kind."
     },
     "abort": {
       "already_configured": "An entry with this display name is already configured."
@@ -149,12 +236,14 @@
             "data": {
               "mobile": "Mobile",
               "trailer": "Trailer",
-              "fixed": "Fixed"
+              "fixed": "Fixed",
+              "archive": "Archive"
             },
             "data_description": {
               "mobile": "Include temporary or mobile speed-camera reports.",
               "trailer": "Include semi-stationary trailer camera reports.",
-              "fixed": "Include permanently installed camera reports."
+              "fixed": "Include permanently installed camera reports.",
+              "archive": "Include historical archive reports. Archive entries are not live reports."
             }
           },
           "optional": {
@@ -174,6 +263,47 @@
               "update_interval": "Minutes between automatic refreshes. Use 0 to refresh only through the action.",
               "new_minutes": "How long a report is highlighted and counted as new. Use 0 to disable new-report counting.",
               "blacklist": "Comma-separated camera IDs that should always be ignored."
+            }
+          },
+          "kinds": {
+            "name": "Control kinds",
+            "data": {
+              "speed": "Speed",
+              "redlight": "Red light",
+              "redlight_speed": "Red light + speed",
+              "section_control": "Section control",
+              "tunnel": "Tunnel camera",
+              "distance": "Distance",
+              "weight": "Weight",
+              "height": "Height",
+              "lane": "Lane",
+              "entry": "Entrance",
+              "access": "Access",
+              "crosswalk": "Pedestrian crossing",
+              "overtaking": "Overtaking ban",
+              "police": "Police check",
+              "alcohol": "Alcohol check",
+              "dummy": "Dummy",
+              "unknown": "Unknown / other"
+            },
+            "data_description": {
+              "speed": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "redlight": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "redlight_speed": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "section_control": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "tunnel": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "distance": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "weight": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "height": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "lane": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "entry": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "access": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "crosswalk": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "overtaking": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "police": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "alcohol": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "dummy": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "unknown": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match."
             }
           }
         },
@@ -193,12 +323,14 @@
             "data": {
               "mobile": "Mobile",
               "trailer": "Trailer",
-              "fixed": "Fixed"
+              "fixed": "Fixed",
+              "archive": "Archive"
             },
             "data_description": {
               "mobile": "Include temporary or mobile speed-camera reports.",
               "trailer": "Include semi-stationary trailer camera reports.",
-              "fixed": "Include permanently installed camera reports."
+              "fixed": "Include permanently installed camera reports.",
+              "archive": "Include historical archive reports. Archive entries are not live reports."
             }
           },
           "optional": {
@@ -218,6 +350,47 @@
               "update_interval": "Minutes between automatic refreshes. Use 0 to refresh only through the action.",
               "new_minutes": "How long a report is highlighted and counted as new. Use 0 to disable new-report counting.",
               "blacklist": "Comma-separated camera IDs that should always be ignored."
+            }
+          },
+          "kinds": {
+            "name": "Control kinds",
+            "data": {
+              "speed": "Speed",
+              "redlight": "Red light",
+              "redlight_speed": "Red light + speed",
+              "section_control": "Section control",
+              "tunnel": "Tunnel camera",
+              "distance": "Distance",
+              "weight": "Weight",
+              "height": "Height",
+              "lane": "Lane",
+              "entry": "Entrance",
+              "access": "Access",
+              "crosswalk": "Pedestrian crossing",
+              "overtaking": "Overtaking ban",
+              "police": "Police check",
+              "alcohol": "Alcohol check",
+              "dummy": "Dummy",
+              "unknown": "Unknown / other"
+            },
+            "data_description": {
+              "speed": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "redlight": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "redlight_speed": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "section_control": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "tunnel": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "distance": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "weight": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "height": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "lane": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "entry": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "access": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "crosswalk": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "overtaking": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "police": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "alcohol": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "dummy": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match.",
+              "unknown": "Only reports matching enabled control kinds are kept. Installation form and control kind both have to match."
             }
           }
         },
@@ -244,7 +417,8 @@
       "location_missing": "Select a location on the map.",
       "no_types_selected": "Enable at least one camera type.",
       "route_needs_two_waypoints": "A route needs at least two waypoints.",
-      "route_too_large": "This route would require too many API queries. Increase the corridor width or use a shorter route."
+      "route_too_large": "This route would require too many API queries. Increase the corridor width or use a shorter route.",
+      "no_kinds_selected": "Enable at least one control kind."
     }
   },
   "selector": {

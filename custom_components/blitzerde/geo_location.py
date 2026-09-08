@@ -21,7 +21,7 @@ from .const import (
     SEARCH_MODE_ROUTE,
 )
 from .coordinator import BlitzerdeCoordinator
-from .item_utils import BlitzerItem, item_info
+from .item_utils import BlitzerItem, control_kind, is_archive, item_info
 
 PARALLEL_UPDATES = 0
 
@@ -35,6 +35,9 @@ def _poi_id(item: dict[str, Any]) -> str:
 
 def _camera_type(item: dict[str, Any]) -> str:
     """Return a useful installation category for a POI."""
+    if is_archive(item):
+        return "archive"
+
     info = item_info(item)
     if str(info.get("partly_fixed", "")) == "1":
         return "trailer"
@@ -57,6 +60,7 @@ def _camera_icon(item: dict[str, Any]) -> str:
         "fixed": "mdi:cctv",
         "trailer": "mdi:truck-trailer",
         "mobile": "mdi:speedometer",
+        "archive": "mdi:cctv-off",
     }.get(_camera_type(item), "mdi:map-marker-alert")
 
 
@@ -79,7 +83,10 @@ def _summary(item: dict[str, Any]) -> str:
     if str(vmax) == "/":
         return f"{place} · red light" if place else "Red light camera"
 
-    return place or f"Camera {_poi_id(item)}"
+    summary = place or f"Camera {_poi_id(item)}"
+    if is_archive(item):
+        return f"Archive · {summary}"
+    return summary
 
 
 async def async_setup_entry(
@@ -155,6 +162,7 @@ async def async_setup_entry(
                             "area": coordinator.displayname,
                             "id": poi_id,
                             "camera_type": _camera_type(item),
+                            "control_kind": control_kind(item),
                             "summary": _summary(item),
                         }
                     )
@@ -229,6 +237,7 @@ class BlitzerdeGeoLocation(GeolocationEvent):
             {
                 "id": self._poi_id,
                 "camera_type": _camera_type(item),
+                "control_kind": control_kind(item),
                 "summary": _summary(item),
                 "area": self._coordinator.displayname,
                 ATTR_CONFIG_ENTRY_ID: self._coordinator.config_entry.entry_id,

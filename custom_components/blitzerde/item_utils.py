@@ -6,7 +6,18 @@ from typing import Any
 
 from homeassistant.const import ATTR_LATITUDE, ATTR_LONGITUDE
 
-from .const import ATTR_DISTANCE_KM
+from .const import ATTR_DISTANCE_KM, CODE_KIND
+
+
+def is_archive(item: dict[str, Any]) -> bool:
+    """Return whether a POI belongs to the non-live archive layer."""
+    code = str(item.get("type", ""))
+    return code.isdigit() and 200 <= int(code) < 300
+
+
+def control_kind(item: dict[str, Any]) -> str:
+    """Return the semantic control kind represented by the raw type code."""
+    return CODE_KIND.get(str(item.get("type", "")), "unknown")
 
 
 def item_info(item: dict[str, Any]) -> dict[str, Any]:
@@ -37,6 +48,11 @@ class BlitzerItem:
             vmax = "v"
         elif vmax == "/":
             vmax = "redlight"
+
+        code = str(item.get("type", ""))
+        if is_archive(item):
+            suffix = "distance" if code == "206" else vmax
+            return f"mobile_archive_{suffix}"
 
         info = item_info(item)
         if str(info.get("fixed", "")) == "1":
@@ -70,6 +86,9 @@ class BlitzerItem:
             "confirmed_at": item.get("confirm_date"),
             "new": item.get("new"),
             "age_minutes": item.get("age_minutes"),
+            "control_kind": control_kind(item),
+            "archived": is_archive(item),
+            "type_code": str(item.get("type", "")),
         }
 
         if ATTR_DISTANCE_KM in item:

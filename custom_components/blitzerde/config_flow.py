@@ -26,6 +26,7 @@ from .api import APIConnectionError, BlitzerdeAPI
 from .const import (
     CONF_BLACKLIST,
     CONF_CORRIDOR_WIDTH,
+    CONF_KINDS,
     CONF_NEW_MINUTES,
     CONF_OPTIONAL,
     CONF_SEARCH_MODE,
@@ -40,6 +41,7 @@ from .const import (
     DEFAULT_TYPES,
     DEFAULT_UPDATE_INTERVAL_MINUTES,
     DOMAIN,
+    KIND_DEFAULTS,
     MAX_CORRIDOR_WIDTH_METERS,
     MAX_NEW_MINUTES,
     MAX_ROUTE_QUERY_POINTS,
@@ -48,6 +50,7 @@ from .const import (
     MIN_CORRIDOR_WIDTH_METERS,
     SEARCH_MODE_AREA,
     SEARCH_MODE_ROUTE,
+    TYPE_ARCHIVE,
     TYPE_FIXED,
     TYPE_MOBILE,
     TYPE_TRAILER,
@@ -60,7 +63,7 @@ _ADD_ANOTHER = "add_another"
 class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Blitzer.de."""
 
-    VERSION = 8
+    VERSION = 9
 
     def __init__(self) -> None:
         """Initialize the multi-step flow."""
@@ -459,6 +462,7 @@ class BlitzerdeOptionsFlow(config_entries.OptionsFlow):
 def _common_schema(values: dict[str, Any]) -> dict[Any, Any]:
     """Return shared camera type and advanced option fields."""
     types = values.get(CONF_TYPE, DEFAULT_TYPES)
+    kinds = values.get(CONF_KINDS, KIND_DEFAULTS)
 
     return {
         vol.Required(CONF_TYPE): section(
@@ -476,9 +480,25 @@ def _common_schema(values: dict[str, Any]) -> dict[Any, Any]:
                         "fixed",
                         default=types.get("fixed", False),
                     ): bool,
+                    vol.Required(
+                        "archive",
+                        default=types.get("archive", False),
+                    ): bool,
                 }
             ),
             {"collapsed": False},
+        ),
+        vol.Required(CONF_KINDS): section(
+            vol.Schema(
+                {
+                    vol.Required(
+                        key,
+                        default=kinds.get(key, default),
+                    ): bool
+                    for key, default in KIND_DEFAULTS.items()
+                }
+            ),
+            {"collapsed": True},
         ),
         vol.Required(CONF_OPTIONAL): section(
             vol.Schema(
@@ -623,6 +643,11 @@ def _normalize_common(
                 CONF_TYPE, DEFAULT_TYPES
             )
         ),
+        CONF_KINDS: dict(
+            user_input.get(
+                CONF_KINDS, KIND_DEFAULTS
+            )
+        ),
         CONF_COUNT: int(
             optional.get(
                 CONF_COUNT, DEFAULT_SENSOR_COUNT
@@ -675,6 +700,7 @@ def _runtime_options(data: dict[str, Any]) -> dict[str, Any]:
         CONF_WAYPOINTS,
         CONF_CORRIDOR_WIDTH,
         CONF_TYPE,
+        CONF_KINDS,
         CONF_COUNT,
         CONF_SELECTOR,
         CONF_CONDITION,
@@ -695,6 +721,8 @@ def _validate_common(
     """Validate types and city filter."""
     if not any(data[CONF_TYPE].values()):
         return "no_types_selected"
+    if not any(data.get(CONF_KINDS, KIND_DEFAULTS).values()):
+        return "no_kinds_selected"
     try:
         re.compile(data[CONF_SELECTOR])
     except re.error:
@@ -753,6 +781,8 @@ def _enabled_types(
         result.extend(TYPE_TRAILER)
     if types.get("fixed"):
         result.extend(TYPE_FIXED)
+    if types.get("archive"):
+        result.extend(TYPE_ARCHIVE)
     return result
 
 

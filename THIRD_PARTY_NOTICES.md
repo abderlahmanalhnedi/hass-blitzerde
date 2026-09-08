@@ -40,3 +40,6 @@ This repository also contains code descended from the earlier community
 `hass-blitzerde` project by Tim Niklas. The historical repository snapshot
 available in this repository did not contain a license file. Nothing in this
 notice changes or expands the rights granted by that original code.
+
+
+The current archive/report-form and semantic control-kind taxonomy work was informed by reviewing the behavior and upstream type mapping documented by `somansch/blitzer`. The implementation in this repository is independently adapted to this integration's runtime-data, filtering, migration, testing, and multilingual UI architecture; the existing MIT attribution above remains applicable to reference-derived ideas and mappings.

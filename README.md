@@ -10,7 +10,7 @@
 
 Monitor a radius around home, a commute corridor, or both — with map entities, useful automations, a polished dashboard card, and privacy-conscious diagnostics.
 
-[![Version](https://img.shields.io/badge/version-1.3.0-4c8bf5)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.0-4c8bf5)](CHANGELOG.md)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2025.12%2B-41BDF5?logo=homeassistant&logoColor=white)](https://www.home-assistant.io/)
 [![HACS](https://img.shields.io/badge/HACS-Custom%20Repository-41BDF5)](https://hacs.xyz/)
 [![Hassfest](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/hassfest.yaml)
@@ -52,7 +52,8 @@ Monitor a radius around home, a commute corridor, or both — with map entities,
 
 - **Home Assistant 2026-ready architecture** using `ConfigEntry.runtime_data` and `DataUpdateCoordinator`
 - **UI configuration and options flow** — no YAML required
-- Mobile, trailer, and fixed camera types
+- Mobile, trailer, fixed **and explicit archive** report forms
+- **17 semantic control kinds**: speed, red light, section control, tunnel, distance, weight, height, lane, access, police and more
 - Two search modes: **Area / radius** and **Route / corridor**
 - Multi-step waypoint editor for commute and travel routes
 - Bounded, deduplicated route sampling with accurate distance-to-route calculation
@@ -157,7 +158,8 @@ During setup you choose:
 
 - **Display name** — for example `Dresden` or `Commute`
 - **Area** — center point plus radius
-- **Camera types** — mobile, trailer, fixed
+- **Installation forms** — mobile, trailer, fixed, archive
+- **Control kinds** — choose what the control measures (17 semantic categories)
 - **Number of camera slots** — 1 to 50, default 9
 - **City filter** — regular expression, default `.*`
 - **Confirmed only** — enabled by default
@@ -396,7 +398,7 @@ Speed-camera information can be incomplete, delayed, inaccurate, or unavailable.
 
 Überwache einen Radius rund um dein Zuhause, einen Pendelweg oder beides – mit Karten-Entitäten, Automationen, einer integrierten Dashboard-Karte und datenschutzbewussten Diagnosedaten.
 
-[![Version](https://img.shields.io/badge/version-1.3.0-4c8bf5)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.0-4c8bf5)](CHANGELOG.md)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2025.12%2B-41BDF5?logo=homeassistant&logoColor=white)](https://www.home-assistant.io/)
 [![HACS](https://img.shields.io/badge/HACS-Custom%20Repository-41BDF5)](https://hacs.xyz/)
 [![Hassfest](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/hassfest.yaml)
@@ -438,7 +440,8 @@ Speed-camera information can be incomplete, delayed, inaccurate, or unavailable.
 
 - **Für Home Assistant 2026 vorbereitet** mit `ConfigEntry.runtime_data` und `DataUpdateCoordinator`
 - Vollständige Einrichtung und Optionen über die Benutzeroberfläche
-- Mobile, Trailer- und feste Blitzer
+- Mobile, Trailer-, feste Blitzer **und explizite Archiv-Meldungen**
+- **17 semantische Kontrollarten**: Geschwindigkeit, Rotlicht, Abschnittskontrolle, Tunnel, Abstand, Gewicht, Höhe, Spur, Zufahrt, Polizei und mehr
 - Zwei Suchmodi: **Bereich / Radius** und **Route / Korridor**
 - Mehrstufiger Wegpunkt-Editor für Pendel- und Reiserouten
 - Begrenzte und deduplizierte Routenabfragen mit genauer Distanz zur Route
@@ -543,7 +546,8 @@ Während der Einrichtung wählst du:
 - **Anzeigename** — zum Beispiel `Dresden` oder `Arbeitsweg`
 - **Suchmodus** — Bereich/Radius oder Route/Korridor
 - **Bereich** — Mittelpunkt und Radius
-- **Blitzer-Typen** — mobil, Trailer, fest
+- **Installationsformen** — mobil, Trailer, fest, Archiv
+- **Kontrollarten** — wähle, was tatsächlich kontrolliert wird (17 semantische Kategorien)
 - **Anzahl der Slots** — 1 bis 50, Standard 9
 - **Städtefilter** — regulärer Ausdruck, Standard `.*`
 - **Nur bestätigte Meldungen** — standardmäßig aktiviert
