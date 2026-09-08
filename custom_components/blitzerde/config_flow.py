@@ -51,7 +51,7 @@ from .const import (
     TYPE_MOBILE,
     TYPE_TRAILER,
 )
-from .coordinator import route_query_count
+from .route import route_query_count
 
 _ADD_ANOTHER = "add_another"
 
