@@ -31,7 +31,9 @@
               "count": "Anzahl der Blitzer-Slots",
               "selector": "Regulärer Ausdruck für Städtenamen",
               "condition": "Nur bestätigte Meldungen anzeigen",
-              "update_interval": "Update-Intervall in Minuten (0 = nur manuell)"
+              "update_interval": "Update-Intervall in Minuten (0 = nur manuell)",
+              "new_minutes": "Als neu markieren für (Minuten, 0 = aus)",
+              "blacklist": "Ignorierte Blitzer-IDs (kommagetrennt)"
             }
           }
         }
@@ -65,7 +67,9 @@
               "count": "Anzahl der Blitzer-Slots",
               "selector": "Regulärer Ausdruck für Städtenamen",
               "condition": "Nur bestätigte Meldungen anzeigen",
-              "update_interval": "Update-Intervall in Minuten (0 = nur manuell)"
+              "update_interval": "Update-Intervall in Minuten (0 = nur manuell)",
+              "new_minutes": "Als neu markieren für (Minuten, 0 = aus)",
+              "blacklist": "Ignorierte Blitzer-IDs (kommagetrennt)"
             }
           }
         }
@@ -114,7 +118,9 @@
               "count": "Anzahl der Blitzer-Slots",
               "selector": "Regulärer Ausdruck für Städtenamen",
               "condition": "Nur bestätigte Meldungen anzeigen",
-              "update_interval": "Update-Intervall in Minuten (0 = nur manuell)"
+              "update_interval": "Update-Intervall in Minuten (0 = nur manuell)",
+              "new_minutes": "Als neu markieren für (Minuten, 0 = aus)",
+              "blacklist": "Ignorierte Blitzer-IDs (kommagetrennt)"
             }
           }
         }
@@ -140,7 +146,9 @@
               "count": "Anzahl der Blitzer-Slots",
               "selector": "Regulärer Ausdruck für Städtenamen",
               "condition": "Nur bestätigte Meldungen anzeigen",
-              "update_interval": "Update-Intervall in Minuten (0 = nur manuell)"
+              "update_interval": "Update-Intervall in Minuten (0 = nur manuell)",
+              "new_minutes": "Als neu markieren für (Minuten, 0 = aus)",
+              "blacklist": "Ignorierte Blitzer-IDs (kommagetrennt)"
             }
           }
         }
