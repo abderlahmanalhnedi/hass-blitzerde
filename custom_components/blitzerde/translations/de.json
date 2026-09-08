@@ -4,10 +4,51 @@
     "step": {
       "user": {
         "title": "Blitzer.de einrichten",
-        "description": "Wähle den Bereich und die Blitzer-Typen aus, die in Home Assistant angezeigt werden sollen.",
+        "description": "Vergib einen Namen und wähle, ob ein Radius oder ein Routenkorridor überwacht werden soll.",
         "data": {
           "name": "Anzeigename",
+          "search_mode": "Suchart"
+        }
+      },
+      "area": {
+        "title": "Bereichssuche",
+        "description": "Wähle Mittelpunkt, Radius und Blitzer-Filter.",
+        "data": {
           "location": "Bereich"
+        },
+        "sections": {
+          "type": {
+            "name": "Blitzer-Typen",
+            "data": {
+              "mobile": "Mobil",
+              "trailer": "Anhänger",
+              "fixed": "Fest installiert"
+            }
+          },
+          "optional": {
+            "name": "Erweiterte Einstellungen",
+            "data": {
+              "count": "Anzahl der Blitzer-Slots",
+              "selector": "Regulärer Ausdruck für Städtenamen",
+              "condition": "Nur bestätigte Meldungen anzeigen",
+              "update_interval": "Update-Intervall in Minuten (0 = nur manuell)"
+            }
+          }
+        }
+      },
+      "waypoint": {
+        "title": "Wegpunkt {count} hinzufügen",
+        "description": "Setze den Marker auf Wegpunkt {count}. Mindestens zwei Punkte sind nötig. Der Korridor folgt geraden Linien zwischen den Punkten – setze daher an wichtigen Kurven zusätzliche Wegpunkte.",
+        "data": {
+          "location": "Wegpunkt",
+          "add_another": "Weiteren Wegpunkt hinzufügen"
+        }
+      },
+      "route_options": {
+        "title": "Routen-Korridor",
+        "description": "Wähle die Korridorbreite um die Route und welche Blitzer-Meldungen berücksichtigt werden.",
+        "data": {
+          "corridor_width": "Korridorbreite (Meter)"
         },
         "sections": {
           "type": {
@@ -34,8 +75,10 @@
       "cannot_connect": "Verbindung zum Blitzer.de/atudo-Dienst nicht möglich.",
       "invalid_name": "Bitte einen Anzeigenamen eingeben.",
       "invalid_regex": "Der Städtefilter ist kein gültiger regulärer Ausdruck.",
-      "location_missing": "Bitte Position und Radius auf der Karte auswählen.",
-      "no_types_selected": "Aktiviere mindestens einen Blitzer-Typ."
+      "location_missing": "Bitte eine Position auf der Karte auswählen.",
+      "no_types_selected": "Aktiviere mindestens einen Blitzer-Typ.",
+      "route_needs_two_waypoints": "Eine Route benötigt mindestens zwei Wegpunkte.",
+      "route_too_large": "Diese Route würde zu viele API-Abfragen benötigen. Erhöhe die Korridorbreite oder verkürze die Route."
     },
     "abort": {
       "already_configured": "Ein Eintrag mit diesem Anzeigenamen ist bereits eingerichtet."
@@ -44,7 +87,14 @@
   "options": {
     "step": {
       "init": {
-        "title": "Blitzer.de Einstellungen",
+        "title": "Was möchtest du bearbeiten?",
+        "menu_options": {
+          "route_settings": "Routen-Einstellungen",
+          "edit_waypoints": "Wegpunkte neu zeichnen"
+        }
+      },
+      "area": {
+        "title": "Bereichssuche",
         "description": "Passe Bereich und Filter an. Änderungen werden nach dem Speichern übernommen.",
         "data": {
           "location": "Bereich"
@@ -68,24 +118,67 @@
             }
           }
         }
+      },
+      "route_settings": {
+        "title": "Routen-Korridor",
+        "description": "Wähle die Korridorbreite um die Route und welche Blitzer-Meldungen berücksichtigt werden.",
+        "data": {
+          "corridor_width": "Korridorbreite (Meter)"
+        },
+        "sections": {
+          "type": {
+            "name": "Blitzer-Typen",
+            "data": {
+              "mobile": "Mobil",
+              "trailer": "Anhänger",
+              "fixed": "Fest installiert"
+            }
+          },
+          "optional": {
+            "name": "Erweiterte Einstellungen",
+            "data": {
+              "count": "Anzahl der Blitzer-Slots",
+              "selector": "Regulärer Ausdruck für Städtenamen",
+              "condition": "Nur bestätigte Meldungen anzeigen",
+              "update_interval": "Update-Intervall in Minuten (0 = nur manuell)"
+            }
+          }
+        }
+      },
+      "route_waypoint": {
+        "title": "Neuen Wegpunkt {count} setzen",
+        "description": "Zeichne die Route neu. Füge mindestens zwei Punkte hinzu und deaktiviere anschließend „Weiteren Wegpunkt hinzufügen“.",
+        "data": {
+          "location": "Wegpunkt",
+          "add_another": "Weiteren Wegpunkt hinzufügen"
+        }
       }
     },
     "error": {
       "cannot_connect": "Verbindung zum Blitzer.de/atudo-Dienst nicht möglich.",
-      "invalid_name": "Bitte einen Anzeigenamen eingeben.",
       "invalid_regex": "Der Städtefilter ist kein gültiger regulärer Ausdruck.",
-      "location_missing": "Bitte Position und Radius auf der Karte auswählen.",
-      "no_types_selected": "Aktiviere mindestens einen Blitzer-Typ."
+      "location_missing": "Bitte eine Position auf der Karte auswählen.",
+      "no_types_selected": "Aktiviere mindestens einen Blitzer-Typ.",
+      "route_needs_two_waypoints": "Eine Route benötigt mindestens zwei Wegpunkte.",
+      "route_too_large": "Diese Route würde zu viele API-Abfragen benötigen. Erhöhe die Korridorbreite oder verkürze die Route."
+    }
+  },
+  "selector": {
+    "search_mode": {
+      "options": {
+        "area": "Bereich / Radius",
+        "route": "Route / Korridor"
+      }
     }
   },
   "services": {
     "refresh": {
       "name": "Blitzer aktualisieren",
-      "description": "Ruft die aktuellen Blitzer für einen konfigurierten Bereich sofort ab, statt auf das nächste geplante Update zu warten. Gibt die gefundenen Blitzer zurück.",
+      "description": "Ruft die aktuellen Blitzer für einen konfigurierten Bereich oder eine Route sofort ab, statt auf das nächste geplante Update zu warten. Gibt die gefundenen Blitzer zurück.",
       "fields": {
         "config_entry_id": {
-          "name": "Bereich",
-          "description": "Welcher konfigurierte Blitzer.de-Bereich aktualisiert werden soll."
+          "name": "Bereich oder Route",
+          "description": "Welcher konfigurierte Blitzer.de-Eintrag aktualisiert werden soll."
         }
       }
     }
