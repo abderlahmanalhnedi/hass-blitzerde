@@ -1,0 +1,33 @@
+name: Feature request
+description: Suggest a useful improvement for the Blitzer.de integration
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What should become easier or possible?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe the Home Assistant entities, UI, automation behavior, or data you would like.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: This request is about this integration, not the upstream Blitzer.de service.
+          required: true
+        - label: I searched existing issues first.
+          required: true
