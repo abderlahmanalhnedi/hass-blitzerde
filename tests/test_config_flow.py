@@ -19,8 +19,6 @@ from homeassistant.util import slugify
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.blitzerde.api import APIConnectionError
-pytestmark = pytest.mark.asyncio
-
 
 from custom_components.blitzerde.const import (
     CONF_BLACKLIST,
@@ -34,6 +32,8 @@ from custom_components.blitzerde.const import (
     SEARCH_MODE_AREA,
     SEARCH_MODE_ROUTE,
 )
+
+pytestmark = pytest.mark.asyncio
 
 AREA_LOCATION = {
     "latitude": 51.0504,
