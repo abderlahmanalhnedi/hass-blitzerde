@@ -86,13 +86,13 @@ async def async_setup_entry(
     registry = er.async_get(hass)
 
     known: dict[str, BlitzerdeGeoLocation] = {}
-    previous_report_ids: set[str] | None = None
+    seen_report_ids: set[str] | None = None
     unique_prefix = f"{DOMAIN}-geo-{entry.entry_id}-"
 
     @callback
     def _sync_entities() -> None:
         """Synchronize current POIs with Home Assistant entities."""
-        nonlocal previous_report_ids
+        nonlocal seen_report_ids
 
         mapdata = coordinator.data.mapdata if coordinator.data else []
         visible = mapdata[: coordinator.sensorcount]
@@ -134,8 +134,10 @@ async def async_setup_entry(
         if new_entities:
             async_add_entities(new_entities)
 
-        if previous_report_ids is not None:
-            new_ids = all_ids - previous_report_ids
+        if seen_report_ids is None:
+            seen_report_ids = set(all_ids)
+        else:
+            new_ids = all_ids - seen_report_ids
             if new_ids:
                 by_id = {_poi_id(item): item for item in mapdata}
                 for poi_id in sorted(new_ids):
@@ -151,8 +153,7 @@ async def async_setup_entry(
                         }
                     )
                     hass.bus.async_fire(EVENT_NEW_CAMERA, payload)
-
-        previous_report_ids = all_ids
+                seen_report_ids.update(new_ids)
 
     entry.async_on_unload(
         coordinator.async_add_listener(_sync_entities)
