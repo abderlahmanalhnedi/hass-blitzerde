@@ -10,8 +10,6 @@ from collections.abc import Iterable, Sequence
 from typing import Any
 
 from aiohttp import ClientError, ClientResponseError, ClientSession
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import API_TIMEOUT_SECONDS, API_URL, ATTR_DISTANCE_KM
 
@@ -23,9 +21,9 @@ JsonObject = dict[str, Any]
 class BlitzerdeAPI:
     """Small, resilient client for the public map endpoint used by Blitzer.de."""
 
-    def __init__(self, hass: HomeAssistant, session: ClientSession | None = None) -> None:
-        """Initialize the API client."""
-        self._session = session or async_get_clientsession(hass)
+    def __init__(self, session: ClientSession) -> None:
+        """Initialize the API client with an injected web session."""
+        self._session = session
         self.connected = False
 
     async def _request_json(self, *, params: dict[str, str]) -> JsonObject:

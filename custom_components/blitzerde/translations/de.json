@@ -8,6 +8,10 @@
         "data": {
           "name": "Anzeigename",
           "search_mode": "Suchart"
+        },
+        "data_description": {
+          "name": "Kurzer Name, mit dem dieser überwachte Bereich oder diese Route in Home Assistant erkannt wird.",
+          "search_mode": "Wähle einen kreisförmigen Bereich oder einen Routenkorridor mit Wegpunkten."
         }
       },
       "area": {
@@ -23,6 +27,11 @@
               "mobile": "Mobil",
               "trailer": "Anhänger",
               "fixed": "Fest installiert"
+            },
+            "data_description": {
+              "mobile": "Temporäre oder mobile Blitzer-Meldungen einbeziehen.",
+              "trailer": "Semistationäre Anhänger-Blitzer einbeziehen.",
+              "fixed": "Fest installierte Blitzer einbeziehen."
             }
           },
           "optional": {
@@ -34,8 +43,19 @@
               "update_interval": "Update-Intervall in Minuten (0 = nur manuell)",
               "new_minutes": "Als neu markieren für (Minuten, 0 = aus)",
               "blacklist": "Ignorierte Blitzer-IDs (kommagetrennt)"
+            },
+            "data_description": {
+              "count": "Maximale Anzahl der Blitzer-Entitäten für diesen Eintrag.",
+              "selector": "Optionaler regulärer Ausdruck, der auf den gemeldeten Städtenamen angewendet wird.",
+              "condition": "Unbestätigte Community-Meldungen ignorieren. Feste Blitzer gelten als bestätigt.",
+              "update_interval": "Minuten zwischen automatischen Aktualisierungen. 0 bedeutet nur manuelle Aktualisierung.",
+              "new_minutes": "Wie lange eine Meldung als neu markiert und gezählt wird. 0 deaktiviert die Neu-Zählung.",
+              "blacklist": "Kommagetrennte Blitzer-IDs, die immer ignoriert werden sollen."
             }
           }
+        },
+        "data_description": {
+          "location": "Verschiebe den Marker und wähle den Radius, den Home Assistant überwachen soll."
         }
       },
       "waypoint": {
@@ -44,6 +64,10 @@
         "data": {
           "location": "Wegpunkt",
           "add_another": "Weiteren Wegpunkt hinzufügen"
+        },
+        "data_description": {
+          "location": "Setze diesen Wegpunkt auf die Route, die überwacht werden soll.",
+          "add_another": "Aktiv lassen, um nach diesem Punkt einen weiteren Wegpunkt hinzuzufügen."
         }
       },
       "route_options": {
@@ -59,6 +83,11 @@
               "mobile": "Mobil",
               "trailer": "Anhänger",
               "fixed": "Fest installiert"
+            },
+            "data_description": {
+              "mobile": "Temporäre oder mobile Blitzer-Meldungen einbeziehen.",
+              "trailer": "Semistationäre Anhänger-Blitzer einbeziehen.",
+              "fixed": "Fest installierte Blitzer einbeziehen."
             }
           },
           "optional": {
@@ -70,8 +99,19 @@
               "update_interval": "Update-Intervall in Minuten (0 = nur manuell)",
               "new_minutes": "Als neu markieren für (Minuten, 0 = aus)",
               "blacklist": "Ignorierte Blitzer-IDs (kommagetrennt)"
+            },
+            "data_description": {
+              "count": "Maximale Anzahl der Blitzer-Entitäten für diesen Eintrag.",
+              "selector": "Optionaler regulärer Ausdruck, der auf den gemeldeten Städtenamen angewendet wird.",
+              "condition": "Unbestätigte Community-Meldungen ignorieren. Feste Blitzer gelten als bestätigt.",
+              "update_interval": "Minuten zwischen automatischen Aktualisierungen. 0 bedeutet nur manuelle Aktualisierung.",
+              "new_minutes": "Wie lange eine Meldung als neu markiert und gezählt wird. 0 deaktiviert die Neu-Zählung.",
+              "blacklist": "Kommagetrennte Blitzer-IDs, die immer ignoriert werden sollen."
             }
           }
+        },
+        "data_description": {
+          "corridor_width": "Maximaler Suchabstand von der Routenlinie in Metern."
         }
       }
     },
@@ -110,6 +150,11 @@
               "mobile": "Mobil",
               "trailer": "Anhänger",
               "fixed": "Fest installiert"
+            },
+            "data_description": {
+              "mobile": "Temporäre oder mobile Blitzer-Meldungen einbeziehen.",
+              "trailer": "Semistationäre Anhänger-Blitzer einbeziehen.",
+              "fixed": "Fest installierte Blitzer einbeziehen."
             }
           },
           "optional": {
@@ -121,8 +166,19 @@
               "update_interval": "Update-Intervall in Minuten (0 = nur manuell)",
               "new_minutes": "Als neu markieren für (Minuten, 0 = aus)",
               "blacklist": "Ignorierte Blitzer-IDs (kommagetrennt)"
+            },
+            "data_description": {
+              "count": "Maximale Anzahl der Blitzer-Entitäten für diesen Eintrag.",
+              "selector": "Optionaler regulärer Ausdruck, der auf den gemeldeten Städtenamen angewendet wird.",
+              "condition": "Unbestätigte Community-Meldungen ignorieren. Feste Blitzer gelten als bestätigt.",
+              "update_interval": "Minuten zwischen automatischen Aktualisierungen. 0 bedeutet nur manuelle Aktualisierung.",
+              "new_minutes": "Wie lange eine Meldung als neu markiert und gezählt wird. 0 deaktiviert die Neu-Zählung.",
+              "blacklist": "Kommagetrennte Blitzer-IDs, die immer ignoriert werden sollen."
             }
           }
+        },
+        "data_description": {
+          "location": "Verschiebe den Marker und wähle den Radius, den Home Assistant überwachen soll."
         }
       },
       "route_settings": {
@@ -138,6 +194,11 @@
               "mobile": "Mobil",
               "trailer": "Anhänger",
               "fixed": "Fest installiert"
+            },
+            "data_description": {
+              "mobile": "Temporäre oder mobile Blitzer-Meldungen einbeziehen.",
+              "trailer": "Semistationäre Anhänger-Blitzer einbeziehen.",
+              "fixed": "Fest installierte Blitzer einbeziehen."
             }
           },
           "optional": {
@@ -149,8 +210,19 @@
               "update_interval": "Update-Intervall in Minuten (0 = nur manuell)",
               "new_minutes": "Als neu markieren für (Minuten, 0 = aus)",
               "blacklist": "Ignorierte Blitzer-IDs (kommagetrennt)"
+            },
+            "data_description": {
+              "count": "Maximale Anzahl der Blitzer-Entitäten für diesen Eintrag.",
+              "selector": "Optionaler regulärer Ausdruck, der auf den gemeldeten Städtenamen angewendet wird.",
+              "condition": "Unbestätigte Community-Meldungen ignorieren. Feste Blitzer gelten als bestätigt.",
+              "update_interval": "Minuten zwischen automatischen Aktualisierungen. 0 bedeutet nur manuelle Aktualisierung.",
+              "new_minutes": "Wie lange eine Meldung als neu markiert und gezählt wird. 0 deaktiviert die Neu-Zählung.",
+              "blacklist": "Kommagetrennte Blitzer-IDs, die immer ignoriert werden sollen."
             }
           }
+        },
+        "data_description": {
+          "corridor_width": "Maximaler Suchabstand von der Routenlinie in Metern."
         }
       },
       "route_waypoint": {
@@ -159,6 +231,10 @@
         "data": {
           "location": "Wegpunkt",
           "add_another": "Weiteren Wegpunkt hinzufügen"
+        },
+        "data_description": {
+          "location": "Setze diesen Wegpunkt auf die Route, die überwacht werden soll.",
+          "add_another": "Aktiv lassen, um nach diesem Punkt einen weiteren Wegpunkt hinzuzufügen."
         }
       }
     },

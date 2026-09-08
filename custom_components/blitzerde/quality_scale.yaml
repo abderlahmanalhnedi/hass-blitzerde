@@ -1,0 +1,47 @@
+rules:
+  # Bronze
+  action-setup: done
+  appropriate-polling: done
+
+  brands:
+    status: todo
+    comment: >
+      Core branding still needs a separate pull request to home-assistant/brands.
+
+  common-modules: done
+
+  config-flow-test-coverage: done
+
+  config-flow: done
+
+  dependency-transparency:
+    status: todo
+    comment: >
+      The aiohttp client has been decoupled from Home Assistant and accepts an
+      injected ClientSession. It still needs to be extracted to an
+      Apache-2.0-compatible open-source PyPI dependency before a Core PR.
+
+  docs-actions: done
+
+  docs-triggers:
+    status: exempt
+    comment: >
+      The integration currently exposes an event for automations but no Home
+      Assistant trigger platform.
+
+  docs-conditions:
+    status: exempt
+    comment: The integration does not expose conditions.
+
+  docs-high-level-description: done
+  docs-installation-instructions: done
+
+  docs-removal-instructions: done
+
+  entity-event-setup: done
+  entity-unique-id: done
+  has-entity-name: done
+  runtime-data: done
+  test-before-configure: done
+  test-before-setup: done
+  unique-config-entry: done

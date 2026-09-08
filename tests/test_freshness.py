@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import unittest
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 MODULE_PATH = (
@@ -26,7 +26,7 @@ class FreshnessTests(unittest.TestCase):
 
     def setUp(self) -> None:
         self.now = datetime(
-            2026, 9, 8, 14, 30, tzinfo=timezone.utc
+            2026, 9, 8, 14, 30, tzinfo=UTC
         )
 
     def test_same_day_time(self) -> None:

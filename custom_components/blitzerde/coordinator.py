@@ -21,6 +21,7 @@ from homeassistant.const import (
     CONF_TYPE,
 )
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     UpdateFailed,
@@ -76,7 +77,7 @@ class BlitzerdeCoordinator(DataUpdateCoordinator[BlitzerdeAPIData]):
     ) -> None:
         """Initialize the coordinator."""
         self.config_entry = config_entry
-        self.api = BlitzerdeAPI(hass)
+        self.api = BlitzerdeAPI(async_get_clientsession(hass))
         self.last_successful_update = None
         self.last_update_duration_ms: int | None = None
         self.consecutive_failures = 0

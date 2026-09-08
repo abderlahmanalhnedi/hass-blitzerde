@@ -18,6 +18,7 @@ from homeassistant.const import (
 )
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import section
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import selector
 from homeassistant.util import slugify
 
@@ -178,29 +179,24 @@ class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            location = user_input.get(CONF_LOCATION)
-            if not isinstance(location, dict):
-                errors["base"] = "location_missing"
-            else:
-                self._waypoints.append(
-                    {
-                        "latitude": float(
-                            location["latitude"]
-                        ),
-                        "longitude": float(
-                            location["longitude"]
-                        ),
-                    }
-                )
-                if not user_input[_ADD_ANOTHER]:
-                    if len(self._waypoints) < 2:
-                        errors["base"] = (
-                            "route_needs_two_waypoints"
-                        )
-                    else:
-                        return (
-                            await self.async_step_route_options()
-                        )
+            location = user_input[CONF_LOCATION]
+            self._waypoints.append(
+                {
+                    "latitude": float(
+                        location["latitude"]
+                    ),
+                    "longitude": float(
+                        location["longitude"]
+                    ),
+                }
+            )
+            if not user_input[_ADD_ANOTHER]:
+                if len(self._waypoints) < 2:
+                    errors["base"] = (
+                        "route_needs_two_waypoints"
+                    )
+                else:
+                    return await self.async_step_route_options()
 
         default_location = (
             self._waypoints[-1]
@@ -413,29 +409,24 @@ class BlitzerdeOptionsFlow(config_entries.OptionsFlow):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            location = user_input.get(CONF_LOCATION)
-            if not isinstance(location, dict):
-                errors["base"] = "location_missing"
-            else:
-                self._waypoints.append(
-                    {
-                        "latitude": float(
-                            location["latitude"]
-                        ),
-                        "longitude": float(
-                            location["longitude"]
-                        ),
-                    }
-                )
-                if not user_input[_ADD_ANOTHER]:
-                    if len(self._waypoints) < 2:
-                        errors["base"] = (
-                            "route_needs_two_waypoints"
-                        )
-                    else:
-                        return (
-                            await self.async_step_route_settings()
-                        )
+            location = user_input[CONF_LOCATION]
+            self._waypoints.append(
+                {
+                    "latitude": float(
+                        location["latitude"]
+                    ),
+                    "longitude": float(
+                        location["longitude"]
+                    ),
+                }
+            )
+            if not user_input[_ADD_ANOTHER]:
+                if len(self._waypoints) < 2:
+                    errors["base"] = (
+                        "route_needs_two_waypoints"
+                    )
+                else:
+                    return await self.async_step_route_settings()
 
         existing = _current_values(
             self.config_entry
@@ -769,7 +760,7 @@ async def _async_test_area_connection(
     hass: Any, data: dict[str, Any]
 ) -> None:
     """Ensure the endpoint works for an area config."""
-    api = BlitzerdeAPI(hass)
+    api = BlitzerdeAPI(async_get_clientsession(hass))
     location = data[CONF_LOCATION]
     await api.async_test_connection(
         latitude=float(location["latitude"]),
@@ -783,7 +774,7 @@ async def _async_test_route_connection(
     hass: Any, data: dict[str, Any]
 ) -> None:
     """Ensure the endpoint works using the first route waypoint."""
-    api = BlitzerdeAPI(hass)
+    api = BlitzerdeAPI(async_get_clientsession(hass))
     first = data[CONF_WAYPOINTS][0]
     await api.async_test_connection(
         latitude=float(first["latitude"]),
