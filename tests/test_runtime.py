@@ -16,7 +16,6 @@ from homeassistant.const import (
 )
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
-
 from custom_components.blitzerde.const import (
     CONF_BLACKLIST,
     CONF_NEW_MINUTES,
