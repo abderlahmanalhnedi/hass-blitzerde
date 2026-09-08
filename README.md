@@ -6,6 +6,11 @@
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2025.12%2B-41BDF5?logo=homeassistant&logoColor=white)](https://www.home-assistant.io/)
 [![HACS](https://img.shields.io/badge/HACS-Custom%20Repository-41BDF5)](https://hacs.xyz/)
 
+[![Open this repository in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=abderlahmanalhnedi&repository=hass-blitzerde&category=integration)
+[![Add Blitzer.de to Home Assistant](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=blitzerde)
+
+> **One-click install:** Use the **HACS** button first to open this custom repository in your Home Assistant instance. After downloading it and restarting Home Assistant, use **Add Integration** to start the Blitzer.de setup flow directly.
+
 A modern, resilient Home Assistant custom integration for nearby speed-camera reports from the map data used by Blitzer.de.
 
 > [!IMPORTANT]
@@ -72,6 +77,8 @@ Each active camera slot exposes useful attributes such as:
 
 ### HACS — recommended
 
+[![Open this repository in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=abderlahmanalhnedi&repository=hass-blitzerde&category=integration)
+
 This repository can be installed as a **custom HACS repository**:
 
 1. Open **HACS** in Home Assistant.
@@ -83,7 +90,10 @@ This repository can be installed as a **custom HACS repository**:
 4. Select **Integration** as the category.
 5. Search for **Blitzer.de** and download it.
 6. Restart Home Assistant when HACS asks you to.
-7. Go to **Settings → Devices & services → Add integration → Blitzer.de**.
+7. Restart Home Assistant.
+8. Click the button below to start the setup directly, or go to **Settings → Devices & services → Add integration → Blitzer.de**.
+
+[![Add Blitzer.de to Home Assistant](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=blitzerde)
 
 ### Manual
 
