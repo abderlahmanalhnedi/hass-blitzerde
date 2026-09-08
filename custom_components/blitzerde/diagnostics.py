@@ -46,5 +46,25 @@ async def async_get_config_entry_diagnostics(
                 else 0
             ),
             "connected": coordinator.api.connected,
+            "last_successful_update": (
+                coordinator.last_successful_update.isoformat()
+                if coordinator.last_successful_update
+                else None
+            ),
+            "last_update_duration_ms": (
+                coordinator.last_update_duration_ms
+            ),
+            "consecutive_failures": (
+                coordinator.consecutive_failures
+            ),
+            "new_count": coordinator.new_count,
+            "new_minutes": coordinator.new_minutes,
+            "blacklist_count": len(
+                coordinator.blacklist_ids
+            ),
+            "search_mode": coordinator.search_mode,
+            "update_interval_minutes": (
+                coordinator.update_interval_minutes
+            ),
         },
     }
