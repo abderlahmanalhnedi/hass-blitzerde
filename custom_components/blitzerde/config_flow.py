@@ -179,29 +179,24 @@ class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            location = user_input.get(CONF_LOCATION)
-            if not isinstance(location, dict):
-                errors["base"] = "location_missing"
-            else:
-                self._waypoints.append(
-                    {
-                        "latitude": float(
-                            location["latitude"]
-                        ),
-                        "longitude": float(
-                            location["longitude"]
-                        ),
-                    }
-                )
-                if not user_input[_ADD_ANOTHER]:
-                    if len(self._waypoints) < 2:
-                        errors["base"] = (
-                            "route_needs_two_waypoints"
-                        )
-                    else:
-                        return (
-                            await self.async_step_route_options()
-                        )
+            location = user_input[CONF_LOCATION]
+            self._waypoints.append(
+                {
+                    "latitude": float(
+                        location["latitude"]
+                    ),
+                    "longitude": float(
+                        location["longitude"]
+                    ),
+                }
+            )
+            if not user_input[_ADD_ANOTHER]:
+                if len(self._waypoints) < 2:
+                    errors["base"] = (
+                        "route_needs_two_waypoints"
+                    )
+                else:
+                    return await self.async_step_route_options()
 
         default_location = (
             self._waypoints[-1]
@@ -414,29 +409,24 @@ class BlitzerdeOptionsFlow(config_entries.OptionsFlow):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            location = user_input.get(CONF_LOCATION)
-            if not isinstance(location, dict):
-                errors["base"] = "location_missing"
-            else:
-                self._waypoints.append(
-                    {
-                        "latitude": float(
-                            location["latitude"]
-                        ),
-                        "longitude": float(
-                            location["longitude"]
-                        ),
-                    }
-                )
-                if not user_input[_ADD_ANOTHER]:
-                    if len(self._waypoints) < 2:
-                        errors["base"] = (
-                            "route_needs_two_waypoints"
-                        )
-                    else:
-                        return (
-                            await self.async_step_route_settings()
-                        )
+            location = user_input[CONF_LOCATION]
+            self._waypoints.append(
+                {
+                    "latitude": float(
+                        location["latitude"]
+                    ),
+                    "longitude": float(
+                        location["longitude"]
+                    ),
+                }
+            )
+            if not user_input[_ADD_ANOTHER]:
+                if len(self._waypoints) < 2:
+                    errors["base"] = (
+                        "route_needs_two_waypoints"
+                    )
+                else:
+                    return await self.async_step_route_settings()
 
         existing = _current_values(
             self.config_entry
