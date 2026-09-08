@@ -18,6 +18,7 @@ from homeassistant.const import (
 )
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import section
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import selector
 from homeassistant.util import slugify
 
@@ -769,7 +770,7 @@ async def _async_test_area_connection(
     hass: Any, data: dict[str, Any]
 ) -> None:
     """Ensure the endpoint works for an area config."""
-    api = BlitzerdeAPI(hass)
+    api = BlitzerdeAPI(async_get_clientsession(hass))
     location = data[CONF_LOCATION]
     await api.async_test_connection(
         latitude=float(location["latitude"]),
@@ -783,7 +784,7 @@ async def _async_test_route_connection(
     hass: Any, data: dict[str, Any]
 ) -> None:
     """Ensure the endpoint works using the first route waypoint."""
-    api = BlitzerdeAPI(hass)
+    api = BlitzerdeAPI(async_get_clientsession(hass))
     first = data[CONF_WAYPOINTS][0]
     await api.async_test_connection(
         latitude=float(first["latitude"]),
