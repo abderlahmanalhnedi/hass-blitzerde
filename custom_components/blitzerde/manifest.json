@@ -1,10 +1,10 @@
 {
+  "domain": "blitzerde",
+  "name": "Blitzer.de",
   "codeowners": ["@abderlahmanalhnedi"],
   "config_flow": true,
   "documentation": "https://github.com/abderlahmanalhnedi/hass-blitzerde",
-  "domain": "blitzerde",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/abderlahmanalhnedi/hass-blitzerde/issues",
-  "name": "Blitzer.de",
   "version": "1.0.0"
 }
