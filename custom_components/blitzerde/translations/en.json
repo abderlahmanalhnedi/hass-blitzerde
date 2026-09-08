@@ -266,5 +266,11 @@
         }
       }
     }
+  },
+  "issues": {
+    "upstream_unavailable": {
+      "title": "Blitzer.de service is repeatedly unavailable",
+      "description": "The Blitzer.de entry **{name}** has failed to refresh **{failures}** times in a row. Home Assistant will keep retrying automatically. Check your internet/DNS connection and the integration diagnostics. If other internet services work normally, the upstream Blitzer.de/atudo endpoint may be temporarily unavailable or rate-limiting requests."
+    }
   }
 }

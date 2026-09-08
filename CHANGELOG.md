@@ -2,6 +2,21 @@
 
 All notable user-facing changes are documented here.
 
+## Unreleased
+
+### Added
+
+- Home Assistant Repairs warning after five consecutive upstream refresh failures
+- Automatic Repairs cleanup after service recovery or config-entry removal
+- English, German and Arabic Repairs text
+- Evidence-based Home Assistant quality checklist
+
+### Changed
+
+- Code-quality checks now target Python 3.14 and lint tests as well as integration code
+- GitHub releases are gated by the full Home Assistant-aware pytest suite
+- Home Assistant test CI now verifies dependency health before running tests
+
 ## 1.3.0
 
 ### Added

@@ -266,5 +266,11 @@
         }
       }
     }
+  },
+  "issues": {
+    "upstream_unavailable": {
+      "title": "Blitzer.de-Dienst ist wiederholt nicht erreichbar",
+      "description": "Der Blitzer.de-Eintrag **{name}** konnte **{failures}** Aktualisierungen in Folge nicht durchführen. Home Assistant versucht es automatisch weiter. Prüfe Internet/DNS und die Integrationsdiagnose. Wenn andere Internetdienste funktionieren, ist der Blitzer.de/atudo-Dienst möglicherweise vorübergehend nicht erreichbar oder begrenzt Anfragen."
+    }
   }
 }
