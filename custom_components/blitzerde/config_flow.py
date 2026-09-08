@@ -23,12 +23,16 @@ from homeassistant.util import slugify
 
 from .api import APIConnectionError, BlitzerdeAPI
 from .const import (
+    CONF_BLACKLIST,
     CONF_CORRIDOR_WIDTH,
+    CONF_NEW_MINUTES,
     CONF_OPTIONAL,
     CONF_SEARCH_MODE,
     CONF_UPDATE_INTERVAL,
     CONF_WAYPOINTS,
+    DEFAULT_BLACKLIST,
     DEFAULT_CORRIDOR_WIDTH_METERS,
+    DEFAULT_NEW_MINUTES,
     DEFAULT_ONLY_CONFIRMED,
     DEFAULT_SELECTOR,
     DEFAULT_SENSOR_COUNT,
@@ -36,6 +40,7 @@ from .const import (
     DEFAULT_UPDATE_INTERVAL_MINUTES,
     DOMAIN,
     MAX_CORRIDOR_WIDTH_METERS,
+    MAX_NEW_MINUTES,
     MAX_ROUTE_QUERY_POINTS,
     MAX_SENSOR_COUNT,
     MAX_UPDATE_INTERVAL_MINUTES,
@@ -54,7 +59,7 @@ _ADD_ANOTHER = "add_another"
 class BlitzerdeConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Blitzer.de."""
 
-    VERSION = 7
+    VERSION = 8
 
     def __init__(self) -> None:
         """Initialize the multi-step flow."""
@@ -527,6 +532,26 @@ def _common_schema(values: dict[str, Any]) -> dict[Any, Any]:
                             max=MAX_UPDATE_INTERVAL_MINUTES,
                         ),
                     ),
+                    vol.Required(
+                        CONF_NEW_MINUTES,
+                        default=values.get(
+                            CONF_NEW_MINUTES,
+                            DEFAULT_NEW_MINUTES,
+                        ),
+                    ): vol.All(
+                        vol.Coerce(int),
+                        vol.Range(
+                            min=0,
+                            max=MAX_NEW_MINUTES,
+                        ),
+                    ),
+                    vol.Required(
+                        CONF_BLACKLIST,
+                        default=values.get(
+                            CONF_BLACKLIST,
+                            DEFAULT_BLACKLIST,
+                        ),
+                    ): str,
                 }
             ),
             {"collapsed": True},
@@ -629,6 +654,18 @@ def _normalize_common(
                 DEFAULT_UPDATE_INTERVAL_MINUTES,
             )
         ),
+        CONF_NEW_MINUTES: int(
+            optional.get(
+                CONF_NEW_MINUTES,
+                DEFAULT_NEW_MINUTES,
+            )
+        ),
+        CONF_BLACKLIST: str(
+            optional.get(
+                CONF_BLACKLIST,
+                DEFAULT_BLACKLIST,
+            )
+        ).strip(),
     }
 
 
@@ -651,6 +688,8 @@ def _runtime_options(data: dict[str, Any]) -> dict[str, Any]:
         CONF_SELECTOR,
         CONF_CONDITION,
         CONF_UPDATE_INTERVAL,
+        CONF_NEW_MINUTES,
+        CONF_BLACKLIST,
     }
     return {
         key: value
