@@ -16,11 +16,13 @@ from custom_components.blitzerde import (
 )
 from custom_components.blitzerde.const import (
     CONF_BLACKLIST,
+    CONF_KINDS,
     CONF_NEW_MINUTES,
     CONF_SEARCH_MODE,
     DEFAULT_BLACKLIST,
     DEFAULT_NEW_MINUTES,
     DOMAIN,
+    KIND_DEFAULTS,
     SEARCH_MODE_AREA,
     SEARCH_MODE_ROUTE,
     SERVICE_REFRESH,
@@ -109,10 +111,12 @@ async def test_migrate_area_entry(hass) -> None:
     entry.add_to_hass(hass)
 
     assert await async_migrate_entry(hass, entry) is True
-    assert entry.version == 8
+    assert entry.version == 9
     assert entry.data[CONF_SEARCH_MODE] == SEARCH_MODE_AREA
     assert entry.data[CONF_NEW_MINUTES] == DEFAULT_NEW_MINUTES
     assert entry.data[CONF_BLACKLIST] == DEFAULT_BLACKLIST
+    assert entry.data[CONF_KINDS] == KIND_DEFAULTS
+    assert entry.data["type"]["archive"] is False
 
 
 async def test_migrate_area_without_location_fails(hass) -> None:
