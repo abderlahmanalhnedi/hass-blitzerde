@@ -55,6 +55,47 @@ CODE_KIND: Final = {
     for code in codes
 }
 
+# Traffic hazards are deliberately modelled as a separate data half from
+# controls. The upstream endpoint caps responses and hazard freshness differs
+# dramatically from camera freshness, so mixing both families into one query
+# would make cameras disappear in busy areas and force one polling interval to
+# serve incompatible workloads.
+CONF_HAZARDS: Final = "hazards"
+HAZARD_TYPES: Final = {
+    "tailback_end": "20",
+    "accident": "21",
+    "roadwork_temporary": "22",
+    "obstacle": "23",
+    "slippery": "24",
+    "obstructed_view": "25",
+    "roadwork_permanent": "26",
+    "broken_down_vehicle": "29",
+    "closure": "closure",
+    "police_report": "vwd",
+}
+HAZARD_DEFAULTS: Final = {key: False for key in HAZARD_TYPES}
+HAZARD_CODE_KIND: Final = {code: kind for kind, code in HAZARD_TYPES.items()}
+HAZARD_ICONS: Final = {
+    "tailback_end": "mdi:car-brake-alert",
+    "accident": "mdi:car-emergency",
+    "roadwork_temporary": "mdi:traffic-cone",
+    "obstacle": "mdi:alert-octagon",
+    "slippery": "mdi:car-traction-control",
+    "obstructed_view": "mdi:weather-fog",
+    "roadwork_permanent": "mdi:excavator",
+    "broken_down_vehicle": "mdi:car-wrench",
+    "closure": "mdi:boom-gate",
+    "police_report": "mdi:police-badge",
+}
+CONF_HAZARD_COUNT: Final = "hazard_count"
+CONF_HAZARD_SELECTOR: Final = "hazard_selector"
+CONF_HAZARD_BLACKLIST: Final = "hazard_blacklist"
+CONF_HAZARD_UPDATE_INTERVAL: Final = "hazard_update_interval"
+CONF_HAZARD_NEW_MINUTES: Final = "hazard_new_minutes"
+DEFAULT_HAZARD_COUNT: Final = 9
+EVENT_NEW_HAZARD: Final = f"{DOMAIN}_new_hazard"
+SERVICE_REFRESH_HAZARDS: Final = "refresh_hazards"
+
 CONF_OPTIONAL: Final = "optional"
 CONF_UPDATE_INTERVAL: Final = "update_interval"
 CONF_NEW_MINUTES: Final = "new_minutes"
