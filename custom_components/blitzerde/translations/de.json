@@ -1,64 +1,79 @@
 {
-    "title": "Blitzer.de",
-    "config": {
-        "step": {
-            "user": {
-                "title": "Blitzer.de Setup",
-                "description": "Wähle den Bereich aus dem die Daten anzeigt werden sollen.",
-                "data": {
-                    "name": "Anzeigename",
-                    "location": "Bereich"
-                },
-                "sections": {
-                    "type": {
-                        "name": "Blitzer",
-                        "data": {
-                            "mobile": "Mobile",
-                            "trailer": "Anhänger",
-                            "fixed": "Feste"
-                        }
-                    },
-                    "optional": {
-                        "name": "Optionale Einstellungen",
-                        "data": {
-                            "count": "Anzahl der Sensoren",
-                            "selector": "Regex Filter der Städtenamen (Whitelist)",
-                            "condition": "Nur bestätigte Blitzer anzeigen"
-                        }
-                    }
-                }
-            }
+  "title": "Blitzer.de",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Blitzer.de einrichten",
+        "description": "Wähle den Bereich und die Blitzer-Typen aus, die in Home Assistant angezeigt werden sollen.",
+        "data": {
+          "name": "Anzeigename",
+          "location": "Bereich"
         },
-        "abort": {
-            "location_missing": "Bitte Position auswählen. (Karte verschieben)"
-        }
-    },
-    "options": {
-        "step": {
-            "init": {
-                "title": "Blitzer.de Setup",
-                "description": "Wähle den Bereich aus dem die Daten anzeigt werden sollen.",
-                "data": {
-                    "location": "Bereich"
-                },
-                "sections": {
-                    "type": {
-                        "name": "Blitzer",
-                        "data": {
-                            "mobile": "Mobile",
-                            "trailer": "Anhänger",
-                            "fixed": "Feste"
-                        }
-                    },
-                    "optional": {
-                        "name": "Optionale Einstellungen",
-                        "data": {
-                            "selector": "Regex Filter der Städtenamen (Whitelist)",
-                            "condition": "Nur bestätigte Blitzer anzeigen"
-                        }
-                    }
-                }
+        "sections": {
+          "type": {
+            "name": "Blitzer-Typen",
+            "data": {
+              "mobile": "Mobil",
+              "trailer": "Anhänger",
+              "fixed": "Fest installiert"
             }
+          },
+          "optional": {
+            "name": "Erweiterte Einstellungen",
+            "data": {
+              "count": "Anzahl der Blitzer-Slots",
+              "selector": "Regulärer Ausdruck für Städtenamen",
+              "condition": "Nur bestätigte Meldungen anzeigen"
+            }
+          }
         }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung zum Blitzer.de/atudo-Dienst nicht möglich.",
+      "invalid_name": "Bitte einen Anzeigenamen eingeben.",
+      "invalid_regex": "Der Städtefilter ist kein gültiger regulärer Ausdruck.",
+      "location_missing": "Bitte Position und Radius auf der Karte auswählen.",
+      "no_types_selected": "Aktiviere mindestens einen Blitzer-Typ."
+    },
+    "abort": {
+      "already_configured": "Ein Eintrag mit diesem Anzeigenamen ist bereits eingerichtet."
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Blitzer.de Einstellungen",
+        "description": "Passe Bereich und Filter an. Änderungen werden nach dem Speichern übernommen.",
+        "data": {
+          "location": "Bereich"
+        },
+        "sections": {
+          "type": {
+            "name": "Blitzer-Typen",
+            "data": {
+              "mobile": "Mobil",
+              "trailer": "Anhänger",
+              "fixed": "Fest installiert"
+            }
+          },
+          "optional": {
+            "name": "Erweiterte Einstellungen",
+            "data": {
+              "count": "Anzahl der Blitzer-Slots",
+              "selector": "Regulärer Ausdruck für Städtenamen",
+              "condition": "Nur bestätigte Meldungen anzeigen"
+            }
+          }
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung zum Blitzer.de/atudo-Dienst nicht möglich.",
+      "invalid_name": "Bitte einen Anzeigenamen eingeben.",
+      "invalid_regex": "Der Städtefilter ist kein gültiger regulärer Ausdruck.",
+      "location_missing": "Bitte Position und Radius auf der Karte auswählen.",
+      "no_types_selected": "Aktiviere mindestens einen Blitzer-Typ."
+    }
+  }
 }
