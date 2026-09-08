@@ -30,6 +30,10 @@
       customTitle: "Card title",
       editorHint: "The card discovers Blitzer.de entities automatically.",
       refreshFailed: "Refresh failed",
+      online: "Online",
+      offline: "Offline",
+      new: "new",
+      updated: "Updated",
     },
     de: {
       title: "Blitzer.de Radar",
@@ -57,6 +61,10 @@
       customTitle: "Kartentitel",
       editorHint: "Die Karte findet Blitzer.de-Entitäten automatisch.",
       refreshFailed: "Aktualisierung fehlgeschlagen",
+      online: "Online",
+      offline: "Offline",
+      new: "neu",
+      updated: "Aktualisiert",
     },
     ar: {
       title: "رادار Blitzer.de",
@@ -84,6 +92,10 @@
       customTitle: "عنوان البطاقة",
       editorHint: "تكتشف البطاقة كيانات Blitzer.de تلقائياً.",
       refreshFailed: "فشل التحديث",
+      online: "متصل",
+      offline: "غير متصل",
+      new: "جديد",
+      updated: "آخر تحديث",
     },
   };
 
@@ -271,6 +283,20 @@
       return street || city || item.attributes?.summary || item.name || "";
     }
 
+    _updatedLabel(value) {
+      if (!value) return "";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "";
+      try {
+        return date.toLocaleTimeString(this._hass?.language || undefined, {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      } catch (_error) {
+        return date.toLocaleTimeString();
+      }
+    }
+
     async _refresh() {
       if (!this._hass || this._busy) return;
       const items = this._geoEntities();
@@ -308,11 +334,21 @@
       const visible = items.slice(0, maxItems);
       const nearest = visible[0];
       const title = this._config.title || text.title;
+      const countEntities = this._countEntities();
+      const countEntity =
+        countEntities.find(
+          (state) => !source || state.attributes?.blitzerde_source === source
+        ) || countEntities[0];
       const searchMode =
         nearest?.attributes?.search_mode ||
-        this._countEntities()[0]?.attributes?.search_mode ||
+        countEntity?.attributes?.search_mode ||
         "area";
       const modeLabel = searchMode === "route" ? text.route : text.area;
+      const serviceOnline = countEntity?.attributes?.service_online === true;
+      const newCount = Math.max(0, Number(countEntity?.attributes?.new || 0));
+      const updatedAt = this._updatedLabel(
+        countEntity?.attributes?.last_successful_update
+      );
       const entryId = this._configEntryId(items);
 
       const cameraRows = visible
@@ -324,13 +360,15 @@
           );
           const speed = this._speed(item);
           const type = escapeHtml(this._cameraType(item, text));
+          const isNew = item.attributes?.new === true;
           return `
-            <div class="camera-row ${index === 0 ? "nearest-row" : ""}">
+            <div class="camera-row ${index === 0 ? "nearest-row" : ""} ${isNew ? "is-new" : ""}">
               <div class="camera-icon" aria-hidden="true">${this._cameraIcon(item)}</div>
               <div class="camera-main">
                 <div class="camera-place">${place || summary}</div>
                 <div class="camera-meta">
                   <span>${type}</span>
+                  ${isNew ? `<span class="new-badge">${escapeHtml(text.new)}</span>` : ""}
                   ${summary && summary !== place ? `<span class="dot">•</span><span class="summary">${summary}</span>` : ""}
                 </div>
               </div>
@@ -383,6 +421,12 @@
             gap: 16px;
             position: relative;
           }
+          .chips {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 7px;
+          }
           .eyebrow {
             display: inline-flex;
             align-items: center;
@@ -394,6 +438,22 @@
             background: color-mix(in srgb, var(--primary-color) 12%, var(--card-background-color));
             color: var(--primary-color);
             font-weight: 700;
+          }
+          .eyebrow.offline {
+            color: var(--error-color);
+            background: color-mix(in srgb, var(--error-color) 10%, var(--card-background-color));
+          }
+          .mode-chip {
+            display: inline-flex;
+            align-items: center;
+            min-height: 26px;
+            padding: 0 9px;
+            border-radius: 999px;
+            border: 1px solid var(--divider-color);
+            color: var(--secondary-text-color);
+            background: color-mix(in srgb, var(--secondary-background-color) 80%, transparent);
+            font-size: 11px;
+            font-weight: 650;
           }
           .pulse {
             width: 7px;
@@ -430,6 +490,10 @@
             margin-top: 5px;
             color: var(--secondary-text-color);
             font-size: 11px;
+          }
+          .count .fresh {
+            color: var(--primary-color);
+            font-weight: 750;
           }
           .hero {
             margin-top: 18px;
@@ -494,6 +558,23 @@
           }
           .camera-row:hover {
             background: color-mix(in srgb, var(--primary-color) 6%, transparent);
+          }
+          .camera-row.is-new {
+            background: color-mix(in srgb, var(--primary-color) 7%, transparent);
+          }
+          .new-badge {
+            display: inline-flex;
+            align-items: center;
+            margin-inline-start: 7px;
+            padding: 2px 6px;
+            border-radius: 999px;
+            background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+            color: var(--primary-color);
+            font-size: 9px;
+            line-height: 1.4;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
           }
           .nearest-row {
             display: ${this._config.compact ? "grid" : "none"};
@@ -615,13 +696,23 @@
             <div class="glow"></div>
             <div class="header">
               <div>
-                <span class="eyebrow"><span class="pulse"></span>${escapeHtml(modeLabel)}</span>
+                <div class="chips">
+                  <span class="eyebrow ${serviceOnline ? "" : "offline"}">
+                    <span class="pulse"></span>
+                    ${escapeHtml(serviceOnline ? text.online : text.offline)}
+                  </span>
+                  <span class="mode-chip">${escapeHtml(modeLabel)}</span>
+                </div>
                 <h2>${escapeHtml(title)}</h2>
-                <div class="subtitle">${escapeHtml(sourceLabel(source) || "Blitzer.de")}</div>
+                <div class="subtitle">
+                  ${escapeHtml(sourceLabel(source) || "Blitzer.de")}
+                  ${updatedAt ? ` · ${escapeHtml(text.updated)} ${escapeHtml(updatedAt)}` : ""}
+                </div>
               </div>
               <div class="count">
                 <strong>${items.length}</strong>
                 <span>${escapeHtml(items.length === 1 ? text.camera : text.cameras)}</span>
+                ${newCount > 0 ? `<span class="fresh">+${newCount} ${escapeHtml(text.new)}</span>` : ""}
               </div>
             </div>
 
