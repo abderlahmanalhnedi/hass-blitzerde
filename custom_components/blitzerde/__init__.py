@@ -26,7 +26,9 @@ from homeassistant.core import (
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 
+from .bundle import async_register_card
 from .const import (
+    CONF_SEARCH_MODE,
     CONF_UPDATE_INTERVAL,
     DEFAULT_ONLY_CONFIRMED,
     DEFAULT_SELECTOR,
@@ -34,6 +36,7 @@ from .const import (
     DEFAULT_TYPES,
     DEFAULT_UPDATE_INTERVAL_MINUTES,
     DOMAIN,
+    SEARCH_MODE_AREA,
     SERVICE_REFRESH,
 )
 from .coordinator import BlitzerdeCoordinator
@@ -55,6 +58,11 @@ async def async_setup(
     hass: HomeAssistant, config: dict[str, Any]
 ) -> bool:
     """Set up global Blitzer.de services."""
+    try:
+        await async_register_card(hass)
+    except Exception:  # pragma: no cover - frontend convenience must not block setup
+        _LOGGER.exception("Could not register the Blitzer.de dashboard card")
+
     if not hass.services.has_service(DOMAIN, SERVICE_REFRESH):
         hass.services.async_register(
             DOMAIN,
@@ -146,8 +154,8 @@ async def async_unload_entry(
 async def async_migrate_entry(
     hass: HomeAssistant, entry: ConfigEntry
 ) -> bool:
-    """Migrate older config entries to schema version 6."""
-    if entry.version >= 6:
+    """Migrate older config entries to schema version 7."""
+    if entry.version >= 7:
         return True
 
     _LOGGER.debug(
@@ -170,6 +178,7 @@ async def async_migrate_entry(
         CONF_UPDATE_INTERVAL,
         DEFAULT_UPDATE_INTERVAL_MINUTES,
     )
+    data.setdefault(CONF_SEARCH_MODE, SEARCH_MODE_AREA)
 
     if CONF_LOCATION not in data:
         _LOGGER.error(
@@ -178,9 +187,9 @@ async def async_migrate_entry(
         return False
 
     hass.config_entries.async_update_entry(
-        entry, data=data, version=6
+        entry, data=data, version=7
     )
     _LOGGER.debug(
-        "Blitzer.de config entry migration to version 6 completed"
+        "Blitzer.de config entry migration to version 7 completed"
     )
     return True

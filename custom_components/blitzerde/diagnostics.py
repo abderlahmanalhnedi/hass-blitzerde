@@ -9,9 +9,10 @@ from homeassistant.const import CONF_LOCATION
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.redact import async_redact_data
 
+from .const import CONF_WAYPOINTS
 from .coordinator import BlitzerdeCoordinator
 
-TO_REDACT = {CONF_LOCATION}
+TO_REDACT = {CONF_LOCATION, CONF_WAYPOINTS}
 
 
 async def async_get_config_entry_diagnostics(

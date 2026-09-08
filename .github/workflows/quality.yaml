@@ -1,4 +1,4 @@
-name: Python quality
+name: Code quality
 
 on:
   push:
@@ -11,12 +11,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: quality-\${{ github.ref }}
+  group: quality-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  python:
-    name: Syntax and Ruff
+  quality:
+    name: Python and JavaScript
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -31,3 +31,5 @@ jobs:
         uses: astral-sh/ruff-action@v4.1.0
         with:
           args: check custom_components/blitzerde
+      - name: Validate dashboard card JavaScript
+        run: node --check custom_components/blitzerde/frontend/blitzerde-card.js

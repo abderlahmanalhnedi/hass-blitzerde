@@ -13,7 +13,13 @@ from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.util import slugify
 
-from .const import ATTR_DISTANCE_KM, DOMAIN, EVENT_NEW_CAMERA
+from .const import (
+    ATTR_CONFIG_ENTRY_ID,
+    ATTR_DISTANCE_KM,
+    DOMAIN,
+    EVENT_NEW_CAMERA,
+    SEARCH_MODE_ROUTE,
+)
 from .coordinator import BlitzerdeCoordinator
 from .item_utils import BlitzerItem, item_info
 
@@ -225,6 +231,13 @@ class BlitzerdeGeoLocation(GeolocationEvent):
                 "camera_type": _camera_type(item),
                 "summary": _summary(item),
                 "area": self._coordinator.displayname,
+                ATTR_CONFIG_ENTRY_ID: self._coordinator.config_entry.entry_id,
+                "search_mode": self._coordinator.search_mode,
+                "corridor_width": (
+                    self._coordinator.corridor_width
+                    if self._coordinator.search_mode == SEARCH_MODE_ROUTE
+                    else None
+                ),
             }
         )
 

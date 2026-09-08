@@ -4,10 +4,51 @@
     "step": {
       "user": {
         "title": "Set up Blitzer.de",
-        "description": "Select an area and which speed-camera reports should be exposed in Home Assistant.",
+        "description": "Choose a name and whether to monitor a radius or a route corridor.",
         "data": {
           "name": "Display name",
+          "search_mode": "Search mode"
+        }
+      },
+      "area": {
+        "title": "Area search",
+        "description": "Choose the center, radius and camera filters.",
+        "data": {
           "location": "Area"
+        },
+        "sections": {
+          "type": {
+            "name": "Camera types",
+            "data": {
+              "mobile": "Mobile",
+              "trailer": "Trailer",
+              "fixed": "Fixed"
+            }
+          },
+          "optional": {
+            "name": "Advanced settings",
+            "data": {
+              "count": "Number of camera slots",
+              "selector": "City name regular expression",
+              "condition": "Only show confirmed reports",
+              "update_interval": "Update interval in minutes (0 = manual only)"
+            }
+          }
+        }
+      },
+      "waypoint": {
+        "title": "Add waypoint {count}",
+        "description": "Move the marker to waypoint {count}. Add at least two points. The corridor follows straight lines between points, so add waypoints on important bends.",
+        "data": {
+          "location": "Waypoint",
+          "add_another": "Add another waypoint"
+        }
+      },
+      "route_options": {
+        "title": "Route corridor settings",
+        "description": "Choose the corridor width around the route and which camera reports to include.",
+        "data": {
+          "corridor_width": "Corridor width (meters)"
         },
         "sections": {
           "type": {
@@ -34,8 +75,10 @@
       "cannot_connect": "Could not connect to the upstream Blitzer.de/atudo service.",
       "invalid_name": "Enter a non-empty display name.",
       "invalid_regex": "The city filter is not a valid regular expression.",
-      "location_missing": "Select a location and radius on the map.",
-      "no_types_selected": "Enable at least one camera type."
+      "location_missing": "Select a location on the map.",
+      "no_types_selected": "Enable at least one camera type.",
+      "route_needs_two_waypoints": "A route needs at least two waypoints.",
+      "route_too_large": "This route would require too many API queries. Increase the corridor width or use a shorter route."
     },
     "abort": {
       "already_configured": "An entry with this display name is already configured."
@@ -44,7 +87,14 @@
   "options": {
     "step": {
       "init": {
-        "title": "Blitzer.de options",
+        "title": "What do you want to edit?",
+        "menu_options": {
+          "route_settings": "Route settings",
+          "edit_waypoints": "Redraw waypoints"
+        }
+      },
+      "area": {
+        "title": "Area search",
         "description": "Adjust the monitored area and filtering. Changes are applied after saving.",
         "data": {
           "location": "Area"
@@ -68,24 +118,67 @@
             }
           }
         }
+      },
+      "route_settings": {
+        "title": "Route corridor settings",
+        "description": "Choose the corridor width around the route and which camera reports to include.",
+        "data": {
+          "corridor_width": "Corridor width (meters)"
+        },
+        "sections": {
+          "type": {
+            "name": "Camera types",
+            "data": {
+              "mobile": "Mobile",
+              "trailer": "Trailer",
+              "fixed": "Fixed"
+            }
+          },
+          "optional": {
+            "name": "Advanced settings",
+            "data": {
+              "count": "Number of camera slots",
+              "selector": "City name regular expression",
+              "condition": "Only show confirmed reports",
+              "update_interval": "Update interval in minutes (0 = manual only)"
+            }
+          }
+        }
+      },
+      "route_waypoint": {
+        "title": "Add replacement waypoint {count}",
+        "description": "Redraw the route from the beginning. Add at least two points, then disable “Add another waypoint” to continue.",
+        "data": {
+          "location": "Waypoint",
+          "add_another": "Add another waypoint"
+        }
       }
     },
     "error": {
       "cannot_connect": "Could not connect to the upstream Blitzer.de/atudo service.",
-      "invalid_name": "Enter a non-empty display name.",
       "invalid_regex": "The city filter is not a valid regular expression.",
-      "location_missing": "Select a location and radius on the map.",
-      "no_types_selected": "Enable at least one camera type."
+      "location_missing": "Select a location on the map.",
+      "no_types_selected": "Enable at least one camera type.",
+      "route_needs_two_waypoints": "A route needs at least two waypoints.",
+      "route_too_large": "This route would require too many API queries. Increase the corridor width or use a shorter route."
+    }
+  },
+  "selector": {
+    "search_mode": {
+      "options": {
+        "area": "Area / radius",
+        "route": "Route / corridor"
+      }
     }
   },
   "services": {
     "refresh": {
       "name": "Refresh speed cameras",
-      "description": "Immediately fetch the latest speed cameras for one configured area instead of waiting for the next scheduled update. Returns the cameras found.",
+      "description": "Immediately fetch the latest speed cameras for one configured area or route instead of waiting for the next scheduled update. Returns the cameras found.",
       "fields": {
         "config_entry_id": {
-          "name": "Area",
-          "description": "Which configured Blitzer.de area should be refreshed."
+          "name": "Area or route",
+          "description": "Which configured Blitzer.de entry should be refreshed."
         }
       }
     }

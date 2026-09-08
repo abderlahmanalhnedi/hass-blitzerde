@@ -4,8 +4,11 @@
 
 The Home Assistant integration at `https://github.com/somansch/blitzer` was
 reviewed as a working reference while improving this project. Its handling of
-dynamic geolocation entities, new-report events, configurable polling and
-manual refresh informed the design of equivalent features implemented here.
+dynamic geolocation entities, new-report events, configurable polling,
+manual refresh, waypoint route search and bundled dashboard UX informed the
+design of equivalent features implemented here. The implementation in this
+repository is independently adapted to its own runtime-data architecture,
+bounded query budget and card design.
 
 That project is distributed under the MIT License:
 
