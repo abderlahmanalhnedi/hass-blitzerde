@@ -329,6 +329,17 @@ Check these first:
 
 An empty but valid upstream result is not treated as a connection error.
 
+## Removal
+
+To remove the integration cleanly:
+
+1. Go to **Settings → Devices & services → Blitzer.de**.
+2. Open the menu for the entry you want to remove and choose **Delete**.
+3. Remove any dashboard cards or automations that reference that entry's Blitzer.de entities.
+4. If you installed the integration through HACS and no Blitzer.de entries remain, remove the repository from **HACS → Blitzer.de** and restart Home Assistant.
+
+Deleting a config entry unloads its sensor, binary-sensor and geo-location platforms. Dynamic camera markers owned by that entry are removed with the entry; Home Assistant does not need a manual entity-registry cleanup.
+
 ## Data and privacy
 
 In area mode, the integration sends the selected map bounding box to the upstream map service in order to retrieve nearby reports. In route mode, it sends a bounded series of overlapping bounding-box requests along the waypoint route. No Home Assistant credentials are sent. The integration has no authentication token of its own.
