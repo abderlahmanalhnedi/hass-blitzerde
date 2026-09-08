@@ -1,0 +1,15 @@
+"""Shared Home Assistant test fixtures for Blitzer.de."""
+
+from __future__ import annotations
+
+import pytest
+
+pytest_plugins = "pytest_homeassistant_custom_component.plugins"
+
+
+@pytest.fixture(autouse=True)
+def auto_enable_custom_integrations(
+    enable_custom_integrations,
+):
+    """Allow Home Assistant to load custom_components during tests."""
+    yield
