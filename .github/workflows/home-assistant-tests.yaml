@@ -1,0 +1,42 @@
+name: Home Assistant tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ha-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  home-assistant:
+    name: Config flow and runtime harness
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements_test.txt
+
+      - name: Install Home Assistant test dependencies
+        run: python -m pip install -r requirements_test.txt
+
+      - name: Run Home Assistant-aware tests
+        run: >
+          python -m pytest
+          tests
+          -q
+          --cov=custom_components.blitzerde
+          --cov-report=term-missing
