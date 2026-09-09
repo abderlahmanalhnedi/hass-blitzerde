@@ -27,6 +27,9 @@ by a real GitHub Release.
 - [x] Current-tree license provenance audited and documented.
 - [x] Root MIT license added without retroactively relicensing historical
   commits.
+- [x] GitHub detects the default-branch license as SPDX `MIT`.
+- [ ] HACS license validator passes without an ignore. This branch removes the
+  license ignore; mark complete after its CI run succeeds.
 
 ### GitHub metadata
 
@@ -67,9 +70,10 @@ See:
 - `docs/PROVENANCE_AUDIT.md`
 - `THIRD_PARTY_NOTICES.md`
 
-The HACS `license` ignore should be removed only after the LICENSE is present
-on the default branch, because HACS reads repository license metadata from the
-repository object.
+GitHub currently reports the repository license as `MIT` with SPDX ID
+`MIT`. The HACS workflow now ignores only the two repository-admin checks
+that cannot be changed through the available repository connector:
+`topics` and `issues`.
 
 ## Brand assets
 

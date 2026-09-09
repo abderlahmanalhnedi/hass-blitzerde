@@ -25,4 +25,4 @@ jobs:
         uses: hacs/action@main
         with:
           category: integration
-          ignore: "topics issues license"
+          ignore: "topics issues"
