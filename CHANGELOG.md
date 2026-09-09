@@ -4,25 +4,53 @@ All notable user-facing changes are documented here.
 
 ## Unreleased
 
+## 1.4.0 — 2026-09-09
+
 ### Added
 
-- Archive reports as an explicit opt-in installation form, clearly marked as historical rather than live
-- Seventeen semantic control-kind filters independent of installation form
-- `control_kind`, `archived`, and raw `type_code` metadata on exposed reports
-- Independent traffic-hazard coordinator, manual refresh action and Geo Location source
-- Independent opt-in background polling for traffic hazards
-- Traffic-hazard summary sensors for total hazards, nearest hazard and fresh/new hazard count
-- Dashboard-friendly hazard breakdown attributes by semantic hazard kind
-- Home Assistant Repairs warning after five consecutive upstream refresh failures
-- Automatic Repairs cleanup after service recovery or config-entry removal
-- English, German and Arabic Repairs text
-- Evidence-based Home Assistant quality checklist
+- Archive reports as an explicit opt-in installation form, clearly marked as
+  historical rather than live.
+- Seventeen semantic control-kind filters independent of installation form,
+  including speed, red light, section control, tunnel, distance, weight,
+  height, lane, access and police-related control types.
+- `control_kind`, `archived`, and raw `type_code` metadata on exposed
+  control reports.
+- Ten opt-in traffic-hazard types with production normalization, filtering,
+  freshness handling, deduplication and safe upstream-shape handling.
+- Independent traffic-hazard coordinator and `blitzerde.refresh_hazards`
+  action with Area and Route support.
+- Independent opt-in background polling for hazards, separate from control
+  polling.
+- Native hazard `geo_location` entities with dynamic marker lifecycle and
+  `blitzerde_new_hazard` events.
+- Traffic-hazard summary sensors for total hazards, nearest hazard and
+  fresh/new hazard count.
+- Dashboard-friendly hazard breakdown attributes by semantic hazard kind.
+- Smart Drive Alerts blueprint with camera/hazard filtering, distance-aware
+  urgency, quiet hours, optional TTS and English/German/Arabic UI.
+- Traffic Digest blueprint for scheduled, zone-triggered, entity-triggered or
+  on-demand summaries of current controls and hazards, with
+  English/German/Arabic UI.
+- Home Assistant Repairs warning after five consecutive upstream refresh
+  failures, with automatic cleanup after recovery or entry removal.
+- Original local Home Assistant brand assets for the custom integration.
+- Evidence-based Home Assistant Core-readiness and HACS Default-readiness
+  documentation.
 
 ### Changed
 
-- Code-quality checks now target Python 3.14 and lint tests as well as integration code
-- GitHub releases are gated by the full Home Assistant-aware pytest suite
-- Home Assistant test CI now verifies dependency health before running tests
+- Config-entry schema includes migration for archive and semantic control-kind
+  configuration.
+- Code-quality checks target Python 3.14 and lint tests as well as integration
+  code.
+- GitHub releases are gated by the full Home Assistant-aware pytest suite.
+- Release publishing now independently re-validates HACS, repository metadata,
+  SPDX license metadata, brand assets, manifest version and duplicate tags
+  before creating a release.
+- HACS validation now runs with **no ignored checks**.
+- Repository Issues, Topics and SPDX-detectable MIT licensing are configured
+  for HACS Default submission readiness.
+- Home Assistant test CI verifies dependency health before running tests.
 
 ## 1.3.0
 
