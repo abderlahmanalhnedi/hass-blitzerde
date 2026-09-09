@@ -79,14 +79,6 @@ Monitor a radius around home, a commute corridor, or both — with map entities,
 - Privacy-conscious diagnostics for both area centers and route waypoints
 - HACS, Hassfest, Ruff, Python compilation, unit tests, JavaScript validation and CodeQL security scanning
 
-## Screenshots
-
-### Live Home Assistant map
-
-Real-world test data from a Dresden area entry, rendered through Home Assistant's native Map card. Only this integration's source, `blitzerde_dresden`, is selected in the screenshot.
-
-![Blitzer.de live map in Home Assistant showing three speed-camera reports around Dresden](docs/screenshots/live-map-dresden.jpg)
-
 ## Why this fork exists
 
 The repository was modernized after a broken coordinator change made the integration unloadable. The current code removes that broken duplicate coordinator implementation, restores a single API/coordinator path, and updates the integration to current Home Assistant patterns.
@@ -473,14 +465,6 @@ Speed-camera information can be incomplete, delayed, inaccurate, or unavailable.
 - Automatisches Retry/Backoff über den Home-Assistant-Coordinator
 - Datenschutzbewusste Diagnosedaten
 - HACS, Hassfest, Ruff, Python-Kompilierung, Unit-Tests, JavaScript-Prüfung und CodeQL
-
-## Screenshots
-
-### Live-Karte in Home Assistant
-
-Reale Testdaten eines Dresden-Bereichs, dargestellt mit der nativen Home-Assistant-Map-Karte. Im Screenshot ist ausschließlich die Quelle dieser Integration, `blitzerde_dresden`, ausgewählt.
-
-![Blitzer.de Live-Karte in Home Assistant mit drei Blitzer-Meldungen rund um Dresden](docs/screenshots/live-map-dresden.jpg)
 
 ## Warum gibt es diesen Fork?
 
