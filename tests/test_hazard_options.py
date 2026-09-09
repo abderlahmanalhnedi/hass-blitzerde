@@ -75,3 +75,25 @@ def test_enabled_hazard_kinds_follow_taxonomy_order() -> None:
         "accident",
         "closure",
     )
+
+
+def test_hazard_blacklist_field_is_optional_for_empty_default() -> None:
+    """An empty hazard blacklist must not block the Home Assistant form."""
+    import voluptuous as vol
+
+    schema = hazard_schema({})
+    optional_section = next(
+        value
+        for marker, value in schema.items()
+        if getattr(marker, "schema", None) == "hazard_optional"
+    )
+    nested_schema = getattr(optional_section, "schema", optional_section)
+    if hasattr(nested_schema, "schema"):
+        nested_schema = nested_schema.schema
+    blacklist_marker = next(
+        marker
+        for marker in nested_schema
+        if getattr(marker, "schema", None) == CONF_HAZARD_BLACKLIST
+    )
+
+    assert isinstance(blacklist_marker, vol.Optional)
