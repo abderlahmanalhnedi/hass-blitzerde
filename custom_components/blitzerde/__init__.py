@@ -93,9 +93,14 @@ async def async_setup_entry(
     coordinator = BlitzerdeCoordinator(hass, entry)
     await coordinator.async_config_entry_first_refresh()
 
-    # Hazards intentionally use their own coordinator/data channel. They can be
-    # refreshed without affecting camera freshness or request accounting.
-    coordinator.hazard_coordinator = BlitzerdeHazardCoordinator(hass, coordinator)
+    # Hazards intentionally use their own coordinator/data channel. Entries
+    # remain manual-only unless they explicitly opt into a positive hazard
+    # interval. Opted-in entries get one non-fatal initial refresh so the
+    # coordinator can schedule its independent background cadence immediately.
+    hazard_coordinator = BlitzerdeHazardCoordinator(hass, coordinator)
+    coordinator.hazard_coordinator = hazard_coordinator
+    if hazard_coordinator.background_polling_enabled:
+        await hazard_coordinator.async_refresh()
 
     entry.runtime_data = coordinator
     entry.async_on_unload(
