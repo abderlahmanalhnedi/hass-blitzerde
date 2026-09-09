@@ -10,7 +10,7 @@
 
 Monitor a radius around home, a commute corridor, or both — with map entities, useful automations, a polished dashboard card, and privacy-conscious diagnostics.
 
-[![Version](https://img.shields.io/badge/version-1.4.0-4c8bf5)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.3-4c8bf5)](CHANGELOG.md)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2025.12%2B-41BDF5?logo=homeassistant&logoColor=white)](https://www.home-assistant.io/)
 [![HACS](https://img.shields.io/badge/HACS-Custom%20Repository-41BDF5)](https://hacs.xyz/)
 [![Hassfest](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/hassfest.yaml)
@@ -79,6 +79,14 @@ Monitor a radius around home, a commute corridor, or both — with map entities,
 - Privacy-conscious diagnostics for both area centers and route waypoints
 - HACS, Hassfest, Ruff, Python compilation, unit tests, JavaScript validation and CodeQL security scanning
 
+## Screenshots
+
+### Live Home Assistant map
+
+Real-world test data from a Dresden area entry, rendered through Home Assistant's native Map card. Only this integration's source, `blitzerde_dresden`, is selected in the screenshot.
+
+![Blitzer.de live map in Home Assistant showing three speed-camera reports around Dresden](docs/screenshots/live-map-dresden.webp)
+
 ## Why this fork exists
 
 The repository was modernized after a broken coordinator change made the integration unloadable. The current code removes that broken duplicate coordinator implementation, restores a single API/coordinator path, and updates the integration to current Home Assistant patterns.
@@ -93,11 +101,11 @@ For every configured area, the integration creates one Home Assistant device and
 | --- | --- |
 | **Detected speed cameras** | Number of currently exposed camera slots. Attributes include `total_detected`, `entity_limit`, and a per-city summary. |
 | **Nearest speed camera** | Distance in km to the nearest current report, with camera/address attributes. |
-| **Latest speed camera** | Backend ID of the latest-looking upstream report, with camera/address attributes. |
+| **Latest speed camera** | Human-readable street/city or description of the freshest report. The backend ID remains available as an attribute. |
 | **New speed cameras** | Automation-friendly count of reports inside the configured freshness window. |
 | **Last successful update** | Timestamp of the most recent successful upstream refresh. |
 | **Upstream service** | Connectivity health with duration, failure count, interval, and search-mode telemetry. |
-| **Speed camera 1 … N** | Safety binary sensors. Slot 1 is the nearest report, slot 2 the next-nearest, and so on. |
+| **Speed camera 1 … N** | Safety binary sensors. Active slots represent current reports nearest-first; configured slots without a current report are unavailable rather than reported as safe. |
 | **Geo Location markers** | One dynamic map marker per exposed camera, automatically added, updated, and removed as reports change. |
 
 Each active camera slot exposes useful attributes such as:
@@ -192,7 +200,7 @@ Invalid regular expressions are rejected directly in the UI before the configura
 
 ## Built-in Blitzer.de Radar card
 
-Version 1.3 ships a dashboard card **inside the integration**. Home Assistant serves and registers it automatically, so there is no JavaScript file to copy into `www` and no Lovelace resource to add manually.
+The integration ships a dashboard card **inside the integration**. Home Assistant serves and registers it automatically, so there is no JavaScript file to copy into `www` and no Lovelace resource to add manually.
 
 In dashboard edit mode, add a manual/custom card with:
 
@@ -398,7 +406,7 @@ Speed-camera information can be incomplete, delayed, inaccurate, or unavailable.
 
 Überwache einen Radius rund um dein Zuhause, einen Pendelweg oder beides – mit Karten-Entitäten, Automationen, einer integrierten Dashboard-Karte und datenschutzbewussten Diagnosedaten.
 
-[![Version](https://img.shields.io/badge/version-1.4.0-4c8bf5)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.4.3-4c8bf5)](CHANGELOG.md)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2025.12%2B-41BDF5?logo=homeassistant&logoColor=white)](https://www.home-assistant.io/)
 [![HACS](https://img.shields.io/badge/HACS-Custom%20Repository-41BDF5)](https://hacs.xyz/)
 [![Hassfest](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/workflows/hassfest.yaml)
@@ -466,6 +474,14 @@ Speed-camera information can be incomplete, delayed, inaccurate, or unavailable.
 - Datenschutzbewusste Diagnosedaten
 - HACS, Hassfest, Ruff, Python-Kompilierung, Unit-Tests, JavaScript-Prüfung und CodeQL
 
+## Screenshots
+
+### Live-Karte in Home Assistant
+
+Reale Testdaten eines Dresden-Bereichs, dargestellt mit der nativen Home-Assistant-Map-Karte. Im Screenshot ist ausschließlich die Quelle dieser Integration, `blitzerde_dresden`, ausgewählt.
+
+![Blitzer.de Live-Karte in Home Assistant mit drei Blitzer-Meldungen rund um Dresden](docs/screenshots/live-map-dresden.webp)
+
 ## Warum gibt es diesen Fork?
 
 Das Repository wurde modernisiert, nachdem eine fehlerhafte Coordinator-Änderung die Integration unbrauchbar gemacht hatte. Die aktuelle Implementierung entfernt den defekten doppelten Coordinator, stellt einen klaren API-/Coordinator-Pfad wieder her und aktualisiert die Integration auf aktuelle Home-Assistant-Muster.
@@ -480,11 +496,11 @@ Für jeden konfigurierten Bereich bzw. jede Route erstellt die Integration ein H
 | --- | --- |
 | **Detected speed cameras** | Anzahl der aktuell bereitgestellten Blitzer-Slots. Enthält u. a. `total_detected`, `entity_limit` und eine Zusammenfassung nach Stadt. |
 | **Nearest speed camera** | Entfernung in km zur nächsten aktuellen Meldung inklusive Kamera-/Adressattributen. |
-| **Latest speed camera** | Backend-ID der aktuellsten erkannten Upstream-Meldung. |
+| **Latest speed camera** | Lesbare Straße/Stadt oder Beschreibung der aktuellsten Meldung. Die Backend-ID bleibt als Attribut verfügbar. |
 | **New speed cameras** | Anzahl der Meldungen innerhalb des konfigurierten Neu-Zeitfensters. |
 | **Last successful update** | Zeitpunkt der letzten erfolgreichen Aktualisierung. |
 | **Upstream service** | Verbindungsstatus mit Dauer, Fehleranzahl, Intervall und Suchmodus. |
-| **Speed camera 1 … N** | Safety-Binary-Sensoren. Slot 1 ist der nächste Blitzer, Slot 2 der zweitnächste usw. |
+| **Speed camera 1 … N** | Safety-Binary-Sensoren. Belegte Slots zeigen aktuelle Meldungen nach Entfernung; konfigurierte Slots ohne aktuelle Meldung sind nicht verfügbar statt fälschlich als sicher markiert. |
 | **Geo Location markers** | Dynamische Kartenmarker für aktuelle Blitzer, die automatisch hinzugefügt, aktualisiert und entfernt werden. |
 
 Typische Attribute eines aktiven Blitzers:
@@ -580,7 +596,7 @@ Ungültige reguläre Ausdrücke werden bereits in der Benutzeroberfläche abgele
 
 ## Integrierte Blitzer.de Radar-Karte
 
-Version 1.3 enthält eine Dashboard-Karte **direkt in der Integration**. Es muss keine JavaScript-Datei nach `www` kopiert und keine Lovelace-Ressource manuell angelegt werden.
+Die Integration enthält eine Dashboard-Karte **direkt in der Integration**. Es muss keine JavaScript-Datei nach `www` kopiert und keine Lovelace-Ressource manuell angelegt werden.
 
 Beispiel:
 
