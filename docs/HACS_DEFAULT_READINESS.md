@@ -32,19 +32,16 @@ by a real GitHub Release.
 
 ### GitHub metadata
 
-- [ ] Enable GitHub Issues for the repository.
-- [ ] Add repository topics. Suggested topics:
+- [x] GitHub Issues enabled.
+- [x] Repository topics added:
   `home-assistant`, `homeassistant`, `hacs`, `custom-integration`,
-  `traffic`, `speed-camera`, `germany`.
-
-These are the only HACS repository checks still ignored. They are repository
-administration settings rather than source-controlled files, and the currently
-connected GitHub tool does not expose a repository-settings mutation for them.
+  `traffic`, `speed-cameras`, `germany`.
 
 ### Publication gate
 
-- [ ] Remove every HACS Action `ignore` entry after Issues and Topics are enabled.
-- [ ] HACS Action passes with no errors and no ignored checks.
+- [x] Remove every HACS Action `ignore` entry.
+- [ ] HACS Action passes with no errors and no ignored checks on the
+  no-ignore readiness PR and then on `main`.
 - [x] Hassfest currently passes on `main`.
 - [x] Current project CI passes on `main`.
 - [ ] Create a full semantic-versioned GitHub Release after the no-ignore HACS
@@ -54,19 +51,29 @@ connected GitHub tool does not expose a repository-settings mutation for them.
 - [ ] After acceptance, change README installation wording/badge from custom
   repository to HACS Default.
 
-## Remaining repository-admin actions
+## Release automation
 
-1. Enable **Issues** for `abderlahmanalhnedi/hass-blitzerde`.
-2. Add the repository topics listed above.
-3. Remove `ignore: "topics issues"` from
-   `.github/workflows/action.yaml`.
-4. Require the resulting HACS Action to pass without ignores.
-5. Run the release workflow for the manifest version and verify the generated
-   GitHub Release/ZIP.
-6. Submit the repository to `hacs/default`.
+The release workflow can be started manually or by merging a change to
+`.github/release-request.json`. The file contains only the requested semantic
+version, for example:
 
-Steps 3–6 are source/release operations and can be completed autonomously once
-steps 1–2 are present in GitHub repository metadata.
+```json
+{
+  "version": "1.4.0"
+}
+```
+
+Before creating a tag or GitHub Release, the workflow independently:
+
+1. confirms the normal HACS workflow contains no ignored checks;
+2. runs the full HACS Action again;
+3. verifies Issues, Topics and SPDX license metadata;
+4. verifies the manifest version and local brand assets;
+5. refuses duplicate tags/releases;
+6. runs the complete Home Assistant test suite.
+
+This makes a release-request PR a safe auditable trigger rather than requiring
+a manual Actions button.
 
 ## License provenance
 
