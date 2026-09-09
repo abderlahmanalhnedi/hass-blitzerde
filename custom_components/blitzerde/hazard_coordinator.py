@@ -48,8 +48,9 @@ class BlitzerdeHazardCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
         """Initialize the hazard data channel."""
         super().__init__(
             hass,
-            logger=_LOGGER,
-            name=f"{DOMAIN}_{camera_coordinator.displayname}_hazards",
+            _LOGGER,
+            config_entry=camera_coordinator.config_entry,
+            name=f"{DOMAIN}:{camera_coordinator.config_entry.entry_id}:hazards",
             update_interval=None,
         )
         self.camera_coordinator = camera_coordinator
