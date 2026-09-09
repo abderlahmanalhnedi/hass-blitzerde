@@ -8,7 +8,7 @@ The upstream map endpoint has a bounded response size while traffic hazards can 
 
 The integration currently models ten opt-in hazard families: queue/tailback end, accident, temporary roadwork, obstacle, slippery road, obstructed view, permanent roadwork, broken-down vehicle, closure, and police/traffic-centre report.
 
-All hazard types default to disabled so existing config entries preserve their previous camera-only behaviour.
+All hazard types default to disabled for future background polling so existing config entries preserve their previous camera-only behaviour.
 
 ## Normalization contract
 
@@ -26,12 +26,22 @@ The model provides:
 - backend-ID deduplication preferring the nearest duplicate;
 - stable nearest-first ordering even when malformed distance values arrive.
 
+## On-demand runtime
+
+`blitzerde.refresh_hazards` now performs an isolated hazard scan and returns response data directly to Home Assistant automations. It supports both area and route entries without changing or refreshing camera data.
+
+For route entries the action reuses the existing bounded route sampler, limits concurrent upstream calls, recalculates shortest distance to the configured route, collapses duplicates by backend ID and sorts the final result nearest first.
+
+The action accepts an optional `hazard_types` list and optional `count` limit. Older entries do not yet contain hazard configuration, so an explicit on-demand call without a type list scans all supported hazard kinds. Once a hazards mapping exists in an entry, that mapping becomes authoritative.
+
+The response includes the entry ID, area name, search mode, count, and normalized hazard objects with ID, kind, summary, address, coordinates, distance and freshness metadata.
+
 ## Runtime target
 
-The next runtime slice should keep independent control and hazard polling intervals while exposing hazards as their own Home Assistant map source, count/new-report sensors, `blitzerde_new_hazard` events and a dedicated `blitzerde.refresh_hazards` action.
+The next persistent runtime slice should add independent control and hazard polling intervals while exposing hazards as their own Home Assistant map source, count/new-report sensors and `blitzerde_new_hazard` events. The on-demand runtime is intentionally isolated so those features can reuse it without coupling hazard cadence to camera cadence.
 
-Route mode must apply the same route-distance logic to hazards without allowing hazard requests to consume the control request budget. Future Drive Mode should reuse the same normalization contract so radius, route and moving-device searches remain behaviorally consistent.
+Future Drive Mode should reuse the same normalization contract so radius, route and moving-device searches remain behaviorally consistent.
 
 ## Privacy and compatibility
 
-Hazard diagnostics must follow the same location-redaction policy as controls and routes. New options must remain migration-safe, and old entries must keep hazards disabled unless a user explicitly enables them.
+Hazard diagnostics must follow the same location-redaction policy as controls and routes. New options must remain migration-safe, and old entries must keep background hazards disabled unless a user explicitly enables them.
