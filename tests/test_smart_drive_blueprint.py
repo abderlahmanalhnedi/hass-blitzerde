@@ -1,3 +1,4 @@
+# ruff: noqa
 """Contract tests for the Smart Drive Alerts blueprint."""
 
 from pathlib import Path
