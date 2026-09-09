@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version without v prefix, for example 1.3.0"
+        description: "Version without v prefix, for example 1.4.0"
         required: true
         type: string
 
@@ -22,7 +22,41 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Validate manifest version
+      - name: Enforce HACS Default validation mode
+        run: |
+          if grep -Eq '^[[:space:]]*ignore:' .github/workflows/action.yaml; then
+            echo "::error::HACS validation still ignores one or more checks."
+            echo "::error::Resolve the readiness blockers and remove every ignore before releasing."
+            exit 1
+          fi
+
+      - name: Validate HACS repository metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}" > /tmp/repo.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          repo = json.loads(Path("/tmp/repo.json").read_text())
+
+          if not repo.get("has_issues"):
+              raise SystemExit("GitHub Issues must be enabled before release")
+
+          topics = repo.get("topics") or []
+          if not topics:
+              raise SystemExit("At least one GitHub repository topic is required before release")
+
+          license_info = repo.get("license") or {}
+          spdx_id = license_info.get("spdx_id")
+          if not spdx_id or spdx_id == "NOASSERTION":
+              raise SystemExit(
+                  "A provenance-safe repository license with a detectable SPDX ID is required"
+              )
+          PY
+
+      - name: Validate manifest version and brand assets
         env:
           VERSION: ${{ inputs.version }}
         run: |
@@ -40,6 +74,14 @@ jobs:
               raise SystemExit(
                   f"manifest version {actual!r} does not match requested release {expected!r}"
               )
+
+          required_assets = (
+              Path("custom_components/blitzerde/brand/icon.png"),
+              Path("custom_components/blitzerde/brand/icon@2x.png"),
+          )
+          missing = [str(path) for path in required_assets if not path.is_file()]
+          if missing:
+              raise SystemExit(f"missing required brand assets: {', '.join(missing)}")
           PY
 
       - name: Set up Python 3.14
@@ -75,4 +117,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git tag -a "v${VERSION}" -m "Blitzer.de v${VERSION}"
           git push origin "v${VERSION}"
-          gh release create "v${VERSION}"             "dist/blitzerde-v${VERSION}.zip"             --title "Blitzer.de v${VERSION}"             --generate-notes
+          gh release create "v${VERSION}" \
+            "dist/blitzerde-v${VERSION}.zip" \
+            --title "Blitzer.de v${VERSION}" \
+            --generate-notes
