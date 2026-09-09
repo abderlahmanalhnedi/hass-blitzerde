@@ -4,6 +4,13 @@ All notable user-facing changes are documented here.
 
 ## Unreleased
 
+## 1.4.2 — 2026-09-09
+
+### Fixed
+
+- Make the empty camera blacklist field truly optional so Home Assistant no longer blocks Area/Route setup with “Not all required fields are filled”.
+- Apply the same fix to the traffic-hazard blacklist field before it reaches the user-facing hazard configuration UI.
+
 ## 1.4.1 — 2026-09-09
 
 ### Fixed

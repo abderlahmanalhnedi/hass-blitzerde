@@ -556,7 +556,7 @@ def _common_schema(values: dict[str, Any]) -> dict[Any, Any]:
                             max=MAX_NEW_MINUTES,
                         ),
                     ),
-                    vol.Required(
+                    vol.Optional(
                         CONF_BLACKLIST,
                         default=values.get(
                             CONF_BLACKLIST,

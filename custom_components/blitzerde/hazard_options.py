@@ -82,7 +82,7 @@ def hazard_schema(values: dict[str, Any]) -> dict[Any, Any]:
                         vol.Coerce(int),
                         vol.Range(min=0, max=MAX_NEW_MINUTES),
                     ),
-                    vol.Required(
+                    vol.Optional(
                         CONF_HAZARD_BLACKLIST,
                         default=values.get(
                             CONF_HAZARD_BLACKLIST,

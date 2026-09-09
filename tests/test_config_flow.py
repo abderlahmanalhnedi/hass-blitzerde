@@ -812,3 +812,25 @@ async def test_route_waypoint_redraw_can_continue_adding(hass) -> None:
 
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "route_waypoint"
+
+
+def test_camera_blacklist_field_is_optional_for_empty_default() -> None:
+    """An empty blacklist must not be rendered as a required frontend field."""
+    common = config_flow_module._common_schema({})
+    optional_section = next(
+        value
+        for marker, value in common.items()
+        if getattr(marker, "schema", None) == CONF_OPTIONAL
+    )
+    nested_schema = getattr(optional_section, "schema", optional_section)
+    if hasattr(nested_schema, "schema"):
+        nested_schema = nested_schema.schema
+    blacklist_marker = next(
+        marker
+        for marker in nested_schema
+        if getattr(marker, "schema", None) == CONF_BLACKLIST
+    )
+
+    import voluptuous as vol
+
+    assert isinstance(blacklist_marker, vol.Optional)
