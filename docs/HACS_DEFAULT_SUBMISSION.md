@@ -44,27 +44,45 @@ Adds new integration [abderlahmanalhnedi/hass-blitzerde]
 
 ## Links
 
-Link to current release: https://github.com/abderlahmanalhnedi/hass-blitzerde/releases/tag/v1.4.0
-Link to successful HACS action (without the `ignore` key): https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34336399056
-Link to successful hassfest action (if integration): https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34336398998
+Link to current release: https://github.com/abderlahmanalhnedi/hass-blitzerde/releases/tag/v1.4.3
+Link to successful HACS action (without the `ignore` key): https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34339861502
+Link to successful hassfest action (if integration): https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34339861714
 ```
 
 ## Verified publication evidence
 
-- Release: `v1.4.0`
-- Release asset: `blitzerde-v1.4.0.zip`
+- Release: `v1.4.3`
+- Release commit: `9874a91ba8782c885911b20ccfc079684ffcd27d`
+- Release asset: `blitzerde-v1.4.3.zip`
 - HACS validation: success, no ignored checks
 - Hassfest: success
+- Home Assistant tests: success
+- Code quality: success
+- CodeQL: success
 - GitHub Issues: enabled
 - Repository Topics: configured
 - GitHub SPDX license detection: `MIT`
-- Manifest version: `1.4.0`
+- Manifest version: `1.4.3`
+
+## Final pre-submission verification
+
+Before opening the upstream pull request:
+
+1. Verify a clean HACS install of `v1.4.3` on a real Home Assistant instance.
+2. Restart Home Assistant and complete the Blitzer.de config flow.
+3. Confirm the integration loads, creates entities and receives report data.
+4. Verify HACS can update/reinstall the release without a custom local copy.
+5. Re-check that HACS Action and Hassfest are still green.
 
 ## Remaining external action
 
-The connected GitHub integration can read `hacs/default` but cannot create a
-fork of another repository. A fork under the maintainer account is therefore
-the only manual prerequisite left. Once
-`abderlahmanalhnedi/default` exists as a fork of `hacs/default`, the
-submission branch, one-line edit and upstream pull request can be created from
-that fork.
+As of 2026-09-09, the maintainer fork `abderlahmanalhnedi/default` does not
+exist. The connected GitHub integration can read `hacs/default`, but it
+cannot create a fork of another repository.
+
+Create `abderlahmanalhnedi/default` as a fork of `hacs/default`. Once that
+fork exists, create a submission branch in the fork, add the one-line entry
+shown above, and open the pull request against `hacs/default:master`.
+
+No upstream pull request should be opened until the real HACS clean-install
+verification has been completed.
