@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from custom_components.blitzerde.hazards import (
     hazard_id,
@@ -15,7 +15,7 @@ from custom_components.blitzerde.hazards import (
 
 
 def _now() -> datetime:
-    return datetime(2026, 9, 9, 1, 30)
+    return datetime(2026, 9, 9, 1, 30, tzinfo=UTC)
 
 
 def test_hazard_helpers_tolerate_real_upstream_shapes() -> None:
