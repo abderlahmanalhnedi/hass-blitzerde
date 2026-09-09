@@ -141,11 +141,17 @@ class BlitzerMapBinarySensor(
         )
 
     @property
+    def available(self) -> bool:
+        """Expose only slots that currently contain a camera report."""
+        return super().available and _camera_slot_assigned(
+            self.coordinator, self._item_index
+        )
+
+    @property
     def is_on(self) -> bool:
         """Return True when a camera is assigned to this slot."""
-        return (
-            len(self.coordinator.data.mapdata)
-            > self._item_index
+        return _camera_slot_assigned(
+            self.coordinator, self._item_index
         )
 
     @property
@@ -153,10 +159,22 @@ class BlitzerMapBinarySensor(
         self,
     ) -> dict[str, Any]:
         """Return details for the camera assigned to this slot."""
-        if not self.is_on:
+        if not _camera_slot_assigned(
+            self.coordinator, self._item_index
+        ):
             return {}
         return BlitzerItem.get_attributes(
             self.coordinator.data.mapdata[
                 self._item_index
             ]
         )
+
+
+def _camera_slot_assigned(
+    coordinator: BlitzerdeCoordinator,
+    item_index: int,
+) -> bool:
+    """Return whether a configured binary-sensor slot has live data."""
+    data = getattr(coordinator, "data", None)
+    mapdata = getattr(data, "mapdata", None)
+    return isinstance(mapdata, list) and len(mapdata) > item_index
