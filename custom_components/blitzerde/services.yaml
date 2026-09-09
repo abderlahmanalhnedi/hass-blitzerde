@@ -5,3 +5,34 @@ refresh:
       selector:
         config_entry:
           integration: blitzerde
+
+refresh_hazards:
+  fields:
+    config_entry_id:
+      required: true
+      selector:
+        config_entry:
+          integration: blitzerde
+    hazard_types:
+      required: false
+      selector:
+        select:
+          multiple: true
+          options:
+            - tailback_end
+            - accident
+            - roadwork_temporary
+            - obstacle
+            - slippery
+            - obstructed_view
+            - roadwork_permanent
+            - broken_down_vehicle
+            - closure
+            - police_report
+    count:
+      required: false
+      selector:
+        number:
+          min: 1
+          max: 50
+          mode: box
