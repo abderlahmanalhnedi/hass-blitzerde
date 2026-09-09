@@ -1,6 +1,6 @@
 """Normalization helpers for Blitzer.de traffic hazards.
 
-This module intentionally keeps hazard semantics separate from controls.  The
+This module intentionally keeps hazard semantics separate from controls. The
 upstream endpoint returns several shapes for hazard metadata, and Home
 Assistant entities should not need to understand those quirks individually.
 """
@@ -72,7 +72,11 @@ def hazard_summary(item: dict[str, Any]) -> str:
         return place
 
     kind = hazard_kind(item).replace("_", " ").strip()
-    return kind.title() if kind and kind != "unknown" else "Traffic hazard"
+    return (
+        kind.title()
+        if kind and kind != "unknown"
+        else "Traffic hazard"
+    )
 
 
 def normalize_hazards(
@@ -93,7 +97,11 @@ def normalize_hazards(
     """
     pattern = re.compile(city_filter)
     enabled_set = set(enabled)
-    blacklist = {str(value).strip() for value in blacklist_ids if str(value).strip()}
+    blacklist = {
+        str(value).strip()
+        for value in blacklist_ids
+        if str(value).strip()
+    }
     deduplicated: dict[str, dict[str, Any]] = {}
     anonymous: list[dict[str, Any]] = []
 
@@ -118,7 +126,11 @@ def normalize_hazards(
         age = minutes_since(item.get("create_date"), now)
         if age is not None:
             item["age_minutes"] = age
-        item["new"] = is_new_report(item.get("create_date"), now, new_minutes)
+        item["new"] = is_new_report(
+            item.get("create_date"),
+            now,
+            new_minutes,
+        )
         item["hazard_kind"] = kind
         item["summary"] = hazard_summary(item)
         item["icon"] = hazard_icon(item)
