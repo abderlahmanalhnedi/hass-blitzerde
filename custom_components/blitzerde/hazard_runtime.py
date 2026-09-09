@@ -1,12 +1,4 @@
-"""On-demand traffic-hazard runtime for Blitzer.de.
-
-This is intentionally isolated from the camera coordinator. Hazard layers have
-very different freshness characteristics and can be dense enough to consume a
-shared upstream response budget. The service implemented here gives Home
-Assistant automations a production-safe hazard path now, while the persistent
-hazard coordinator can later reuse the same fetch helpers without coupling its
-polling cadence to cameras.
-"""
+"""Traffic-hazard runtime for Blitzer.de."""
 
 from __future__ import annotations
 
@@ -17,12 +9,7 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant.const import ATTR_CONFIG_ENTRY_ID
-from homeassistant.core import (
-    HomeAssistant,
-    ServiceCall,
-    ServiceResponse,
-    SupportsResponse,
-)
+from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.util import dt as dt_util
@@ -71,13 +58,7 @@ def _value(coordinator: BlitzerdeCoordinator, key: str, default: Any) -> Any:
 
 
 def configured_hazard_types(coordinator: BlitzerdeCoordinator) -> list[str]:
-    """Return enabled hazard kinds, falling back to all for legacy entries.
-
-    Until the dedicated hazard options UI lands, entries created before hazard
-    support have no hazard keys at all. Returning all kinds keeps the explicit
-    on-demand action useful without changing their background polling behavior.
-    Once an entry has a hazards mapping, that mapping is authoritative.
-    """
+    """Return enabled hazard kinds, falling back to all for legacy entries."""
     raw = _value(coordinator, CONF_HAZARDS, None)
     if raw is None:
         return list(HAZARD_TYPES)
@@ -164,43 +145,13 @@ async def async_fetch_hazards(
     return result
 
 
-async def _async_handle_refresh_hazards(call: ServiceCall) -> ServiceResponse:
-    """Fetch traffic hazards independently and return normalized response data."""
-    hass = call.hass
-    entry_id = call.data[ATTR_CONFIG_ENTRY_ID]
-    entry = hass.config_entries.async_get_entry(entry_id)
-    if entry is None or entry.domain != DOMAIN:
-        raise ServiceValidationError(
-            f"'{entry_id}' is not a Blitzer.de config entry"
-        )
-
-    coordinator: BlitzerdeCoordinator = entry.runtime_data
-    enabled = call.data.get("hazard_types") or configured_hazard_types(coordinator)
-    raw = await async_fetch_hazards(coordinator, enabled=enabled)
-
-    city_filter = str(_value(coordinator, CONF_HAZARD_SELECTOR, DEFAULT_SELECTOR))
-    blacklist = _csv_set(_value(coordinator, CONF_HAZARD_BLACKLIST, ""))
-    new_minutes = int(
-        _value(coordinator, CONF_HAZARD_NEW_MINUTES, DEFAULT_NEW_MINUTES)
-    )
-    count = int(
-        call.data.get(
-            "count",
-            _value(coordinator, CONF_HAZARD_COUNT, DEFAULT_HAZARD_COUNT),
-        )
-    )
-
-    normalized = normalize_hazards(
-        raw,
-        enabled=enabled,
-        city_filter=city_filter,
-        blacklist_ids=blacklist,
-        new_minutes=new_minutes,
-        now=dt_util.now(),
-    )[:count]
-
+def _hazard_response(
+    coordinator: BlitzerdeCoordinator,
+    normalized: list[dict[str, Any]],
+) -> ServiceResponse:
+    """Build the stable service response shape from normalized hazards."""
     return {
-        "config_entry_id": entry.entry_id,
+        "config_entry_id": coordinator.config_entry.entry_id,
         "area": coordinator.displayname,
         "search_mode": coordinator.search_mode,
         "count": len(normalized),
@@ -228,6 +179,38 @@ async def _async_handle_refresh_hazards(call: ServiceCall) -> ServiceResponse:
             for item in normalized
         ],
     }
+
+
+async def _async_handle_refresh_hazards(call: ServiceCall) -> ServiceResponse:
+    """Refresh traffic hazards independently and persist the result for entities."""
+    hass = call.hass
+    entry_id = call.data[ATTR_CONFIG_ENTRY_ID]
+    entry = hass.config_entries.async_get_entry(entry_id)
+    if entry is None or entry.domain != DOMAIN:
+        raise ServiceValidationError(f"'{entry_id}' is not a Blitzer.de config entry")
+
+    coordinator: BlitzerdeCoordinator = entry.runtime_data
+    requested_types = call.data.get("hazard_types")
+    requested_count = call.data.get("count")
+
+    hazard_coordinator = getattr(coordinator, "hazard_coordinator", None)
+    if hazard_coordinator is not None and requested_types is None and requested_count is None:
+        await hazard_coordinator.async_request_refresh()
+        return _hazard_response(coordinator, list(hazard_coordinator.data or []))
+
+    # Per-call overrides remain intentionally ephemeral: they are useful for
+    # automations without mutating the persistent entry configuration/cache.
+    enabled = requested_types or configured_hazard_types(coordinator)
+    raw = await async_fetch_hazards(coordinator, enabled=enabled)
+    normalized = normalize_hazards(
+        raw,
+        enabled=enabled,
+        city_filter=str(_value(coordinator, CONF_HAZARD_SELECTOR, DEFAULT_SELECTOR)),
+        blacklist_ids=_csv_set(_value(coordinator, CONF_HAZARD_BLACKLIST, "")),
+        new_minutes=int(_value(coordinator, CONF_HAZARD_NEW_MINUTES, DEFAULT_NEW_MINUTES)),
+        now=dt_util.now(),
+    )[: int(requested_count or _value(coordinator, CONF_HAZARD_COUNT, DEFAULT_HAZARD_COUNT))]
+    return _hazard_response(coordinator, normalized)
 
 
 def async_register_hazard_services(hass: HomeAssistant) -> None:
