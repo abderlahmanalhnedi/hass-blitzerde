@@ -24,6 +24,9 @@ by a real GitHub Release.
 - [x] Home Assistant runtime tests, quality checks and CodeQL.
 - [x] Local Home Assistant brand assets under
   `custom_components/blitzerde/brand/`.
+- [x] Current-tree license provenance audited and documented.
+- [x] Root MIT license added without retroactively relicensing historical
+  commits.
 
 ### GitHub metadata
 
@@ -31,9 +34,6 @@ by a real GitHub Release.
 - [ ] Add repository topics. Suggested topics:
   `home-assistant`, `homeassistant`, `hacs`, `custom-integration`,
   `traffic`, `speed-camera`, `germany`.
-- [ ] Resolve repository-wide license provenance so the HACS license validator
-  can identify a valid SPDX license **without retroactively licensing
-  historical code whose original terms are unknown**.
 
 ### Publication gate
 
@@ -47,26 +47,29 @@ by a real GitHub Release.
 - [ ] After acceptance, change README installation wording/badge from custom
   repository to HACS Default.
 
-## License provenance blocker
+## License provenance
 
-The repository contains lineage from the earlier community
-`hass-blitzerde` project by Tim Niklas. The historical snapshot available in
-this repository did not contain a license file. A modern maintainer cannot
-safely grant a new license over that historical code merely to satisfy a
-validator.
+The repository preserves historical commits from the earlier Tim Niklas
+`hass-blitzerde` project. Inspected historical snapshots contained no explicit
+license file.
 
-The HACS Action now validates the repository license and requires a detectable
-SPDX identifier. Therefore the safe options are:
+The current tree has since been substantially reworked. A literal-overlap audit
+found only generic framework/language idioms, metadata and short functional
+expressions as exact matches in the current implementation; no non-trivial
+historical business-logic block was found verbatim.
 
-1. obtain verifiable licensing/provenance for the historical code; or
-2. replace the remaining historical implementation with independently authored
-   code whose licensing can be granted unambiguously.
+The root MIT license therefore applies from its introduction commit forward.
+It does not retroactively alter the status of historical commits.
 
-Until one of those is complete, the workflow may keep the `license` ignore,
-but the repository must **not** be submitted to HACS Default and must not claim
-that the default-inclusion gate is complete.
+See:
 
-See `THIRD_PARTY_NOTICES.md` for attribution and provenance notes.
+- `LICENSE_SCOPE.md`
+- `docs/PROVENANCE_AUDIT.md`
+- `THIRD_PARTY_NOTICES.md`
+
+The HACS `license` ignore should be removed only after the LICENSE is present
+on the default branch, because HACS reads repository license metadata from the
+repository object.
 
 ## Brand assets
 
