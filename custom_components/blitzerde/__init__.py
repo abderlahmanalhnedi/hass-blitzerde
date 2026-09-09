@@ -49,6 +49,7 @@ from .const import (
     SERVICE_REFRESH,
 )
 from .coordinator import BlitzerdeCoordinator
+from .hazard_coordinator import BlitzerdeHazardCoordinator
 from .hazard_runtime import async_register_hazard_services
 
 _LOGGER = logging.getLogger(__name__)
@@ -91,6 +92,10 @@ async def async_setup_entry(
     """Set up Blitzer.de from a config entry."""
     coordinator = BlitzerdeCoordinator(hass, entry)
     await coordinator.async_config_entry_first_refresh()
+
+    # Hazards intentionally use their own coordinator/data channel. They can be
+    # refreshed without affecting camera freshness or request accounting.
+    coordinator.hazard_coordinator = BlitzerdeHazardCoordinator(hass, coordinator)
 
     entry.runtime_data = coordinator
     entry.async_on_unload(
