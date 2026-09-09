@@ -9,6 +9,10 @@ All notable user-facing changes are documented here.
 - Archive reports as an explicit opt-in installation form, clearly marked as historical rather than live
 - Seventeen semantic control-kind filters independent of installation form
 - `control_kind`, `archived`, and raw `type_code` metadata on exposed reports
+- Independent traffic-hazard coordinator, manual refresh action and Geo Location source
+- Independent opt-in background polling for traffic hazards
+- Traffic-hazard summary sensors for total hazards, nearest hazard and fresh/new hazard count
+- Dashboard-friendly hazard breakdown attributes by semantic hazard kind
 - Home Assistant Repairs warning after five consecutive upstream refresh failures
 - Automatic Repairs cleanup after service recovery or config-entry removal
 - English, German and Arabic Repairs text
