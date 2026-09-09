@@ -88,7 +88,7 @@ These are real screenshots from a Home Assistant test setup in Dresden using thi
 The Blitzer.de device page groups the current camera entities, summary sensors, update status and activity in one Home Assistant-native view.
 
 <p align="center">
-  <img src="docs/screenshots/device-overview-dresden.jpg" alt="Blitzer.de Dresden device overview in Home Assistant" width="100%">
+  <img src="docs/screenshots/device-overview-dresden.png" alt="Blitzer.de Dresden device overview in Home Assistant" width="100%">
 </p>
 
 ### Sensors
@@ -96,7 +96,7 @@ The Blitzer.de device page groups the current camera entities, summary sensors, 
 The integration exposes summary sensors plus individual speed-camera slots with speed-limit icons and current availability state.
 
 <p align="center">
-  <img src="docs/screenshots/sensors-dresden.jpg" alt="Blitzer.de Dresden sensors in Home Assistant" width="520">
+  <img src="docs/screenshots/sensors-dresden.png" alt="Blitzer.de Dresden sensors in Home Assistant" width="520">
 </p>
 
 ### Native Home Assistant map
@@ -104,7 +104,7 @@ The integration exposes summary sensors plus individual speed-camera slots with 
 The built-in Home Assistant Map card can use the Geo Location source `blitzerde_dresden`. This example shows three current reports around Dresden.
 
 <p align="center">
-  <img src="docs/screenshots/map-card-dresden.jpg" alt="Home Assistant map card showing three Blitzer.de reports around Dresden" width="100%">
+  <img src="docs/screenshots/map-card-dresden.png" alt="Home Assistant map card showing three Blitzer.de reports around Dresden" width="100%">
 </p>
 
 ## Why this fork exists
@@ -503,7 +503,7 @@ Die folgenden Bilder stammen aus einer realen Home-Assistant-Testinstallation in
 Die Blitzer.de-Geräteseite bündelt aktuelle Blitzer-Entitäten, Zusammenfassungs-Sensoren, Aktualisierungsstatus und Aktivität in einer nativen Home-Assistant-Ansicht.
 
 <p align="center">
-  <img src="docs/screenshots/device-overview-dresden.jpg" alt="Blitzer.de Dresden Geräteübersicht in Home Assistant" width="100%">
+  <img src="docs/screenshots/device-overview-dresden.png" alt="Blitzer.de Dresden Geräteübersicht in Home Assistant" width="100%">
 </p>
 
 ### Sensoren
@@ -511,7 +511,7 @@ Die Blitzer.de-Geräteseite bündelt aktuelle Blitzer-Entitäten, Zusammenfassun
 Die Integration stellt Zusammenfassungs-Sensoren sowie einzelne Blitzer-Slots mit Tempolimit-Symbolen und aktuellem Verfügbarkeitsstatus bereit.
 
 <p align="center">
-  <img src="docs/screenshots/sensors-dresden.jpg" alt="Blitzer.de Dresden Sensoren in Home Assistant" width="520">
+  <img src="docs/screenshots/sensors-dresden.png" alt="Blitzer.de Dresden Sensoren in Home Assistant" width="520">
 </p>
 
 ### Native Home-Assistant-Karte
@@ -519,7 +519,7 @@ Die Integration stellt Zusammenfassungs-Sensoren sowie einzelne Blitzer-Slots mi
 Die eingebaute Home-Assistant-Landkartenkarte kann die Geo-Location-Quelle `blitzerde_dresden` verwenden. Im Beispiel sind drei aktuelle Meldungen rund um Dresden sichtbar.
 
 <p align="center">
-  <img src="docs/screenshots/map-card-dresden.jpg" alt="Home-Assistant-Karte mit drei Blitzer.de-Meldungen rund um Dresden" width="100%">
+  <img src="docs/screenshots/map-card-dresden.png" alt="Home-Assistant-Karte mit drei Blitzer.de-Meldungen rund um Dresden" width="100%">
 </p>
 
 ## Warum gibt es diesen Fork?
