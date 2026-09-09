@@ -4,6 +4,13 @@ All notable user-facing changes are documented here.
 
 ## Unreleased
 
+## 1.4.1 — 2026-09-09
+
+### Fixed
+
+- Translate the Home Assistant `already_in_progress` config-flow abort reason in English, German and Arabic instead of exposing the raw translation key.
+- Document the recovery path for a stale setup flow: close the other Blitzer.de setup dialog or restart Home Assistant and retry.
+
 ## 1.4.0 — 2026-09-09
 
 ### Added
