@@ -9,8 +9,8 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from custom_components.blitzerde.const import (
-    CONF_HAZARDS,
     CONF_HAZARD_UPDATE_INTERVAL,
+    CONF_HAZARDS,
     HAZARD_DEFAULTS,
 )
 from custom_components.blitzerde.hazard_coordinator import BlitzerdeHazardCoordinator
