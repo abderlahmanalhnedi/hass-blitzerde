@@ -1,4 +1,4 @@
-"""Geolocation platform for Blitzer.de speed-camera reports."""
+"""Geolocation platform for Blitzer.de controls and traffic hazards."""
 
 from __future__ import annotations
 
@@ -18,32 +18,30 @@ from .const import (
     ATTR_DISTANCE_KM,
     DOMAIN,
     EVENT_NEW_CAMERA,
+    EVENT_NEW_HAZARD,
+    HAZARD_ICONS,
     SEARCH_MODE_ROUTE,
 )
 from .coordinator import BlitzerdeCoordinator
+from .hazard_coordinator import BlitzerdeHazardCoordinator
 from .item_utils import BlitzerItem, control_kind, is_archive, item_info
 
 PARALLEL_UPDATES = 0
-
 _REDLIGHT_TYPE_CODES = {"2", "110", "111"}
 
 
 def _poi_id(item: dict[str, Any]) -> str:
-    """Return the public backend identifier for one POI."""
     return BlitzerItem.get_backend_id(item)
 
 
 def _camera_type(item: dict[str, Any]) -> str:
-    """Return a useful installation category for a POI."""
     if is_archive(item):
         return "archive"
-
     info = item_info(item)
     if str(info.get("partly_fixed", "")) == "1":
         return "trailer"
     if str(info.get("fixed", "")) == "1":
         return "fixed"
-
     code = str(item.get("type", ""))
     if code.isdigit() and 100 <= int(code) < 200:
         return "fixed"
@@ -51,11 +49,9 @@ def _camera_type(item: dict[str, Any]) -> str:
 
 
 def _camera_icon(item: dict[str, Any]) -> str:
-    """Return an icon that is useful outside the map card as well."""
     code = str(item.get("type", ""))
     if str(item.get("vmax", "")) == "/" or code in _REDLIGHT_TYPE_CODES:
         return "mdi:traffic-light"
-
     return {
         "fixed": "mdi:cctv",
         "trailer": "mdi:truck-trailer",
@@ -65,28 +61,19 @@ def _camera_icon(item: dict[str, Any]) -> str:
 
 
 def _summary(item: dict[str, Any]) -> str:
-    """Build a short human-readable camera summary."""
     address = item.get("address")
     if not isinstance(address, dict):
         address = {}
-
-    parts = [
-        address.get("street"),
-        address.get("city"),
-    ]
-    place = ", ".join(str(part) for part in parts if part)
-
+    place = ", ".join(
+        str(part) for part in (address.get("street"), address.get("city")) if part
+    )
     vmax = item.get("vmax")
     if vmax not in (None, "", "?", "/"):
         return f"{place} · {vmax} km/h" if place else f"{vmax} km/h"
-
     if str(vmax) == "/":
         return f"{place} · red light" if place else "Red light camera"
-
     summary = place or f"Camera {_poi_id(item)}"
-    if is_archive(item):
-        return f"Archive · {summary}"
-    return summary
+    return f"Archive · {summary}" if is_archive(item) else summary
 
 
 async def async_setup_entry(
@@ -94,7 +81,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up dynamic geolocation entities for one configured area."""
+    """Set up dynamic control and hazard map entities."""
     coordinator: BlitzerdeCoordinator = entry.runtime_data
     registry = er.async_get(hass)
 
@@ -104,12 +91,9 @@ async def async_setup_entry(
 
     @callback
     def _sync_entities() -> None:
-        """Synchronize current POIs with Home Assistant entities."""
         nonlocal seen_report_ids
-
         mapdata = coordinator.data.mapdata if coordinator.data else []
         visible = mapdata[: coordinator.sensorcount]
-
         visible_ids = {_poi_id(item) for item in visible}
         all_ids = {_poi_id(item) for item in mapdata}
 
@@ -119,30 +103,20 @@ async def async_setup_entry(
             entity = known.get(poi_id)
             if entity is None:
                 entity = BlitzerdeGeoLocation(
-                    coordinator=coordinator,
-                    entry=entry,
-                    poi_id=poi_id,
-                    item=item,
+                    coordinator=coordinator, entry=entry, poi_id=poi_id, item=item
                 )
                 known[poi_id] = entity
                 new_entities.append(entity)
             else:
                 entity.update_from_item(item)
 
-        for registry_entry in list(
-            er.async_entries_for_config_entry(registry, entry.entry_id)
-        ):
-            if registry_entry.domain != "geo_location":
+        for registry_entry in list(er.async_entries_for_config_entry(registry, entry.entry_id)):
+            if registry_entry.domain != "geo_location" or not registry_entry.unique_id.startswith(unique_prefix):
                 continue
-            if not registry_entry.unique_id.startswith(unique_prefix):
-                continue
-
             poi_id = registry_entry.unique_id[len(unique_prefix) :]
-            if poi_id in visible_ids:
-                continue
-
-            known.pop(poi_id, None)
-            registry.async_remove(registry_entry.entity_id)
+            if poi_id not in visible_ids:
+                known.pop(poi_id, None)
+                registry.async_remove(registry_entry.entity_id)
 
         if new_entities:
             async_add_entities(new_entities)
@@ -169,35 +143,103 @@ async def async_setup_entry(
                     hass.bus.async_fire(EVENT_NEW_CAMERA, payload)
                 seen_report_ids.update(new_ids)
 
-    entry.async_on_unload(
-        coordinator.async_add_listener(_sync_entities)
-    )
+    entry.async_on_unload(coordinator.async_add_listener(_sync_entities))
     _sync_entities()
+
+    hazard_coordinator: BlitzerdeHazardCoordinator | None = getattr(
+        coordinator, "hazard_coordinator", None
+    )
+    if hazard_coordinator is not None:
+        _setup_hazard_entities(
+            hass,
+            entry,
+            coordinator,
+            hazard_coordinator,
+            registry,
+            async_add_entities,
+        )
+
+
+def _setup_hazard_entities(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    camera_coordinator: BlitzerdeCoordinator,
+    coordinator: BlitzerdeHazardCoordinator,
+    registry: er.EntityRegistry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
+) -> None:
+    """Wire the independent hazard coordinator into dynamic map markers."""
+    known: dict[str, BlitzerdeHazardGeoLocation] = {}
+    seen_ids: set[str] | None = None
+    prefix = f"{DOMAIN}-hazard-geo-{entry.entry_id}-"
+
+    @callback
+    def _sync_hazards() -> None:
+        nonlocal seen_ids
+        hazards = list(coordinator.data or [])
+        ids = {str(item.get("backend", "")) for item in hazards if item.get("backend")}
+        new_entities: list[BlitzerdeHazardGeoLocation] = []
+
+        for item in hazards:
+            hazard_id = str(item.get("backend", "")).strip()
+            if not hazard_id:
+                continue
+            entity = known.get(hazard_id)
+            if entity is None:
+                entity = BlitzerdeHazardGeoLocation(
+                    camera_coordinator=camera_coordinator,
+                    entry=entry,
+                    hazard_id=hazard_id,
+                    item=item,
+                )
+                known[hazard_id] = entity
+                new_entities.append(entity)
+            else:
+                entity.update_from_item(item)
+
+        for registry_entry in list(er.async_entries_for_config_entry(registry, entry.entry_id)):
+            if registry_entry.domain != "geo_location" or not registry_entry.unique_id.startswith(prefix):
+                continue
+            hazard_id = registry_entry.unique_id[len(prefix) :]
+            if hazard_id not in ids:
+                known.pop(hazard_id, None)
+                registry.async_remove(registry_entry.entity_id)
+
+        if new_entities:
+            async_add_entities(new_entities)
+
+        if seen_ids is None:
+            seen_ids = set(ids)
+        else:
+            new_ids = ids - seen_ids
+            if new_ids:
+                by_id = {str(item.get("backend")): item for item in hazards}
+                for hazard_id in sorted(new_ids):
+                    item = by_id[hazard_id]
+                    payload = dict(item)
+                    payload.update(
+                        {
+                            "config_entry_id": entry.entry_id,
+                            "area": camera_coordinator.displayname,
+                            "id": hazard_id.rsplit("-", 1)[-1],
+                        }
+                    )
+                    hass.bus.async_fire(EVENT_NEW_HAZARD, payload)
+                seen_ids.update(new_ids)
+
+    entry.async_on_unload(coordinator.async_add_listener(_sync_hazards))
+    _sync_hazards()
 
 
 class BlitzerdeGeoLocation(GeolocationEvent):
-    """Represent one reported camera on Home Assistant's map."""
-
     _attr_should_poll = False
     _attr_has_entity_name = True
 
-    def __init__(
-        self,
-        *,
-        coordinator: BlitzerdeCoordinator,
-        entry: ConfigEntry,
-        poi_id: str,
-        item: dict[str, Any],
-    ) -> None:
-        """Initialize one camera marker."""
+    def __init__(self, *, coordinator: BlitzerdeCoordinator, entry: ConfigEntry, poi_id: str, item: dict[str, Any]) -> None:
         self._coordinator = coordinator
         self._poi_id = poi_id
-        self._attr_source = (
-            f"{DOMAIN}_{slugify(coordinator.displayname)}"
-        )
-        self._attr_unique_id = (
-            f"{DOMAIN}-geo-{entry.entry_id}-{poi_id}"
-        )
+        self._attr_source = f"{DOMAIN}_{slugify(coordinator.displayname)}"
+        self._attr_unique_id = f"{DOMAIN}-geo-{entry.entry_id}-{poi_id}"
         self._attr_unit_of_measurement = UnitOfLength.KILOMETERS
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
@@ -209,30 +251,15 @@ class BlitzerdeGeoLocation(GeolocationEvent):
         self._apply(item)
 
     def _apply(self, item: dict[str, Any]) -> None:
-        """Apply fresh API data to this marker."""
-        address = item.get("address")
-        if not isinstance(address, dict):
-            address = {}
-
-        street = address.get("street")
-        city = address.get("city")
-        display_place = street or city or self._poi_id
-
+        address = item.get("address") if isinstance(item.get("address"), dict) else {}
+        display_place = address.get("street") or address.get("city") or self._poi_id
         self._attr_name = f"Speed camera {display_place}"
         self._attr_latitude = float(item["lat"])
         self._attr_longitude = float(item["lng"])
-        self._attr_distance = float(
-            item.get(ATTR_DISTANCE_KM, 0.0)
-        )
+        self._attr_distance = float(item.get(ATTR_DISTANCE_KM, 0.0))
         self._attr_icon = _camera_icon(item)
-        self._attr_entity_picture = (
-            "https://map.blitzer.de/v5/images/"
-            f"{BlitzerItem.get_picture_path(item)}.svg"
-        )
-
-        self._extra_attributes = BlitzerItem.get_attributes(
-            item, include_location=False
-        )
+        self._attr_entity_picture = "https://map.blitzer.de/v5/images/" f"{BlitzerItem.get_picture_path(item)}.svg"
+        self._extra_attributes = BlitzerItem.get_attributes(item, include_location=False)
         self._extra_attributes.update(
             {
                 "id": self._poi_id,
@@ -242,21 +269,75 @@ class BlitzerdeGeoLocation(GeolocationEvent):
                 "area": self._coordinator.displayname,
                 ATTR_CONFIG_ENTRY_ID: self._coordinator.config_entry.entry_id,
                 "search_mode": self._coordinator.search_mode,
-                "corridor_width": (
-                    self._coordinator.corridor_width
-                    if self._coordinator.search_mode == SEARCH_MODE_ROUTE
-                    else None
-                ),
+                "corridor_width": self._coordinator.corridor_width if self._coordinator.search_mode == SEARCH_MODE_ROUTE else None,
             }
         )
 
     @callback
     def update_from_item(self, item: dict[str, Any]) -> None:
-        """Refresh this entity after a coordinator update."""
         self._apply(item)
         self.async_write_ha_state()
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
-        """Return camera metadata."""
+        return self._extra_attributes
+
+
+class BlitzerdeHazardGeoLocation(GeolocationEvent):
+    """Represent one traffic hazard on Home Assistant's native map."""
+
+    _attr_should_poll = False
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        *,
+        camera_coordinator: BlitzerdeCoordinator,
+        entry: ConfigEntry,
+        hazard_id: str,
+        item: dict[str, Any],
+    ) -> None:
+        self._camera_coordinator = camera_coordinator
+        self._hazard_id = hazard_id
+        self._attr_source = f"{DOMAIN}_{slugify(camera_coordinator.displayname)}_hazards"
+        self._attr_unique_id = f"{DOMAIN}-hazard-geo-{entry.entry_id}-{hazard_id}"
+        self._attr_unit_of_measurement = UnitOfLength.KILOMETERS
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name=f"Blitzer.de {camera_coordinator.displayname}",
+            manufacturer="Blitzer.de / atudo.net",
+            model="Cloud map service",
+        )
+        self._extra_attributes: dict[str, Any] = {}
+        self._apply(item)
+
+    def _apply(self, item: dict[str, Any]) -> None:
+        kind = str(item.get("hazard_kind") or "unknown")
+        summary = str(item.get("summary") or kind.replace("_", " ").title())
+        self._attr_name = summary
+        self._attr_latitude = float(item["lat"])
+        self._attr_longitude = float(item["lng"])
+        self._attr_distance = float(item.get(ATTR_DISTANCE_KM, 0.0))
+        self._attr_icon = HAZARD_ICONS.get(kind, "mdi:alert")
+        self._extra_attributes = {
+            key: value
+            for key, value in item.items()
+            if key not in {"lat", "lng"}
+        }
+        self._extra_attributes.update(
+            {
+                "id": self._hazard_id.rsplit("-", 1)[-1],
+                "area": self._camera_coordinator.displayname,
+                ATTR_CONFIG_ENTRY_ID: self._camera_coordinator.config_entry.entry_id,
+                "search_mode": self._camera_coordinator.search_mode,
+            }
+        )
+
+    @callback
+    def update_from_item(self, item: dict[str, Any]) -> None:
+        self._apply(item)
+        self.async_write_ha_state()
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
         return self._extra_attributes
