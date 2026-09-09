@@ -33,11 +33,13 @@ repository.
 - [x] Remove every HACS Action `ignore` entry.
 - [x] HACS Action passes with no errors and no ignored checks on `main`.
 - [x] Hassfest passes on the same release commit.
-- [x] Current project CI passes on `main`.
-- [x] Create semantic-versioned GitHub Release `v1.4.0`.
-- [x] Publish installable release asset `blitzerde-v1.4.0.zip`.
-- [ ] Verify a clean HACS installation/update from the release on a real Home
+- [x] Home Assistant tests, code quality and CodeQL pass on the release commit.
+- [x] Create semantic-versioned GitHub Release `v1.4.3`.
+- [x] Publish installable release asset `blitzerde-v1.4.3.zip`.
+- [ ] Verify a clean HACS installation and update from `v1.4.3` on a real Home
   Assistant instance.
+- [ ] Create a maintainer fork of `hacs/default` under
+  `abderlahmanalhnedi/default`.
 - [ ] Submit the repository to `hacs/default`.
 - [ ] After acceptance, change README installation wording/badge from custom
   repository to HACS Default.
@@ -45,16 +47,34 @@ repository.
 Submission details and exact upstream patch:
 [HACS_DEFAULT_SUBMISSION.md](HACS_DEFAULT_SUBMISSION.md).
 
-## Validation evidence
+## Validation evidence for v1.4.3
+
+Release commit: `9874a91ba8782c885911b20ccfc079684ffcd27d`.
 
 - Release:
-  https://github.com/abderlahmanalhnedi/hass-blitzerde/releases/tag/v1.4.0
+  https://github.com/abderlahmanalhnedi/hass-blitzerde/releases/tag/v1.4.3
+- Release asset:
+  https://github.com/abderlahmanalhnedi/hass-blitzerde/releases/download/v1.4.3/blitzerde-v1.4.3.zip
 - HACS Action without ignores:
-  https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34336399056
+  https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34339861502
 - Hassfest:
-  https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34336398998
-- Audited release workflow:
-  https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34336399044
+  https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34339861714
+- Home Assistant tests:
+  https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34339861584
+- Code quality:
+  https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34339861963
+- CodeQL:
+  https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34339861511
+- Release workflow:
+  https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34339861614
+
+The same validation suite also passes on current `main` after the README
+screenshot fixes. The latest HACS and Hassfest runs are:
+
+- HACS Action:
+  https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34363691818
+- Hassfest:
+  https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34363691732
 
 ## Release automation
 
