@@ -49,6 +49,7 @@ from .const import (
     SERVICE_REFRESH,
 )
 from .coordinator import BlitzerdeCoordinator
+from .hazard_runtime import async_register_hazard_services
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -80,6 +81,7 @@ async def async_setup(
             schema=_REFRESH_SCHEMA,
             supports_response=SupportsResponse.OPTIONAL,
         )
+    async_register_hazard_services(hass)
     return True
 
 
