@@ -1,0 +1,257 @@
+blueprint:
+  name: Blitzer.de Traffic Digest · Verkehrslage · ملخص المرور
+  description: |-
+    Build a nearest-first digest from the Blitzer.de geo-location entities that are
+    already present in Home Assistant. It can include controls, traffic hazards, or
+    both, and can run on a daily schedule, when somebody leaves a zone, when a chosen
+    entity changes, or on demand by firing the `blitzerde_digest_requested` event.
+
+    The blueprint does not perform extra upstream polling. It reads the integration's
+    current Home Assistant state, which keeps camera and hazard request budgets
+    independent.
+
+    DE: Erstellt eine nach Entfernung sortierte Sammelmeldung aus den bereits in Home
+    Assistant vorhandenen Blitzer.de-Geo-Entitäten. Auslösung per Uhrzeit, Verlassen
+    einer Zone, Entitätsänderung oder Event möglich.
+
+    AR: ينشئ ملخصاً مرتباً حسب المسافة من كيانات Blitzer.de الموجودة حالياً في Home
+    Assistant، ويمكن تشغيله بوقت محدد أو عند مغادرة منطقة أو تغيّر كيان أو عبر حدث.
+  domain: automation
+  author: abderlahmanalhnedi
+  source_url: https://github.com/abderlahmanalhnedi/hass-blitzerde/blob/main/blueprints/automation/blitzerde/traffic_digest.yaml
+  input:
+    scope:
+      name: Scope · Umfang · النطاق
+      icon: mdi:filter-variant
+      collapsed: false
+      input:
+        include_controls:
+          name: Include controls · Kontrollen · تضمين الرادارات
+          default: true
+          selector:
+            boolean: {}
+        include_hazards:
+          name: Include hazards · Gefahren · تضمين المخاطر
+          default: true
+          selector:
+            boolean: {}
+        include_archive:
+          name: Include archive reports · Archiv · تضمين الأرشيف
+          description: >-
+            Archive reports are historical entries and are excluded by default.
+          default: false
+          selector:
+            boolean: {}
+        areas:
+          name: Areas/routes · Bereiche/Routen · المناطق/المسارات
+          description: >-
+            Optional comma-separated Blitzer.de area or route names. Leave empty for all.
+          default: ""
+          selector:
+            text: {}
+        max_distance_km:
+          name: Maximum distance (km) · Maximale Entfernung · أقصى مسافة
+          description: Use 0 for no distance limit.
+          default: 0
+          selector:
+            number:
+              min: 0
+              max: 500
+              step: 0.5
+              mode: box
+        max_reports:
+          name: Maximum reports · Maximale Meldungen · أقصى عدد للبلاغات
+          default: 10
+          selector:
+            number:
+              min: 1
+              max: 100
+              step: 1
+              mode: box
+    triggers:
+      name: Triggers · Auslöser · المشغلات
+      icon: mdi:clock-start
+      collapsed: true
+      input:
+        schedule_enabled:
+          name: Daily schedule enabled · Tägliche Uhrzeit · تفعيل الوقت اليومي
+          default: true
+          selector:
+            boolean: {}
+        digest_time:
+          name: Daily time · Uhrzeit · الوقت اليومي
+          default: "07:00:00"
+          selector:
+            time: {}
+        departure_people:
+          name: People/trackers leaving a zone · Verlassende Personen · المغادرون
+          description: Leave empty to disable the departure trigger.
+          default: []
+          selector:
+            entity:
+              multiple: true
+              filter:
+                - domain: person
+                - domain: device_tracker
+        departure_zone:
+          name: Departure zone · Verlassene Zone · منطقة المغادرة
+          default: zone.home
+          selector:
+            entity:
+              domain: zone
+        trigger_entities:
+          name: Extra trigger entities · Zusätzliche Auslöser · كيانات تشغيل إضافية
+          description: >-
+            Optional entities whose state change should create a digest, for example an
+            input_button or input_boolean.
+          default: []
+          selector:
+            entity:
+              multiple: true
+    presentation:
+      name: Presentation · Darstellung · العرض
+      icon: mdi:translate
+      collapsed: true
+      input:
+        language:
+          name: Digest language · Sprache · لغة الملخص
+          default: en
+          selector:
+            select:
+              mode: dropdown
+              options:
+                - label: English
+                  value: en
+                - label: Deutsch
+                  value: de
+                - label: العربية
+                  value: ar
+        send_empty:
+          name: Send all-clear when empty · Leermeldung senden · إرسال رسالة عند عدم وجود بلاغات
+          default: true
+          selector:
+            boolean: {}
+        persistent_notification:
+          name: Home Assistant notification · HA-Benachrichtigung · إشعار Home Assistant
+          description: Creates a persistent notification without requiring a phone app.
+          default: true
+          selector:
+            boolean: {}
+        delivery_actions:
+          name: Additional delivery actions · Zusätzliche Aktionen · إجراءات إرسال إضافية
+          description: |-
+            Optional actions for mobile push, TTS, scripts, etc. The variables
+            `digest_title`, `digest_message`, `report_count`, and `reports` are available.
+          default: []
+          selector:
+            action: {}
+
+variables:
+  include_controls: !input include_controls
+  include_hazards: !input include_hazards
+  include_archive: !input include_archive
+  configured_areas: !input areas
+  max_distance: !input max_distance_km
+  max_reports: !input max_reports
+  schedule_enabled: !input schedule_enabled
+  language: !input language
+  send_empty: !input send_empty
+  create_persistent_notification: !input persistent_notification
+
+trigger:
+  - platform: time
+    at: !input digest_time
+    id: scheduled
+  - platform: zone
+    entity_id: !input departure_people
+    zone: !input departure_zone
+    event: leave
+    id: departure
+  - platform: state
+    entity_id: !input trigger_entities
+    id: entity
+  - platform: event
+    event_type: blitzerde_digest_requested
+    id: event
+
+condition:
+  - condition: template
+    value_template: >-
+      {{ trigger.id != 'scheduled' or schedule_enabled }}
+
+action:
+  - variables:
+      reports: >-
+        {% set ns = namespace(items=[]) %}
+        {% set wanted_areas = configured_areas.split(',') | map('trim') | reject('eq', '') | list %}
+        {% for item in states.geo_location %}
+          {% set source = item.attributes.get('source', '') | string %}
+          {% if source.startswith('blitzerde_') %}
+            {% set is_hazard = source.endswith('_hazards') or item.attributes.get('hazard_kind') is not none %}
+            {% set is_archive = item.attributes.get('camera_type') == 'archive' %}
+            {% set distance = item.state | float(999999) %}
+            {% set area = item.attributes.get('area', '') | string %}
+            {% set area_ok = wanted_areas | length == 0 or area in wanted_areas %}
+            {% set distance_ok = max_distance | float(0) <= 0 or distance <= max_distance | float(0) %}
+            {% set half_ok = (is_hazard and include_hazards) or ((not is_hazard) and include_controls) %}
+            {% set archive_ok = (not is_archive) or include_archive %}
+            {% if area_ok and distance_ok and half_ok and archive_ok and distance < 999999 %}
+              {% set summary = item.attributes.get('summary') or item.name %}
+              {% set ns.items = ns.items + [dict(
+                entity_id=item.entity_id,
+                distance=distance,
+                area=area,
+                summary=summary,
+                report_kind='hazard' if is_hazard else 'control',
+                hazard_kind=item.attributes.get('hazard_kind'),
+                camera_type=item.attributes.get('camera_type'),
+                control_kind=item.attributes.get('control_kind'),
+                latitude=item.attributes.get('latitude'),
+                longitude=item.attributes.get('longitude')
+              )] %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.items | sort(attribute='distance') | list }}
+      report_count: "{{ [reports | count, max_reports | int] | min }}"
+      visible_reports: "{{ reports[:max_reports | int] }}"
+      digest_title: >-
+        {% if language == 'de' %}Blitzer.de Verkehrslage
+        {% elif language == 'ar' %}ملخص Blitzer.de المروري
+        {% else %}Blitzer.de traffic digest
+        {% endif %}
+      digest_message: >-
+        {% if visible_reports | count == 0 %}
+          {% if language == 'de' %}Keine passenden aktuellen Meldungen.
+          {% elif language == 'ar' %}لا توجد بلاغات حالية مطابقة للفلاتر.
+          {% else %}No matching current reports.
+          {% endif %}
+        {% else %}
+          {% if language == 'de' %}{{ visible_reports | count }} aktuelle Meldung(en), nächste zuerst:
+          {% elif language == 'ar' %}{{ visible_reports | count }} بلاغ/بلاغات حالية، الأقرب أولاً:
+          {% else %}{{ visible_reports | count }} current report(s), nearest first:
+          {% endif %}
+          {% for report in visible_reports %}
+          {{ loop.index }}. {{ report.summary }} · {{ '%.1f' | format(report.distance) }} km{% if report.area %} · {{ report.area }}{% endif %}
+          {% endfor %}
+        {% endif %}
+  - condition: template
+    value_template: "{{ send_empty or (report_count | int) > 0 }}"
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ create_persistent_notification }}"
+        sequence:
+          - action: persistent_notification.create
+            data:
+              notification_id: blitzerde_traffic_digest
+              title: "{{ digest_title | trim }}"
+              message: "{{ digest_message | trim }}"
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ true }}"
+        sequence: !input delivery_actions
+
+mode: restart
+max_exceeded: silent
