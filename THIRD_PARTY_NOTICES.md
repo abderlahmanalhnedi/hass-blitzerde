@@ -34,12 +34,22 @@ That project is distributed under the MIT License:
 > OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 > SOFTWARE.
 
-## Original hass-blitzerde lineage
+The archive/report-form and semantic control-kind taxonomy work was informed by
+reviewing behavior and upstream type mapping documented by
+`somansch/blitzer`. The implementation in this repository is adapted to this
+integration's runtime-data, filtering, migration, testing, multilingual UI and
+privacy architecture.
 
-This repository also contains code descended from the earlier community
-`hass-blitzerde` project by Tim Niklas. The historical repository snapshot
-available in this repository did not contain a license file. Nothing in this
-notice changes or expands the rights granted by that original code.
+## Original hass-blitzerde history
 
+This repository preserves Git history from the earlier community
+`hass-blitzerde` project by Tim Niklas.
 
-The current archive/report-form and semantic control-kind taxonomy work was informed by reviewing the behavior and upstream type mapping documented by `somansch/blitzer`. The implementation in this repository is independently adapted to this integration's runtime-data, filtering, migration, testing, and multilingual UI architecture; the existing MIT attribution above remains applicable to reference-derived ideas and mappings.
+Historical snapshots inspected in that history did not contain a software
+license file. The current root MIT license is therefore deliberately scoped to
+the current source tree beginning with the commit that introduces the license
+and later contributions. It does **not** retroactively relicense old historical
+commits.
+
+See `LICENSE_SCOPE.md` and `docs/PROVENANCE_AUDIT.md` for the exact
+provenance policy and audit evidence.
