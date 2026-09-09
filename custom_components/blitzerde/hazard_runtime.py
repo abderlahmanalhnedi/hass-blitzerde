@@ -9,7 +9,12 @@ from typing import Any
 
 import voluptuous as vol
 from homeassistant.const import ATTR_CONFIG_ENTRY_ID
-from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse, SupportsResponse
+from homeassistant.core import (
+    HomeAssistant,
+    ServiceCall,
+    ServiceResponse,
+    SupportsResponse,
+)
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import config_validation as cv
 from homeassistant.util import dt as dt_util
@@ -82,7 +87,11 @@ async def async_fetch_hazards(
     enabled: Iterable[str],
 ) -> list[dict[str, Any]]:
     """Fetch hazards for the entry's area or route without touching cameras."""
-    enabled_types = [kind for kind in dict.fromkeys(enabled) if kind in HAZARD_TYPES]
+    enabled_types = [
+        kind
+        for kind in dict.fromkeys(enabled)
+        if kind in HAZARD_TYPES
+    ]
     if not enabled_types:
         return []
 
@@ -96,12 +105,16 @@ async def async_fetch_hazards(
         )
 
     waypoints = coordinator.waypoints
-    sample_points = route_sample_points(waypoints, coordinator.corridor_width)
+    sample_points = route_sample_points(
+        waypoints, coordinator.corridor_width
+    )
     merged: dict[str, dict[str, Any]] = {}
     anonymous: list[dict[str, Any]] = []
 
     for start in range(0, len(sample_points), _HAZARD_QUERY_CONCURRENCY):
-        chunk = sample_points[start : start + _HAZARD_QUERY_CONCURRENCY]
+        chunk = sample_points[
+            start : start + _HAZARD_QUERY_CONCURRENCY
+        ]
         responses = await asyncio.gather(
             *(
                 coordinator.api.async_get_hazards(
@@ -141,7 +154,9 @@ async def async_fetch_hazards(
                     merged[backend] = item
 
     result = [*merged.values(), *anonymous]
-    result.sort(key=lambda item: float(item.get("distance_km", math.inf)))
+    result.sort(
+        key=lambda item: float(item.get("distance_km", math.inf))
+    )
     return result
 
 
@@ -181,36 +196,69 @@ def _hazard_response(
     }
 
 
-async def _async_handle_refresh_hazards(call: ServiceCall) -> ServiceResponse:
-    """Refresh traffic hazards independently and persist the result for entities."""
+async def _async_handle_refresh_hazards(
+    call: ServiceCall,
+) -> ServiceResponse:
+    """Refresh hazards independently and persist default-scan results."""
     hass = call.hass
     entry_id = call.data[ATTR_CONFIG_ENTRY_ID]
     entry = hass.config_entries.async_get_entry(entry_id)
     if entry is None or entry.domain != DOMAIN:
-        raise ServiceValidationError(f"'{entry_id}' is not a Blitzer.de config entry")
+        raise ServiceValidationError(
+            f"'{entry_id}' is not a Blitzer.de config entry"
+        )
 
     coordinator: BlitzerdeCoordinator = entry.runtime_data
     requested_types = call.data.get("hazard_types")
     requested_count = call.data.get("count")
 
-    hazard_coordinator = getattr(coordinator, "hazard_coordinator", None)
-    if hazard_coordinator is not None and requested_types is None and requested_count is None:
+    hazard_coordinator = getattr(
+        coordinator, "hazard_coordinator", None
+    )
+    if (
+        hazard_coordinator is not None
+        and requested_types is None
+        and requested_count is None
+    ):
         await hazard_coordinator.async_request_refresh()
-        return _hazard_response(coordinator, list(hazard_coordinator.data or []))
+        return _hazard_response(
+            coordinator, list(hazard_coordinator.data or [])
+        )
 
-    # Per-call overrides remain intentionally ephemeral: they are useful for
-    # automations without mutating the persistent entry configuration/cache.
+    # Per-call overrides remain ephemeral and never mutate entry configuration.
     enabled = requested_types or configured_hazard_types(coordinator)
     raw = await async_fetch_hazards(coordinator, enabled=enabled)
     normalized = normalize_hazards(
         raw,
         enabled=enabled,
-        city_filter=str(_value(coordinator, CONF_HAZARD_SELECTOR, DEFAULT_SELECTOR)),
-        blacklist_ids=_csv_set(_value(coordinator, CONF_HAZARD_BLACKLIST, "")),
-        new_minutes=int(_value(coordinator, CONF_HAZARD_NEW_MINUTES, DEFAULT_NEW_MINUTES)),
+        city_filter=str(
+            _value(
+                coordinator,
+                CONF_HAZARD_SELECTOR,
+                DEFAULT_SELECTOR,
+            )
+        ),
+        blacklist_ids=_csv_set(
+            _value(coordinator, CONF_HAZARD_BLACKLIST, "")
+        ),
+        new_minutes=int(
+            _value(
+                coordinator,
+                CONF_HAZARD_NEW_MINUTES,
+                DEFAULT_NEW_MINUTES,
+            )
+        ),
         now=dt_util.now(),
-    )[: int(requested_count or _value(coordinator, CONF_HAZARD_COUNT, DEFAULT_HAZARD_COUNT))]
-    return _hazard_response(coordinator, normalized)
+    )
+    count = int(
+        requested_count
+        or _value(
+            coordinator,
+            CONF_HAZARD_COUNT,
+            DEFAULT_HAZARD_COUNT,
+        )
+    )
+    return _hazard_response(coordinator, normalized[:count])
 
 
 def async_register_hazard_services(hass: HomeAssistant) -> None:
