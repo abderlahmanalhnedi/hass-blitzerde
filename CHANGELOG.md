@@ -4,6 +4,15 @@ All notable user-facing changes are documented here.
 
 ## Unreleased
 
+## 1.4.3 — 2026-09-09
+
+### Fixed
+
+- Show a human-readable street/city or description on `Latest speed camera` instead of a raw backend ID, while keeping the backend ID in attributes.
+- Select the latest camera by normalized report age when available instead of treating the largest backend ID as newest.
+- Mark unused configured camera slots as unavailable instead of incorrectly rendering them as `Safe`.
+- Mark hazard summary entities unavailable when no hazard types are enabled, avoiding misleading `0`/`Unknown` states that could imply the hazard channel was checked.
+
 ## 1.4.2 — 2026-09-09
 
 ### Fixed
