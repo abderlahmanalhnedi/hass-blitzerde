@@ -212,7 +212,8 @@
       "no_kinds_selected": "Aktiviere mindestens eine Kontrollart."
     },
     "abort": {
-      "already_configured": "Ein Eintrag mit diesem Anzeigenamen ist bereits eingerichtet."
+      "already_configured": "Ein Eintrag mit diesem Anzeigenamen ist bereits eingerichtet.",
+      "already_in_progress": "Die Einrichtung von Blitzer.de läuft bereits. Schließe den anderen Einrichtungsdialog oder starte Home Assistant neu und versuche es erneut."
     }
   },
   "options": {

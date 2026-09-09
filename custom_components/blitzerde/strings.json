@@ -212,7 +212,8 @@
       "no_kinds_selected": "Enable at least one control kind."
     },
     "abort": {
-      "already_configured": "An entry with this display name is already configured."
+      "already_configured": "An entry with this display name is already configured.",
+      "already_in_progress": "Blitzer.de setup is already in progress. Close the other setup dialog or restart Home Assistant and try again."
     }
   },
   "options": {

@@ -212,7 +212,8 @@
       "no_kinds_selected": "فعّل نوع مراقبة واحداً على الأقل."
     },
     "abort": {
-      "already_configured": "يوجد إعداد آخر بهذا الاسم."
+      "already_configured": "يوجد إعداد آخر بهذا الاسم.",
+      "already_in_progress": "إعداد Blitzer.de قيد التنفيذ بالفعل. أغلق نافذة الإعداد الأخرى أو أعد تشغيل Home Assistant ثم حاول مرة أخرى."
     }
   },
   "options": {
