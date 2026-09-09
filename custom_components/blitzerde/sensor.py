@@ -99,6 +99,13 @@ class BlitzerHazardSensorEntity(
             coordinator.camera_coordinator.displayname,
         )
 
+    @property
+    def available(self) -> bool:
+        """Return unavailable when hazard monitoring is not enabled."""
+        return super().available and _hazard_channel_enabled(
+            self.coordinator.enabled_types
+        )
+
 
 class BlitzerCountSensor(BlitzerSensorEntity):
     """Number of exposed camera slots currently active."""
@@ -159,7 +166,7 @@ class BlitzerCountSensor(BlitzerSensorEntity):
 
 
 class BlitzerLatestSensor(BlitzerSensorEntity):
-    """Latest-looking upstream camera identifier."""
+    """Most recently reported camera with a user-friendly state."""
 
     _attr_icon = "mdi:car"
     _attr_name = "Latest speed camera"
@@ -174,19 +181,14 @@ class BlitzerLatestSensor(BlitzerSensorEntity):
 
     @property
     def _latest_item(self) -> dict[str, Any] | None:
-        if not self.coordinator.data.mapdata:
-            return None
-        return max(
-            self.coordinator.data.mapdata,
-            key=lambda item: str(item.get("backend", "")),
-        )
+        return _latest_camera_item(self.coordinator.data.mapdata)
 
     @property
     def native_value(self) -> str | None:
-        """Return the backend ID or None when no camera exists."""
+        """Return a readable location/description for the latest camera."""
         if (item := self._latest_item) is None:
             return None
-        return BlitzerItem.get_backend_id(item)
+        return _camera_display_name(item)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -401,6 +403,54 @@ class BlitzerNewHazardCountSensor(BlitzerHazardSensorEntity):
         return sum(1 for item in self.coordinator.data or [] if item.get("new"))
 
 
+
+def _latest_camera_item(
+    items: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    """Return the freshest camera, preferring normalized report age."""
+    if not items:
+        return None
+
+    aged: list[tuple[float, dict[str, Any]]] = []
+    for item in items:
+        try:
+            age = float(item["age_minutes"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        aged.append((age, item))
+
+    if aged:
+        return min(aged, key=lambda pair: pair[0])[1]
+
+    return max(
+        items,
+        key=lambda item: str(item.get("backend", "")),
+    )
+
+
+def _camera_display_name(item: dict[str, Any]) -> str:
+    """Return a compact human-readable camera label for entity state."""
+    attrs = BlitzerItem.get_attributes(item, include_location=False)
+    street = str(attrs.get("street") or "").strip()
+    city = str(attrs.get("city") or "").strip()
+
+    if street and city:
+        return f"{street}, {city}"
+    if street:
+        return street
+    if city:
+        return city
+
+    description = str(attrs.get("description") or "").strip()
+    if description:
+        return description
+
+    return f"Camera {BlitzerItem.get_backend_id(item)}"
+
+
+def _hazard_channel_enabled(enabled_types: list[str]) -> bool:
+    """Return whether hazard monitoring has at least one selected type."""
+    return bool(enabled_types)
 def _device_info(entry: ConfigEntry, displayname: str) -> DeviceInfo:
     """Return one shared device identity for camera and hazard sensors."""
     return DeviceInfo(
