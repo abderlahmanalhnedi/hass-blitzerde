@@ -1,0 +1,316 @@
+blueprint:
+  name: "Blitzer.de – Smart Drive Alerts"
+  description: >-
+    Smart live notifications for newly reported controls and traffic hazards.
+    Includes distance-aware urgency, independent control/hazard filters, quiet
+    hours, optional TTS and custom follow-up actions. Labels are provided in
+    English / Deutsch / العربية.
+  domain: automation
+  source_url: https://github.com/abderlahmanalhnedi/hass-blitzerde/blob/main/custom_components/blitzerde/blueprints/automation/blitzerde/smart_drive_alerts.yaml
+  author: Abderlahman Al Hnedi
+  input:
+    scope:
+      name: "Scope / Bereich / النطاق"
+      icon: mdi:radar
+      collapsed: false
+      input:
+        notify_device:
+          name: "Phone / Smartphone / الهاتف"
+          description: "Home Assistant Companion App device that receives alerts."
+          selector:
+            device:
+              filter:
+                integration: mobile_app
+        area_name:
+          name: "Area or route / Bereich oder Route / المنطقة أو المسار"
+          description: "Leave empty for every configured Blitzer.de entry, or enter one exact display name."
+          default: ""
+          selector:
+            text:
+        report_kinds:
+          name: "Report families / Meldungsarten / أنواع البلاغات"
+          default:
+            - control
+            - hazard
+          selector:
+            select:
+              multiple: true
+              options:
+                - label: "Controls / Kontrollen / الرادارات"
+                  value: control
+                - label: "Hazards / Gefahren / المخاطر"
+                  value: hazard
+        max_distance:
+          name: "Maximum distance / Maximale Entfernung / أقصى مسافة"
+          description: "Ignore reports farther away than this distance. Set 0 for no distance limit."
+          default: 10
+          selector:
+            number:
+              min: 0
+              max: 100
+              step: 0.5
+              unit_of_measurement: km
+              mode: box
+        critical_distance:
+          name: "Critical distance / Kritische Entfernung / المسافة الحرجة"
+          description: "Reports at or below this distance are marked as critical."
+          default: 1.5
+          selector:
+            number:
+              min: 0.1
+              max: 20
+              step: 0.1
+              unit_of_measurement: km
+              mode: slider
+    control_filters:
+      name: "Control filters / Kontrollfilter / فلاتر الرادارات"
+      icon: mdi:speedometer
+      collapsed: true
+      input:
+        control_kinds:
+          name: "Control kinds / Kontrollarten / أنواع الرادارات"
+          description: "Leave empty to accept every enabled control kind."
+          default: []
+          selector:
+            select:
+              multiple: true
+              mode: dropdown
+              options:
+                - label: "Speed / Geschwindigkeit / سرعة"
+                  value: speed
+                - label: "Red light / Rotlicht / إشارة حمراء"
+                  value: redlight
+                - label: "Red light + speed / Rotlicht + Geschwindigkeit / إشارة + سرعة"
+                  value: redlight_speed
+                - label: "Section control / Abschnittskontrolle / قياس مقطعي"
+                  value: section_control
+                - label: "Tunnel / Tunnel / نفق"
+                  value: tunnel
+                - label: "Distance / Abstand / مسافة"
+                  value: distance
+                - label: "Weight / Gewicht / وزن"
+                  value: weight
+                - label: "Height / Höhe / ارتفاع"
+                  value: height
+                - label: "Lane / Spur / مسار"
+                  value: lane
+                - label: "Entrance / Einfahrt / مدخل"
+                  value: entry
+                - label: "Access / Auffahrt / دخول"
+                  value: access
+                - label: "Crosswalk / Fußgängerüberweg / ممر مشاة"
+                  value: crosswalk
+                - label: "Overtaking / Überholverbot / تجاوز"
+                  value: overtaking
+                - label: "Police / Polizeikontrolle / شرطة"
+                  value: police
+                - label: "Alcohol / Alkoholkontrolle / كحول"
+                  value: alcohol
+                - label: "Dummy / Attrappe / وهمي"
+                  value: dummy
+                - label: "Unknown / Unbekannt / غير معروف"
+                  value: unknown
+        min_vmax:
+          name: "Minimum speed limit / Mindestgeschwindigkeit / أقل حد سرعة"
+          description: "0 accepts controls without a reported speed limit too."
+          default: 0
+          selector:
+            number:
+              min: 0
+              max: 130
+              step: 5
+              unit_of_measurement: km/h
+              mode: slider
+    hazard_filters:
+      name: "Hazard filters / Gefahrenfilter / فلاتر المخاطر"
+      icon: mdi:alert-outline
+      collapsed: true
+      input:
+        hazard_types:
+          name: "Hazard types / Gefahrentypen / أنواع المخاطر"
+          description: "Leave empty to accept every enabled hazard type."
+          default: []
+          selector:
+            select:
+              multiple: true
+              mode: dropdown
+              options:
+                - label: "Tailback end / Stauende / نهاية ازدحام"
+                  value: tailback_end
+                - label: "Accident / Unfall / حادث"
+                  value: accident
+                - label: "Temporary roadwork / Tagesbaustelle / أعمال مؤقتة"
+                  value: roadwork_temporary
+                - label: "Obstacle / Hindernis / عائق"
+                  value: obstacle
+                - label: "Slippery road / Rutschgefahr / طريق زلق"
+                  value: slippery
+                - label: "Obstructed view / Sichtbehinderung / ضعف رؤية"
+                  value: obstructed_view
+                - label: "Permanent roadwork / Dauerbaustelle / أعمال دائمة"
+                  value: roadwork_permanent
+                - label: "Broken-down vehicle / Defektes Fahrzeug / مركبة متعطلة"
+                  value: broken_down_vehicle
+                - label: "Closure / Sperrung / إغلاق"
+                  value: closure
+                - label: "Police report / Polizeimeldung / بلاغ شرطة"
+                  value: police_report
+    quiet_hours:
+      name: "Quiet hours / Ruhezeiten / ساعات الهدوء"
+      icon: mdi:weather-night
+      collapsed: true
+      input:
+        quiet_from:
+          name: "Quiet from / Ruhe ab / الهدوء من"
+          description: "Set both quiet times to 00:00:00 to disable quiet hours. Windows may span midnight."
+          default: "00:00:00"
+          selector:
+            time:
+        quiet_to:
+          name: "Quiet until / Ruhe bis / الهدوء حتى"
+          default: "00:00:00"
+          selector:
+            time:
+    speech:
+      name: "Voice announcement / Sprachansage / إعلان صوتي"
+      icon: mdi:account-voice
+      collapsed: true
+      input:
+        tts_engine:
+          name: "TTS engine / TTS-Dienst / محرك الصوت"
+          description: "Optional. Leave empty when you do not want voice announcements."
+          default: ""
+          selector:
+            entity:
+              domain: tts
+        tts_media_players:
+          name: "Media players / Mediaplayer / مشغلات الوسائط"
+          default: []
+          selector:
+            entity:
+              multiple: true
+              domain: media_player
+        speak_critical_only:
+          name: "Speak critical only / Nur kritische vorlesen / نطق الحرجة فقط"
+          default: true
+          selector:
+            boolean:
+    advanced:
+      name: "Advanced / Erweitert / متقدم"
+      icon: mdi:cog-outline
+      collapsed: true
+      input:
+        custom_actions:
+          name: "Additional actions / Weitere Aktionen / إجراءات إضافية"
+          description: "Optional actions executed after the notification. Blueprint variables stay available."
+          default: []
+          selector:
+            action:
+
+mode: queued
+max: 20
+
+triggers:
+  - trigger: event
+    event_type: blitzerde_new_camera
+    id: control
+  - trigger: event
+    event_type: blitzerde_new_hazard
+    id: hazard
+
+variables:
+  in_area_name: !input area_name
+  in_report_kinds: !input report_kinds
+  in_max_distance: !input max_distance
+  in_critical_distance: !input critical_distance
+  in_control_kinds: !input control_kinds
+  in_min_vmax: !input min_vmax
+  in_hazard_types: !input hazard_types
+  in_quiet_from: !input quiet_from
+  in_quiet_to: !input quiet_to
+  in_tts_engine: !input tts_engine
+  in_tts_media_players: !input tts_media_players
+  in_speak_critical_only: !input speak_critical_only
+  report_kind: "{{ trigger.id }}"
+  area: "{{ trigger.event.data.area | default('') }}"
+  control_kind: "{{ trigger.event.data.control_kind | default('unknown') }}"
+  hazard_kind: "{{ trigger.event.data.hazard_kind | default('unknown') }}"
+  vmax: "{{ trigger.event.data.vmax | default(0) | int(0) }}"
+  distance: >-
+    {{ trigger.event.data.distance_km
+       | default(trigger.event.data.distance | default(9999))
+       | float(9999) }}
+  summary: >-
+    {{ trigger.event.data.summary
+       | default(trigger.event.data.reason
+       | default(trigger.event.data.street
+       | default('Blitzer.de report'))) }}
+  is_critical: "{{ (distance | float(9999)) <= (in_critical_distance | float) }}"
+  urgency: >-
+    {% if is_critical %}critical
+    {% elif (distance | float(9999)) <= ((in_critical_distance | float) * 2) %}nearby
+    {% else %}info{% endif %}
+  urgency_icon: >-
+    {% if urgency == 'critical' %}🚨{% elif urgency == 'nearby' %}⚠️{% else %}ℹ️{% endif %}
+  quiet_active: >-
+    {% set start = today_at(in_quiet_from) %}
+    {% set end = today_at(in_quiet_to) %}
+    {% if in_quiet_from == '00:00:00' and in_quiet_to == '00:00:00' %}
+      false
+    {% elif start < end %}
+      {{ start <= now() < end }}
+    {% else %}
+      {{ now() >= start or now() < end }}
+    {% endif %}
+  alert_title: "{{ urgency_icon }} Blitzer.de · {{ area }}"
+  alert_message: >-
+    {{ summary }}{% if distance < 9999 %} · {{ distance | round(1) }} km{% endif %}
+
+conditions:
+  - condition: template
+    value_template: "{{ report_kind in in_report_kinds }}"
+  - condition: template
+    value_template: "{{ in_area_name | trim == '' or area == in_area_name }}"
+  - condition: template
+    value_template: "{{ (in_max_distance | float) == 0 or (distance | float) <= (in_max_distance | float) }}"
+  - condition: template
+    value_template: >-
+      {{ report_kind != 'control'
+         or in_control_kinds | length == 0
+         or control_kind in in_control_kinds }}
+  - condition: template
+    value_template: >-
+      {{ report_kind != 'control'
+         or (in_min_vmax | int) == 0
+         or (vmax | int) >= (in_min_vmax | int) }}
+  - condition: template
+    value_template: >-
+      {{ report_kind != 'hazard'
+         or in_hazard_types | length == 0
+         or hazard_kind in in_hazard_types }}
+  - condition: template
+    value_template: "{{ not (quiet_active | bool) or is_critical }}"
+
+actions:
+  - alias: "Push smart alert"
+    domain: mobile_app
+    type: notify
+    device_id: !input notify_device
+    title: "{{ alert_title }}"
+    message: "{{ alert_message }}"
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: >-
+              {{ in_tts_engine | string | length > 0
+                 and in_tts_media_players | length > 0
+                 and (not in_speak_critical_only or is_critical) }}
+        sequence:
+          - action: tts.speak
+            target:
+              entity_id: !input tts_engine
+            data:
+              media_player_entity_id: !input tts_media_players
+              message: "{{ alert_message }}"
+  - choose: []
+    default: !input custom_actions
