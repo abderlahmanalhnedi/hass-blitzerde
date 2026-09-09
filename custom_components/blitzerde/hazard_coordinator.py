@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from homeassistant.core import HomeAssistant
@@ -27,6 +28,8 @@ from .hazard_runtime import (
 )
 from .hazards import normalize_hazards
 
+_LOGGER = logging.getLogger(__name__)
+
 
 class BlitzerdeHazardCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
     """Maintain traffic hazards independently from camera refreshes.
@@ -45,7 +48,7 @@ class BlitzerdeHazardCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
         """Initialize the hazard data channel."""
         super().__init__(
             hass,
-            logger=camera_coordinator.logger,
+            logger=_LOGGER,
             name=f"{DOMAIN}_{camera_coordinator.displayname}_hazards",
             update_interval=None,
         )
