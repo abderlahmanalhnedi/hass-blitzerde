@@ -85,7 +85,7 @@ Monitor a radius around home, a commute corridor, or both — with map entities,
 
 Real-world test data from a Dresden area entry, rendered through Home Assistant's native Map card. Only this integration's source, `blitzerde_dresden`, is selected in the screenshot.
 
-![Blitzer.de live map in Home Assistant showing three speed-camera reports around Dresden](docs/screenshots/live-map-dresden.webp)
+![Blitzer.de live map in Home Assistant showing three speed-camera reports around Dresden](docs/screenshots/live-map-dresden.jpg)
 
 ## Why this fork exists
 
@@ -480,7 +480,7 @@ Speed-camera information can be incomplete, delayed, inaccurate, or unavailable.
 
 Reale Testdaten eines Dresden-Bereichs, dargestellt mit der nativen Home-Assistant-Map-Karte. Im Screenshot ist ausschließlich die Quelle dieser Integration, `blitzerde_dresden`, ausgewählt.
 
-![Blitzer.de Live-Karte in Home Assistant mit drei Blitzer-Meldungen rund um Dresden](docs/screenshots/live-map-dresden.webp)
+![Blitzer.de Live-Karte in Home Assistant mit drei Blitzer-Meldungen rund um Dresden](docs/screenshots/live-map-dresden.jpg)
 
 ## Warum gibt es diesen Fork?
 
