@@ -2,11 +2,17 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from custom_components.blitzerde.const import (
+    CONF_HAZARD_UPDATE_INTERVAL,
+    CONF_HAZARDS,
+    HAZARD_DEFAULTS,
+)
 from custom_components.blitzerde.hazard_coordinator import BlitzerdeHazardCoordinator
 
 
@@ -56,3 +62,46 @@ def test_hazard_coordinator_is_manual_only_by_default(hass) -> None:
     coordinator = BlitzerdeHazardCoordinator(hass, camera)
 
     assert coordinator.update_interval is None
+    assert coordinator.background_polling_enabled is False
+
+
+def test_hazard_coordinator_uses_independent_opt_in_interval(hass) -> None:
+    """A positive hazard interval schedules only the hazard coordinator."""
+    hazards = dict(HAZARD_DEFAULTS)
+    hazards["accident"] = True
+    camera = SimpleNamespace(
+        config_entry=SimpleNamespace(
+            entry_id="hazard-test",
+            data={
+                CONF_HAZARDS: hazards,
+                CONF_HAZARD_UPDATE_INTERVAL: 7,
+            },
+            options={},
+        ),
+        displayname="Dresden",
+    )
+
+    coordinator = BlitzerdeHazardCoordinator(hass, camera)
+
+    assert coordinator.update_interval == timedelta(minutes=7)
+    assert coordinator.background_polling_enabled is True
+
+
+def test_hazard_coordinator_does_not_poll_when_no_hazard_type_is_enabled(hass) -> None:
+    """An interval alone cannot trigger requests if all hazard kinds are off."""
+    camera = SimpleNamespace(
+        config_entry=SimpleNamespace(
+            entry_id="hazard-test",
+            data={
+                CONF_HAZARDS: dict(HAZARD_DEFAULTS),
+                CONF_HAZARD_UPDATE_INTERVAL: 5,
+            },
+            options={},
+        ),
+        displayname="Dresden",
+    )
+
+    coordinator = BlitzerdeHazardCoordinator(hass, camera)
+
+    assert coordinator.update_interval is None
+    assert coordinator.background_polling_enabled is False

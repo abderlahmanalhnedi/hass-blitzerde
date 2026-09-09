@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import timedelta
 from typing import Any
 
 from homeassistant.core import HomeAssistant
@@ -14,6 +15,7 @@ from .const import (
     CONF_HAZARD_COUNT,
     CONF_HAZARD_NEW_MINUTES,
     CONF_HAZARD_SELECTOR,
+    CONF_HAZARD_UPDATE_INTERVAL,
     DEFAULT_HAZARD_COUNT,
     DEFAULT_NEW_MINUTES,
     DEFAULT_SELECTOR,
@@ -34,10 +36,9 @@ _LOGGER = logging.getLogger(__name__)
 class BlitzerdeHazardCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
     """Maintain traffic hazards independently from camera refreshes.
 
-    The coordinator is manual-only until a user explicitly opts into background
-    hazard polling. Keeping the data channel separate prevents dense traffic
-    layers from consuming the camera coordinator's request budget and gives us
-    a stable runtime surface for map entities, events and future polling UI.
+    Hazard polling has its own interval and request channel. A value of ``0``
+    keeps the hazard half manual-only; positive values opt the entry into
+    background refreshes without changing the camera coordinator cadence.
     """
 
     def __init__(
@@ -46,6 +47,20 @@ class BlitzerdeHazardCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
         camera_coordinator: BlitzerdeCoordinator,
     ) -> None:
         """Initialize the hazard data channel."""
+        self.camera_coordinator = camera_coordinator
+        interval_minutes = int(
+            _value(
+                camera_coordinator,
+                CONF_HAZARD_UPDATE_INTERVAL,
+                0,
+            )
+        )
+        update_interval = (
+            timedelta(minutes=interval_minutes)
+            if interval_minutes > 0 and configured_hazard_types(camera_coordinator)
+            else None
+        )
+
         super().__init__(
             hass,
             _LOGGER,
@@ -53,9 +68,8 @@ class BlitzerdeHazardCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
                 f"{DOMAIN}:"
                 f"{camera_coordinator.config_entry.entry_id}:hazards"
             ),
-            update_interval=None,
+            update_interval=update_interval,
         )
-        self.camera_coordinator = camera_coordinator
         self.data = []
 
     @property
@@ -73,6 +87,11 @@ class BlitzerdeHazardCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
     def enabled_types(self) -> list[str]:
         """Return the hazard kinds enabled for the entry."""
         return configured_hazard_types(self.camera_coordinator)
+
+    @property
+    def background_polling_enabled(self) -> bool:
+        """Return whether the entry opted into automatic hazard refreshes."""
+        return self.update_interval is not None
 
     async def _async_update_data(self) -> list[dict[str, Any]]:
         """Fetch and normalize the hazard half without touching cameras."""
