@@ -4,10 +4,6 @@ This document is the release gate for publishing `abderlahmanalhnedi/hass-blitze
 as a default HACS integration rather than requiring users to add a custom
 repository.
 
-The goal is **not** to weaken validation until the repository passes. HACS
-Default requires the HACS Action to complete without ignored checks, followed
-by a real GitHub Release.
-
 ## Current checklist
 
 ### Repository and integration
@@ -22,103 +18,77 @@ by a real GitHub Release.
 - [x] Hassfest workflow.
 - [x] HACS Action workflow.
 - [x] Home Assistant runtime tests, quality checks and CodeQL.
-- [x] Local Home Assistant brand assets under
-  `custom_components/blitzerde/brand/`.
+- [x] Local Home Assistant brand assets.
 - [x] Current-tree license provenance audited and documented.
-- [x] Root MIT license added without retroactively relicensing historical
-  commits.
 - [x] GitHub detects the default-branch license as SPDX `MIT`.
-- [x] HACS license validator passes without a license ignore.
+- [x] HACS license validator passes.
 
 ### GitHub metadata
 
 - [x] GitHub Issues enabled.
-- [x] Repository topics added:
-  `home-assistant`, `homeassistant`, `hacs`, `custom-integration`,
-  `traffic`, `speed-cameras`, `germany`.
+- [x] Repository topics configured.
 
 ### Publication gate
 
 - [x] Remove every HACS Action `ignore` entry.
-- [ ] HACS Action passes with no errors and no ignored checks on the
-  no-ignore readiness PR and then on `main`.
-- [x] Hassfest currently passes on `main`.
+- [x] HACS Action passes with no errors and no ignored checks on `main`.
+- [x] Hassfest passes on the same release commit.
 - [x] Current project CI passes on `main`.
-- [ ] Create a full semantic-versioned GitHub Release after the no-ignore HACS
-  check passes.
-- [ ] Verify a clean HACS installation/update from that release.
+- [x] Create semantic-versioned GitHub Release `v1.4.0`.
+- [x] Publish installable release asset `blitzerde-v1.4.0.zip`.
+- [ ] Verify a clean HACS installation/update from the release on a real Home
+  Assistant instance.
 - [ ] Submit the repository to `hacs/default`.
 - [ ] After acceptance, change README installation wording/badge from custom
   repository to HACS Default.
 
+Submission details and exact upstream patch:
+[HACS_DEFAULT_SUBMISSION.md](HACS_DEFAULT_SUBMISSION.md).
+
+## Validation evidence
+
+- Release:
+  https://github.com/abderlahmanalhnedi/hass-blitzerde/releases/tag/v1.4.0
+- HACS Action without ignores:
+  https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34336399056
+- Hassfest:
+  https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34336398998
+- Audited release workflow:
+  https://github.com/abderlahmanalhnedi/hass-blitzerde/actions/runs/34336399044
+
 ## Release automation
 
-The release workflow can be started manually or by merging a change to
-`.github/release-request.json`. The file contains only the requested semantic
-version, for example:
-
-```json
-{
-  "version": "1.4.0"
-}
-```
-
-Before creating a tag or GitHub Release, the workflow independently:
+The release workflow can be started manually or by changing
+`.github/release-request.json`. Before publishing it independently:
 
 1. confirms the normal HACS workflow contains no ignored checks;
-2. runs the full HACS Action again;
+2. runs full HACS validation again;
 3. verifies Issues, Topics and SPDX license metadata;
-4. verifies the manifest version and local brand assets;
+4. verifies manifest version and local brand assets;
 5. refuses duplicate tags/releases;
-6. runs the complete Home Assistant test suite.
-
-This makes a release-request PR a safe auditable trigger rather than requiring
-a manual Actions button.
+6. runs the complete Home Assistant test suite;
+7. packages the integration and creates the tag and GitHub Release.
 
 ## License provenance
 
 The repository preserves historical commits from the earlier Tim Niklas
-`hass-blitzerde` project. Inspected historical snapshots contained no explicit
-license file.
-
-The current tree has since been substantially reworked. A literal-overlap audit
-found only generic framework/language idioms, metadata and short functional
-expressions as exact matches in the current implementation; no non-trivial
-historical business-logic block was found verbatim.
-
-The root MIT license therefore applies from its introduction commit forward.
-It does not retroactively alter the status of historical commits.
-
-See:
+`hass-blitzerde` project. The current-tree licensing scope and provenance are
+documented in:
 
 - `LICENSE_SCOPE.md`
 - `docs/PROVENANCE_AUDIT.md`
 - `THIRD_PARTY_NOTICES.md`
 
-GitHub reports the repository license as `MIT` with SPDX ID `MIT`, and the
-HACS license validator has passed with the license check enabled.
+The root MIT license applies from its introduction commit forward and does not
+retroactively alter the status of historical commits.
 
 ## Brand assets
 
 The local icon is original neutral artwork created for this integration. It
-does not copy the Blitzer.de trademark/logo and does not use Home Assistant
-branding. This avoids implying endorsement by either project.
+does not reproduce the Blitzer.de corporate logo and does not use Home
+Assistant branding.
 
-Home Assistant 2026.3+ supports brand images directly inside a custom
-integration. The source of truth is the PNG pair in
-`custom_components/blitzerde/brand/`:
+The source of truth is:
 
-- `icon.png` — 256 × 256
-- `icon@2x.png` — 512 × 512
-
-## Release policy
-
-The release workflow must remain stricter than development CI:
-
-1. version in `manifest.json` matches the requested release;
-2. full test suite passes;
-3. HACS Default readiness has no ignored validation checks;
-4. only then create the tag, release and installable ZIP.
-
-A tag without a GitHub Release is not sufficient for the HACS Default
-submission gate.
+- `custom_components/blitzerde/brand/icon.png` — 256 × 256
+- `custom_components/blitzerde/brand/icon@2x.png` — 512 × 512
