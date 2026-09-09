@@ -49,8 +49,10 @@ class BlitzerdeHazardCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
         super().__init__(
             hass,
             _LOGGER,
-            config_entry=camera_coordinator.config_entry,
-            name=f"{DOMAIN}:{camera_coordinator.config_entry.entry_id}:hazards",
+            name=(
+                f"{DOMAIN}:"
+                f"{camera_coordinator.config_entry.entry_id}:hazards"
+            ),
             update_interval=None,
         )
         self.camera_coordinator = camera_coordinator
@@ -108,4 +110,6 @@ class BlitzerdeHazardCoordinator(DataUpdateCoordinator[list[dict[str, Any]]]):
             )
             return normalized[: self.count]
         except Exception as err:
-            raise UpdateFailed(f"Could not update traffic hazards: {err}") from err
+            raise UpdateFailed(
+                f"Could not update traffic hazards: {err}"
+            ) from err
