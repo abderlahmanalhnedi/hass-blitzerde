@@ -28,8 +28,7 @@ by a real GitHub Release.
 - [x] Root MIT license added without retroactively relicensing historical
   commits.
 - [x] GitHub detects the default-branch license as SPDX `MIT`.
-- [ ] HACS license validator passes without an ignore. This branch removes the
-  license ignore; mark complete after its CI run succeeds.
+- [x] HACS license validator passes without a license ignore.
 
 ### GitHub metadata
 
@@ -38,17 +37,36 @@ by a real GitHub Release.
   `home-assistant`, `homeassistant`, `hacs`, `custom-integration`,
   `traffic`, `speed-camera`, `germany`.
 
+These are the only HACS repository checks still ignored. They are repository
+administration settings rather than source-controlled files, and the currently
+connected GitHub tool does not expose a repository-settings mutation for them.
+
 ### Publication gate
 
-- [ ] Remove every HACS Action `ignore` entry.
+- [ ] Remove every HACS Action `ignore` entry after Issues and Topics are enabled.
 - [ ] HACS Action passes with no errors and no ignored checks.
-- [ ] Hassfest passes for the same commit.
-- [ ] All project CI is green.
-- [ ] Create a full semantic-versioned GitHub Release after those checks pass.
+- [x] Hassfest currently passes on `main`.
+- [x] Current project CI passes on `main`.
+- [ ] Create a full semantic-versioned GitHub Release after the no-ignore HACS
+  check passes.
 - [ ] Verify a clean HACS installation/update from that release.
 - [ ] Submit the repository to `hacs/default`.
 - [ ] After acceptance, change README installation wording/badge from custom
   repository to HACS Default.
+
+## Remaining repository-admin actions
+
+1. Enable **Issues** for `abderlahmanalhnedi/hass-blitzerde`.
+2. Add the repository topics listed above.
+3. Remove `ignore: "topics issues"` from
+   `.github/workflows/action.yaml`.
+4. Require the resulting HACS Action to pass without ignores.
+5. Run the release workflow for the manifest version and verify the generated
+   GitHub Release/ZIP.
+6. Submit the repository to `hacs/default`.
+
+Steps 3–6 are source/release operations and can be completed autonomously once
+steps 1–2 are present in GitHub repository metadata.
 
 ## License provenance
 
@@ -70,10 +88,8 @@ See:
 - `docs/PROVENANCE_AUDIT.md`
 - `THIRD_PARTY_NOTICES.md`
 
-GitHub currently reports the repository license as `MIT` with SPDX ID
-`MIT`. The HACS workflow now ignores only the two repository-admin checks
-that cannot be changed through the available repository connector:
-`topics` and `issues`.
+GitHub reports the repository license as `MIT` with SPDX ID `MIT`, and the
+HACS license validator has passed with the license check enabled.
 
 ## Brand assets
 
