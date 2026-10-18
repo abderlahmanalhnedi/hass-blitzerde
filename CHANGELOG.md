@@ -4,6 +4,15 @@ All notable user-facing changes are documented here.
 
 ## Unreleased
 
+## 1.4.4 — 2026-10-18
+
+### Fixed
+
+- Migrate camera and traffic-hazard requests from the timed-out legacy `cdn2.atudo.net` backend to the current `www.blitzer.de/karte/api/markers` map endpoint.
+- Treat successful responses containing `"pois": null` as an empty result instead of a failed update; missing or malformed marker data still raises an error.
+- Add regression coverage for the new API URL, query parameters, empty responses and invalid payloads.
+
+
 ## 1.4.3 — 2026-09-09
 
 ### Fixed
