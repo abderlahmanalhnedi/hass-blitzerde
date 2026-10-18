@@ -6,7 +6,7 @@ from typing import Final
 
 DOMAIN: Final = "blitzerde"
 
-API_URL: Final = "https://cdn2.atudo.net/api/4.0/pois.php"
+API_URL: Final = "https://www.blitzer.de/karte/api/markers"
 API_TIMEOUT_SECONDS: Final = 15
 UPSTREAM_REPAIR_FAILURE_THRESHOLD: Final = 5
 REPAIR_UPSTREAM_UNAVAILABLE: Final = "upstream_unavailable"
