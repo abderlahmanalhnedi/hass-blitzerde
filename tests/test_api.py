@@ -124,6 +124,54 @@ async def test_http_error_is_mapped() -> None:
         await api._request_json(params={"type": "0"})
 
 
+@pytest.mark.parametrize("body", ['{"pois": null}', '{"grid": [], "message": "", "pois": null}'])
+async def test_new_map_endpoint_accepts_null_pois_as_empty(body: str) -> None:
+    """The rebuilt map returns null for a successful query with no markers."""
+    from custom_components.blitzerde.const import API_URL
+
+    session = FakeSession(FakeResponse(body=body))
+    api = BlitzerdeAPI(session)  # type: ignore[arg-type]
+
+    pois = await api._request_pois(
+        low_lat=51.04,
+        low_lng=13.72,
+        high_lat=51.06,
+        high_lng=13.75,
+        types=[0, "ts"],
+    )
+
+    assert pois == []
+    assert api.connected is True
+    assert session.calls == [
+        (
+            API_URL,
+            {
+                "type": "0,ts",
+                "box": "51.0400000,13.7200000,51.0600000,13.7500000",
+                "z": "18",
+            },
+        )
+    ]
+    assert API_URL == "https://www.blitzer.de/karte/api/markers"
+
+
+@pytest.mark.parametrize("body", ['{"grid": []}', '{"pois": false}', '{"pois": {}}'])
+async def test_new_map_endpoint_rejects_missing_or_invalid_pois(body: str) -> None:
+    """Do not silently treat malformed upstream payloads as no cameras."""
+    api = BlitzerdeAPI(  # type: ignore[arg-type]
+        FakeSession(FakeResponse(body=body))
+    )
+
+    with pytest.raises(APIConnectionError, match="POI list"):
+        await api._request_pois(
+            low_lat=51.0,
+            low_lng=13.0,
+            high_lat=52.0,
+            high_lng=14.0,
+            types=[0],
+        )
+
+
 async def test_request_pois_requires_list() -> None:
     """The POI endpoint must return a list under the pois key."""
     api = BlitzerdeAPI(  # type: ignore[arg-type]

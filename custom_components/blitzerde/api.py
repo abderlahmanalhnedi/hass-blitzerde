@@ -1,4 +1,4 @@
-"""Async API client for the unofficial Blitzer.de/atudo map endpoint."""
+"""Async API client for the unofficial Blitzer.de map marker endpoint."""
 
 from __future__ import annotations
 
@@ -92,7 +92,11 @@ class BlitzerdeAPI:
             "z": "18",
         }
         response_data = await self._request_json(params=params)
+        # The current Blitzer.de map API returns "pois": null for an empty box.
+        # Missing/invalid fields are still errors, not successful empty updates.
         pois = response_data.get("pois")
+        if "pois" in response_data and pois is None:
+            pois = []
         if not isinstance(pois, list):
             raise APIConnectionError(
                 "The upstream response does not contain a POI list."
